@@ -1,0 +1,34 @@
+\chapter{Related Work}
+
+\section{Distributed Batch Systems}
+
+Should be very similar to masters
+
+Talk about:
+\begin{itemize}
+\item HTCondor
+\item OSGMM
+\item PBS, SGE, SLURM
+\item GlideinWMS
+\end{itemize}
+
+\section{Distributed Storage Access}
+
+Distributed file systems have long had their own storage access methods.  An example of this is Hadoop \cite{TODO}, a popular distributed file and processing system.  The only method to access Hadoop storage is through the Hadoop protocol.  On the grid, access to storage is through file system independent middleware such as SRM and NeST. 
+
+Another access method is SRM.  It is a standard protocol
+
+
+NeST \cite{bent2002flexibility} is a software-only grid aware storage service.  It supports multiple transfer protocols into a storage device, including GridFTP \cite{allcock2005globus} and NFS \cite{walsh1985overview}.  Further, it provides features such as resource discovery, storage guarantees, quality of service, and user authentication.  It is layered over a distributed filesystem to provide access to it.
+
+The software functions as the interface into a storage device.  Features such as the storage guarantees and quality of service require NeST to be the only interface into the storage device, a very rare feature in today's grid storage.  Today's storage elements, such as the 3PB storage at Nebraska, include multiple interfaces to access the storage element.  Nebraska runs at least 4 \cite{attebury2009hadoop} methods of accessing and modifying storage, SRM \cite{shoshani2002storage}, GridFTP, XrootD \cite{dorigo2005xrootd}, and Fuse \cite{szeredi2010fuse} mounted Hadoop.  All of these methods are required for compatibility with different access patterns and clients.  NeST could implement each of these protocols, but it would be extremely difficult to manage the storage centrally.  For example, Fuse is mounted on all 300 worker nodes.  The GridFTP and XrootD servers run on 10's of servers, with an aggregate bandwidth of 10Gbps.  Scaling quality of service and storage allocation / enforcement across all of these resources would likely prove impossible.
+
+
+
+\section{Storage Advertisement}
+
+
+
+
+
+

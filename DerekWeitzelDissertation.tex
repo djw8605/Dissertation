@@ -1,0 +1,123 @@
+%%
+%% This is file `skeleton.tex',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% nuthesis.dtx  (with options: `skeleton')
+%% 
+
+%%
+%% For common degrees, you can use the class options:
+%% phd, edd, ms, ma
+%% phd is the default
+\documentclass[print]{nuthesis}
+\begin{document}
+%% Start formatting the first few special pages
+%% frontmatter is needed to set the page numbering correctly
+\frontmatter
+
+\title{Enabling Distributed Scientific Computing on the Campus}
+\author{Derek Weitzel}
+\adviser{Dr. David Swanson}
+\adviserAbstract{Someone}
+\major{Computer Science}
+\degreemonth{May}
+\degreeyear{2014}
+%%
+%% For most people the defaults will be correct, so they are commented
+%% out. To manually set these, just uncomment and make the needed
+%% changes.
+%% \college{Your college}
+%% \city{Your City}
+%%
+%% For most people the following can be changed with a class
+%% option. To manually set these, just uncomment the following and
+%% make the needed changes.
+%% \doctype{Thesis or Dissertation}
+%% \degree{Your degree}
+%% \degreeabbreviation{Your degree abbr.}
+%%
+%% Now that we know everything we need, we can generate the title page
+%% itself.
+%%
+\maketitle
+%%
+%% You have a maximum of 350 words for your abstract, which includes
+%% your title, name, etc.
+%%
+%% Required
+\begin{abstract}
+
+\end{abstract}
+
+%% Optional
+%% \begin{copyrightpage}
+%% \end{copyrightpage}
+
+%% Optional
+%% \begin{dedication}
+%% \end{dedication}
+
+%% Optional
+%% \begin{acknowledgments}
+%% \end{acknowledgments}
+
+%% Optional
+%% \begin{grantinfo}
+%% \end{grantinfo}
+%% The ToC is required
+%% Uncomment these if need be
+
+%% The ToC is required
+\tableofcontents
+%% Uncomment these if need be
+\listoffigures
+\listoftables
+%%
+%% ``Real'' beginning of the document.
+%% mainmatter is needed to set the page numbering correctly
+%%   mainmatter is needed after the ToC, (LoF, and LoT) to set the
+%%   page numbering correctly for the main body
+\mainmatter
+
+%% Thesis goes here
+
+\input{Introduction.tex}
+
+
+
+\input{Background.tex}
+
+\chapter{Campus Job Distribtuion}
+In this chapter I will discuss Bosco.
+
+\chapter{Campus Storage Access}
+In this chapter I will discuss
+\input{CampusStorage.tex}
+
+\chapter{Coordinating Campus Storage and Computation}
+
+
+
+%% backmatter is needed at the end of the main body of your thesis to
+%% set up page numbering correctly for the remainder of the thesis
+\backmatter
+
+%% Start the correct formatting for the appendices
+\appendix
+
+%% Appendices go here (if you have them)
+
+%% Bibliography goes here (You better have one)
+%% BibTeX is your friend
+
+\bibliographystyle{plain}
+\bibliography{DerekWeitzelDissertation}
+
+%% Index go here (if you have one)
+\end{document}
+
+\endinput
+%%
+%% End of file `skeleton.tex'.

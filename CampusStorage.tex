@@ -1,0 +1,63 @@
+\section{Introduction}
+
+Distributed computing has evolved to include many federated compute elements across geographically and administrative boundaries.  The ability to access and use federated storage has lagged behind the ability to access the compute capabilities of the resources.  In order to access the storage, the storage first needs to be accurately described to meet the needs of the application.  Further, in order to optimize data movement, the data movement should be negotiated between the storage element and the target.  The negotiated data movement device will allow the storage (or an agent on the behalf of the storage) to determine it’s preferred transfer methods, and to match that method with the target device, allowing each to express preferences and requirements.  In order to provide an additional option for distributed storage and data movement, a transfer method is introduced that is designed to run on federated resources by using peer to peer connections and data transfers.  
+
+
+\section{Measuring Storage}
+In order to provide matchmaking for resources, the resources need to be accurately described and advertised.  This will require measuring the storage capabilities and capacity of the resources and advertising those attributes to the matchmaking service.
+
+The measurements would be performed on the execution target as well as against the storage targets.  The execution targets would measure the storage capabilities in order to determine if the jobs can run.  The storage targets would be measured in order to determine the number of jobs that could be run against a the target.
+
+
+\subsection{Ranking Storage}
+In order to find the most ideal resource for a job, the resources need to be ranked.  The simplest is a greedy approach where the resources are simply ranked by their benchmark speeds.  Additionally, they should only be ranked on the attributes requested by the job, IE, if the job is only requesting X iops, then only rank resources on the IOPS available.
+
+It is not clear how the ranking should work.  If we assume that the user accurately describes their application’s needs, then we can pack the jobs onto resources by placing the job on the resource that meets the IOPS requirements, but has the least amount of IOPS remaining.  This will be an area of research to compare scheduling techniques on execution resources when considering their storage capabilities.
+
+
+\section{Data Movement}
+We will consider 3 different types of data.  The input data, output data, and the job sandbox.  The job sandbox is the environment from which the job will run.  The sandbox is important since the user designs their job to run in this sandbox, and it must be maintained in order for the job to run.  Also, the sandbox is usually identical for many executions of the program.
+
+After finding a resource to run on, the job sandbox and input data must be transferred to the remote host.  In order to do this, the remote execution host and the submitter must negotiate how to get the data there.  For example, does the remote host have access to the same NFS server?  Can it mount it?
+Description for these items
+Logically, we can separate these items into 2 categories
+\begin{itemize}
+\item Requirements for the application
+\item Acceptable methods of data movement
+\end{itemize}
+
+The users must specify these items in the description of their jobs.  The exact language used for these specifications is yet to be determined.  
+
+The language for the requirements will be similar to the current specifications for memory and cpu.  The user will request a certain amount of storage parameters, and machines will need to provide these metrics just as they do now with cpu and memory.
+
+The acceptable methods for data movement can either be specified by the user, or by the submitting system.  The system can stage the data to a third party, which will then be used for the transfer.  This can be especially useful if multiple jobs use the same input data, a useful example of this is HCC’s use of LVS to server common files on the OSG.  The server could automatically choose to use HTTP to transfer the files, especially since there are many common files, and the files would be cached on the remote sites using normal HTTP proxy caches.
+
+Another possible scenario is when starting a job on Amazon EC2.  If it is a virtual machine job, then input data could be created as a CD drive, or a block device, and input into the machine using the block device as input storage.
+
+\section{Policy language for matchmaking storage}
+The goal is to enable the user to describe their application to the scheduler in such a way that the scheduler can make intelligent decisions on:
+If the application can run on the pool
+Where is the ideal location for the job to run
+How to get the data to and from the application
+
+
+\section{Defining Storage Target}
+In this paper, we define storage based on it’s capabilities:
+\begin{itemize}
+\item The total space available for an application or set of applications to store data.
+\item The bandwidth available to the storage target.
+\item The IOPS available to to read / write to the storage (more applicable to local storage).
+\item Access Protocol
+\end{itemize}
+
+Therefore, when mentioning storage, we must specify all of these attributes.
+
+
+
+
+
+
+\section{Another Method for Data Transfer}
+In addition to the above methods for transferring data to remote worker nodes, and specifying storage parameters, we can also provide another method for getting data to worker nodes that will better fit the current state of clusters and cyberinfrastructure.  The proposed methods is a dynamic deployment of a storage federation.  This can be done across a single cluster, across many clusters, or over an entire national infrastructure such as the OSG.
+
+This new method for data transfer relies on peer to peer transfers.  Data is transferred from it’s peer rather than from a single host.  As with all peer to peer systems, the benefits from this method include decreasing the required bandwidth from any single source.  As well as lower latency transfers.
