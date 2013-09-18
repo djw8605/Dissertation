@@ -16,10 +16,20 @@ It is not clear how the ranking should work.  If we assume that the user accurat
 
 
 \section{Data Movement}
-We will consider 3 different types of data.  The input data, output data, and the job sandbox.  The job sandbox is the environment from which the job will run.  The sandbox is important since the user designs their job to run in this sandbox, and it must be maintained in order for the job to run.  Also, the sandbox is usually identical for many executions of the program.
+We will consider 3 different types of data.  The input data, output data, and the job sandbox.  The job sandbox is the environment from which the job will run.  The sandbox is important since the user designs their job to run in this sandbox, and it must be maintained in order for the job to run.  Also, the sandbox is shared input data that multiple execution of the job can utilize.
+
+The sandbox is a set of files that must be present when the job begins execution.  For example:
+\begin{itemize}
+\item The executable that the job will run.
+\item Libraries necessary for the executable to properly function.
+\item Shared input files such as parameter files or calibration data.
+\end{itemize}
+
+The sandbox is different from input data as the input data could be unique per job.  Shared data between many execution can benefit from caching, where unique input data cannot benefit from caching.
 
 After finding a resource to run on, the job sandbox and input data must be transferred to the remote host.  In order to do this, the remote execution host and the submitter must negotiate how to get the data there.  For example, does the remote host have access to the same NFS server?  Can it mount it?
-Description for these items
+
+\section{Description for these items}
 Logically, we can separate these items into 2 categories
 \begin{itemize}
 \item Requirements for the application
@@ -36,9 +46,13 @@ Another possible scenario is when starting a job on Amazon EC2.  If it is a virt
 
 \section{Policy language for matchmaking storage}
 The goal is to enable the user to describe their application to the scheduler in such a way that the scheduler can make intelligent decisions on:
-If the application can run on the pool
-Where is the ideal location for the job to run
-How to get the data to and from the application
+\begin{itemize}
+\item If the application can run on the pool
+\item Where is the ideal location for the job to run
+\item How to get the data to and from the application
+\end{itemize}
+
+An example policy language for a job is:
 
 
 \section{Defining Storage Target}
