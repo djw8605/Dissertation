@@ -25,7 +25,28 @@ The sandbox is a set of files that must be present when the job begins execution
 \item Shared input files such as parameter files or calibration data.
 \end{itemize}
 
-The sandbox is different from input data as the input data could be unique per job.  Shared data between many execution can benefit from caching, where unique input data cannot benefit from caching.
+The sandbox is different from input data as the input data could be unique per job.  Shared data between many executions can benefit from caching, where unique input data cannot benefit from caching.
+
+Data for each job can be categorized as either shared, unique, or private shared, and private unique.
+
+\subsection{Categorizing Data}
+% Describe shared data
+Shared data is used by multiple jobs.  In many cases, the job sandbox can be considered shared data.  Examples of shared data are:
+\begin{itemize}
+\item Input databases which will be queried by each job.  The queries may be unique per job, but the database job.  An example of this is BLAST \cite{altschul1990basic}.
+\item 
+\item Job executables and libraries.  Frequently the job executables are the same for a large number of jobs.  The arguments to the executables contextualize the jobs.
+
+\end{itemize}
+
+% May go into 
+Many optimizations may be done to transfer shared data.  For example, people have used caching \cite{blumenfeld2008cms} the shared data per site.  Others have experimented using group transfer protocols such as bittorrent to distributed the shared data \cite{wei2005collaborative}.
+
+% unique data
+Data which is unique for each job is 
+
+
+% private versions of shared and unique
 
 After finding a resource to run on, the job sandbox and input data must be transferred to the remote host.  In order to do this, the remote execution host and the submitter must negotiate how to get the data there.  For example, does the remote host have access to the same NFS server?  Can it mount it?
 
