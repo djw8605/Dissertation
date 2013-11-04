@@ -31,19 +31,22 @@ Data for each job can be categorized as either shared, unique, or private shared
 
 \subsection{Categorizing Data}
 % Describe shared data
-Shared data is used by multiple jobs.  In many cases, the job sandbox can be considered shared data.  Examples of shared data are:
-\begin{itemize}
-\item Input databases which will be queried by each job.  The queries may be unique per job, but the database job.  An example of this is BLAST \cite{altschul1990basic}.
-\item 
-\item Job executables and libraries.  Frequently the job executables are the same for a large number of jobs.  The arguments to the executables contextualize the jobs.
+In order to better describe how data should be moved, we must categorize the data as shared or unique, private or non-private.  This creates a 2x2 matrix of possibilities of data.  Below, we define each of these categorizations.  Each of these categories comes with it's own restrictions on how the data may be moved, and how it is presented to the user.
 
+Shared data is data which is the same for multiple jobs in a job set.   In many cases, the majority of the files in the job sandbox can be considered shared data.  One example of shared data are job executables and libraries.  
+
+Frequently the job executables are the same for a large number of jobs.  Since the executables are the same, contextualization of the job is done through other methods, such as arguments or parameter files.  An example application that would use the same executables and libraries are Monte Carlo \cite{binder2010monte} simulations.  In these applications, they executables are the same for every job, each job is given a unique identifier which is used for the starting condition for the random generation.
+
+Experimental data could also be shared between multiple jobs in a job set.  
+
+\item Experimental data such as input databases which will be queried by each job.  The queries may be unique per job, but the database job.  An example of this is BLAST \cite{altschul1990basic}.
 \end{itemize}
 
-% May go into 
-Many optimizations may be done to transfer shared data.  For example, people have used caching \cite{blumenfeld2008cms} the shared data per site.  Others have experimented using group transfer protocols such as bittorrent to distributed the shared data \cite{wei2005collaborative}.
+% May go into introduction
+Many optimizations may be done to transfer shared data.  For example, people have used caching \cite{blumenfeld2008cms} the shared data per site.  Others have experimented using group transfer protocols such as Bittorrent \cite{cohen2008bittorrent} to distributed the shared data \cite{wei2005collaborative}.
 
 % unique data
-Data which is unique for each job is 
+Data which is different for each job is called unique data.  The unique data may be 
 
 
 % private versions of shared and unique
