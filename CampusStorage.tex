@@ -37,10 +37,11 @@ Shared data is data which is the same for multiple jobs in a job set.   In many 
 
 Frequently the job executables are the same for a large number of jobs.  Since the executables are the same, contextualization of the job is done through other methods, such as arguments or parameter files.  An example application that would use the same executables and libraries are Monte Carlo \cite{binder2010monte} simulations.  In these applications, they executables are the same for every job, each job is given a unique identifier which is used for the starting condition for the random generation.
 
+%TODO
 Experimental data could also be shared between multiple jobs in a job set.  
 
-\item Experimental data such as input databases which will be queried by each job.  The queries may be unique per job, but the database job.  An example of this is BLAST \cite{altschul1990basic}.
-\end{itemize}
+ Experimental data such as input databases which will be queried by each job.  The queries may be unique per job, but the database job.  An example of this is BLAST \cite{altschul1990basic}.
+
 
 % May go into introduction
 Many optimizations may be done to transfer shared data.  For example, people have used caching \cite{blumenfeld2008cms} the shared data per site.  Others have experimented using group transfer protocols such as Bittorrent \cite{cohen2008bittorrent} to distributed the shared data \cite{wei2005collaborative}.
