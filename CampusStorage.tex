@@ -37,20 +37,20 @@ Shared data is data which is the same for multiple jobs in a job set.   In many 
 
 Frequently the job executables are the same for a large number of jobs.  Since the executables are the same, contextualization of the job is done through other methods, such as arguments or parameter files.  An example application that would use the same executables and libraries are Monte Carlo \cite{binder2010monte} simulations.  In these applications, they executables are the same for every job, each job is given a unique identifier which is used for the starting condition for the random generation.
 
-%TODO
 Experimental data could also be shared between multiple jobs in a job set.  This can include common input data such as databases or condition data.  For example, BLAST \cite{altschul1990basic} jobs require a database of sequences of proteins which are then matched with specific queries.  The database is typically the same for a large number of queries.  
-
- Experimental data such as input databases which will be queried by each job.  The queries may be unique per job, but the database job.  An example of this is 
-
 
 % May go into introduction
 Many optimizations may be done to transfer shared data.  For example, people have used caching \cite{blumenfeld2008cms} the shared data per site.  Others have experimented using group transfer protocols such as Bittorrent \cite{cohen2008bittorrent} to distributed the shared data \cite{wei2005collaborative}.
 
 % unique data
-Data which is different for each job is called unique data.  The unique data may be 
+Data which is different for each job we define as unique data.  The unique data may be small things such as parameter files.
 
 
 % private versions of shared and unique
+We define private data as data which is the user wants to prevent others from viewing.  The level of privacy requested by a user could determine how it can be enforced.  It could be enforced through authenticated access, encrypted data transfers, or both.  In most cases, authenticated data access is sufficient.
+
+Private versions of shared and unique data 
+
 
 After finding a resource to run on, the job sandbox and input data must be transferred to the remote host.  In order to do this, the remote execution host and the submitter must negotiate how to get the data there.  For example, does the remote host have access to the same NFS server?  Can it mount it?
 
