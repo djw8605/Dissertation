@@ -47,11 +47,10 @@ Data which is different for each job we define as unique data.  The unique data 
 
 In addition to unique and shared data, there is unique shared data.  This is data which is not the same for every job in a job set, but is shared between jobs in a subset of the jobs.  For our consideration, we will will deem this shared data.
 
-
 % private versions of shared and unique
 We define private data as data which is the user wants to prevent others from viewing.  The level of privacy requested by a user could determine how it can be enforced.  It could be enforced through authenticated access, encrypted data transfers, or both.  In most cases, authenticated data access is sufficient.
 
-Private versions of shared and unique data 
+Private versions of shared and unique data cannot use the same optimization as public data.  For example, the data could not be transferred using a caching daemon if authenticated access is required.   Transferring data unauthenticated, even encrypted, is dangerous due to susceptibility to brute force.
 
 
 After finding a resource to run on, the job sandbox and input data must be transferred to the remote host.  In order to do this, the remote execution host and the submitter must negotiate how to get the data there.  For example, does the remote host have access to the same NFS server?  Can it mount it?
