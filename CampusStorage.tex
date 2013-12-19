@@ -78,7 +78,24 @@ The goal is to enable the user to describe their application to the scheduler in
 \item How to get the data to and from the application
 \end{itemize}
 
-An example policy language for a job is:
+% An example policy language for a job is:
+
+\section{User Scenario}
+
+A user creates their submit file and specifies their data.  The above policies will can be matched to syntax in the submit file.  In this case I use the syntax:
+
+\begin{lstlisting}
+{shared|unique}_{public|private}_input = <file1>,<file2>,...
+\end{lstlisting}
+
+\begin{lstlisting}[frame=single]
+shared_public_input = blast_database.fasta
+unique_private_input = queries
+\end{lstlisting}
+
+The blast database is public, so there is no need to encrypt or authenticate access to the database.  Further, the database is shared between all executions of the job. The \texttt{queries} are private and therefore they need to be authenticated in order to access the data.  
+
+When the job begins, it will be guaranteed to have the files \texttt{blast\_database.fasta} and \texttt{queries} available to it.  The job framework will decide on the method of transfer and transient storage based on the user specified syntax, the worker node, and the submit node.
 
 
 \section{Defining Storage Target}
