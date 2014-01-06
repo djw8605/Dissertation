@@ -82,16 +82,25 @@ The goal is to enable the user to describe their application to the scheduler in
 
 \section{User Scenario}
 
-A user creates their submit file and specifies their data.  The above policies will can be matched to syntax in the submit file.  In this case I use the syntax:
+A user creates their submit file and specifies their data.  The above policies will can be matched to syntax in the submit file.  The syntax is shown in Listing \ref{lst:inputsyntax}.  An example BLAST syntax is shown in Listing \ref{lst:blastsyntax}.  
 
-\begin{lstlisting}
+\begin{figure}
+\centering
+\begin{lstlisting}[frame=single,caption={Input Syntax},captionpos=b,label={lst:inputsyntax}] 
 {shared|unique}_{public|private}_input = <file1>,<file2>,...
 \end{lstlisting}
+\end{figure}
 
-\begin{lstlisting}[frame=single]
+
+
+\begin{figure}
+\centering
+\begin{lstlisting}[frame=single,caption={Blast input syntax},captionpos=b,label={lst:blastsyntax}]
 shared_public_input = blast_database.fasta
 unique_private_input = queries
 \end{lstlisting}
+\end{figure}
+
 
 The blast database is public, so there is no need to encrypt or authenticate access to the database.  Further, the database is shared between all executions of the job. The \texttt{queries} are private and therefore they need to be authenticated in order to access the data.  
 
