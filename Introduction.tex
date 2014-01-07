@@ -2,7 +2,14 @@
 
 \section{Campus Batch Computing}
 
-Most major research campuses, whether a university campus, or a national lab campus, have a research computing resource.  The computing resources are broken into two cat
+Most major research campuses, whether a university campus, or a national lab campus, have a research computing resource.  The computing resources are broken into two categories:
+
+\begin{itemize}
+
+\item Condominium - Resources are purchased by research groups for their dedicated use.  They are added to a cluster that may share infrastructure such as a filesystem or an interconnect.
+\item Shared resources -  Resources are purchased by a central authority that are shared between multiple research groups.
+
+\end{itemize}
 
 
 
@@ -10,7 +17,7 @@ Most major research campuses, whether a university campus, or a national lab cam
 
 As the users spread their computation across multiple clusters either on the campus, or across campus's, data distribution and collection becomes more difficult.  Before using the campus grid, a user would select a cluster which will do their processing.  The user then could host all of their data on that cluster by coping the data onto the cluster's shared filesystem.  The jobs could access the data from the distributed filesystem just as it would on the user's desktop, available from all executions at the same directory.
 
-These assumptions do not hold for a campus grid.  A grid is made up of multiple computational clusters, with potentially many separate file systems.    
+These assumptions do not hold for a campus grid.  A grid is made up of multiple computational clusters, with potentially many separate file systems.  There is no single filesystem that a user can access from every computational resource.  Therefore, the data must be handled differently than when on a shared filesystem.  
 
 
 \section{Overview of Dissertation}
@@ -20,3 +27,6 @@ This dissertation is broken down into
 
 
 \section{A Note on Terms}
+
+In this dissertation 
+
