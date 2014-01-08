@@ -19,7 +19,9 @@ As the users spread their computation across multiple clusters either on the cam
 
 These assumptions do not hold for a campus grid.  A grid is made up of multiple computational clusters, with potentially many separate file systems.  There is no single filesystem that a user can access from every computational resource.  Therefore, the data must be handled differently than when on a shared filesystem.  
 
-The data must flow from the data source to the computational resource in an efficient manner.  For this reason, it is necessary extract information about the data from the user, such as if it is shared between many jobs, or unique to each and every job.  Further, some data needs to be protected, therefore we must learn if the data is private or public.
+The data must flow from the data source to the computational resource in an efficient manner.  For this reason, it is necessary extract information about the data from the user, such as if it is shared between many jobs, or unique to each and every job.  Further, some data needs to be protected, therefore we must learn if the data is private or public.  Different transfer methods are necessary for different data types.  For example, if the data is shared between many executions, then it may be cached or can be group transferred.  
+
+Some of these job attributes can be extracted from the job submission files.  Input files that are shared between multiple executions can be categorized as shared.  
 
 
 \section{Overview of Dissertation}
