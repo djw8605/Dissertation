@@ -9,19 +9,24 @@ Most major research campuses, whether a university campus, or a national lab cam
 \item Condominium - Resources are purchased by research groups for their dedicated use.  They are added to a cluster that may share infrastructure such as a filesystem or an interconnect.
 \item Shared resources -  Resources are purchased by a central authority that are shared between multiple research groups.
 
+TODO: Insert lots from masters thesis introduction.
+
 \end{itemize}
 
 
 
 \section{Data Transfers on Campus}
 
+Data has become a limiting factor for scientific computing.  For batch computing, the issue is usually getting the data to the execution.  
+
 As the users spread their computation across multiple clusters either on the campus, or across campus's, data distribution and collection becomes more difficult.  Before using the campus grid, a user would select a cluster which will do their processing.  The user then could host all of their data on that cluster by coping the data onto the cluster's shared filesystem.  The jobs could access the data from the distributed filesystem just as it would on the user's desktop, available from all executions at the same directory.
+
 
 These assumptions do not hold for a campus grid.  A grid is made up of multiple computational clusters, with potentially many separate file systems.  There is no single filesystem that a user can access from every computational resource.  Therefore, the data must be handled differently than when on a shared filesystem.  
 
 The data must flow from the data source to the computational resource in an efficient manner.  For this reason, it is necessary extract information about the data from the user, such as if it is shared between many jobs, or unique to each and every job.  Further, some data needs to be protected, therefore we must learn if the data is private or public.  Different transfer methods are necessary for different data types.  For example, if the data is shared between many executions, then it may be cached or can be group transferred.  
 
-Some of these job attributes can be extracted from the job submission files.  Input files that are shared between multiple executions can be categorized as shared.  
+Some of these job attributes can be extracted from the job submission files without explicit instructions.  Input files that are shared between multiple executions can be categorized as shared.
 
 
 \section{Overview of Dissertation}
@@ -30,7 +35,7 @@ This dissertation is broken down into multiple chapters.  In Chapter \ref{chapte
 
 In Chapter \ref{chapter:campusjobs} we will discuss how computing can be managed on the campus using the Bosco manager.  This chapter expands on my masters thesis.
 
-The
+Chapter \ref{chapter:campusdata} discusses methods for describing and moving data on the campus.  
 
 
 
