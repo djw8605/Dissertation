@@ -32,6 +32,10 @@ TODO: discuss XROOTD
 
 Kangaroo \cite{thain2001kangaroo} is a multi-level file access system.  It allows for multiple levels of staging in order to send job output back to a storage device.  It can do this by asynchronously staging data through multiple storage devices on it's path to the destination filesystem.  The Kangaroo system only addresses output data.
 
+\section{Data Transfer Mechanisms}
+
+Bittorrent has been used for data transfer in computational grids by Wei et. al \cite{wei2005collaborative, wei2005scheduling, wei2007towards}.  It has been shown to be optimal when compared to traditional source and sink transfer methods, in this case FTP \cite{postel1985file}, which is very similar in architecture as GridFTP, a grid enabled FTP protocol.  The researchers did not compare performance of the bittorrent protocol when compared to modern grid transfer techniques, such as using HTTP local caching.  Further, the authors do not test bittorrent on across network partitions that are common on the grid.  For example, a worker node from one cluster may not be able to communicate directly with another cluster.  Therefore, bittorrent may not work between cluster, but will work inside clusters.
+
 \section{Storage Advertisement}
 
 \begin{itemize}
