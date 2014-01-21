@@ -5,10 +5,46 @@
 
 As it has been shown in the previous chapters, computation and storage are intrinsically linked.  Further, it is necessary for the computation to communicate it's requirements and preferences to the storage.  In order to meet these demands, I have designed a new file transfer service that can be used to coordinate storage with the computation.  The new storage system, (insert name), is  
 
+As has been described in the previous chapters, large inputs into a pipeline are becoming more common.  Unfortunately, on the Grid there is no solution to many of these use cases.  The typical use case that we see on the Grid is:
+
+\begin{itemize}
+
+\item User has a set of jobs, for example 1000
+\item There are 200 machines available.
+\item Each job has a large amount of shared input files.
+
+\end{itemize}
+
+Since each machine will run multiple of the jobs, by default, all batch systems will transfer the large input file for each job.  Our goal is to minimize the number of times the input data is transferred from the submit host to the execution target.  As it was described in the previous chapters, a shared filesystem is frequently not available when submitting to multiple campus clusters.
+
+When transferring files in a distributed framework, network bandwidth can be a limiting factor. 
+
+
 \section{Requirements}
+
+The requirements of the caching are:
+\begin{itemize}
+\item Minimize the number of times the input files are transferred.
+\item Coordinate transfers with job submissions.
+\item Provide a intuitive user interface for ease of use.
+\item Each cached item must have a lease and an expiration to enable the deletion of items.
+\end{itemize}
 
 \section{Design}
 
+The caching daemon will run on both the submit and execute hosts.  A user will copy files into the cache and will assign it a lease with a explicit expiration time.  The user will provide a replication policy expression that will be used to determine which execution hosts to replicate the files.
+
+The caching daemon that is running on the submit host will manage the user's cache.  The user will communicate with the caching daemon in order to copy files into the cache and to assign attributes to the cache, including expiration time and replication policy.  After the expiration time, the daemon can choose to delete the files in the cache.  
+
+The policy expression language is the modeled after the matchmaking language in the Condor system \cite{raman1998matchmaking}.  The caching daemon is matchmaking the cache contents to a set of resources, therefore it is natural to use Condor's matchmaking language that is used to match jobs to resources.  Once a resource is determined to match the caching contents policy expression, the caching daemon will contact the resource's caching daemon in order to initiate a cache replication.  The caching daemon on the remote resource is an independent agent that has the ability deny a caching replication.  Reasons to deny a caching replication request could be:
+
+\begin{itemize}
+\item The resource does not have the space to accommodate the cache.
+\item The resource may not have the necessary bandwidth available in order to transfer the cache files.
+\item The resource does not expect to be able to run the user's jobs and has determined that replicating the cached files will not be used.
+\end{itemize}
+
+In addition to traditional source and sink transfers, the caching daemon will employ a group transfer method modeled after the bittorrent \cite{cohen2008bittorrent} transfer mechanisms.
 
 \subsection{User Experience}
 
