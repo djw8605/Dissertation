@@ -44,11 +44,15 @@ The policy expression language is the modeled after the matchmaking language in 
 \item The resource does not expect to be able to run the user's jobs and has determined that replicating the cached files will not be used.
 \end{itemize}
 
-In addition to traditional source and sink transfers, the caching daemon will employ a group transfer method modeled after the bittorrent \cite{cohen2008bittorrent} transfer mechanisms.
+In addition to traditional source and sink transfers, the caching daemon will employ a group transfer method modeled after the bittorrent \cite{cohen2008bittorrent} transfer mechanisms.  It will utilize the shared transfer techniques of Bittorrent in order to minimize the bandwidth between the execution resource and the submit host.  The execution host will download data not only from the submit host, but also from other nearby execution hosts.  Most resources will be on network partitions, therefore communication between clusters will likely be impossible.  Communication within the cluster is traditionally optimized, therefore execution resources talking with one another will efficient.
 
 \subsection{User Experience}
 
 \section{Usage}
+
+\section{Tests}
+
+\subseciton{Expected Results}
 
 
 \section{Conclusion}
