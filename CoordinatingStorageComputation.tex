@@ -52,8 +52,21 @@ In addition to traditional source and sink transfers, the caching daemon will em
 
 \section{Tests}
 
-\subseciton{Expected Results}
+There are many tests that can be used to determine if we met our requirements.  I will list a few here.  As the implementation matures, further tests may be developed.
 
+\begin{itemize}
+\item Cache Hit Rate - The percentage of the time that jobs 
+\item Replicated Bytes sent from the submit host vs. traditional transfers
+
+\end{itemize}
+
+TODO: Add more tests as relevant
+
+Many of these tests are dependent on the workflow used to evaluate the caching.  Therefore, we will use sample workflows from the community such as a BLAST and AutoDock to evaluate the solution.
+
+\subsection{Expected Results}
+
+If the caching daemon implemention is successful, I anticipate that the cache hit rate is high and the replicated bytes sent from the submit host is low.  Further, with the Bittorrent transfer method, I would expect the bytes sent inside the cluster to be much larger then the bytes copied from the submit host.
 
 \section{Conclusion}
 
