@@ -2,6 +2,11 @@
 
 \section{Campus Batch Computing}
 
+A computational grid is a hardware and software infrastructure that provides dependable, consistent, pervasive, and inexpensive access to high-end computational capabilities\cite{foster2004grid}.  A campus grid is a specialized grid where resources are owned by the same organization, though can be in multiple administrative domains.  For our discussions of computation, we restrict our considerations to those campuses that have multiple computational resources.
+
+A campus grid has become necessary to spread demand across multiple clusters.  This is important when demand for a single cluster is large, due to improved performance or more storage, and demand is low on other available clusters.  The campus grid can move computation from the in demand cluster to other clusters, which can result in a shorter time to completion for the user's jobs.
+
+A campus grid requires a framework to distribute jobs to multiple clusters in a campus grid.  My thesis \cite{weitzel2011campus} proposed a solution based on HTCondor \cite{litzkow1988condor}.  I have since expanded the solution to allow for more cluster types, and more workflows.  Additionally, I have built tools that enable easier access to the framework.  This new framework model is called Bosco \cite{}
 
 
 Most major research campuses, whether a university campus, or a national lab campus, have a research computing resource.  The computing resources are broken into two categories:
@@ -11,9 +16,9 @@ Most major research campuses, whether a university campus, or a national lab cam
 \item Condominium - Resources are purchased by research groups for their dedicated use.  They are added to a cluster that may share infrastructure such as a filesystem or an interconnect.
 \item Shared resources -  Resources are purchased by a central authority that are shared between multiple research groups.
 
-TODO: Insert lots from masters thesis introduction.
-
 \end{itemize}
+
+
 
 
 
