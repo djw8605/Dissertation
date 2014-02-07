@@ -6,7 +6,20 @@ A computational grid is a hardware and software infrastructure that provides dep
 
 A campus grid has become necessary to spread demand across multiple clusters.  This is important when demand for a single cluster is large, due to improved performance or more storage, and demand is low on other available clusters.  The campus grid can move computation from the in demand cluster to other clusters, which can result in a shorter time to completion for the user's jobs.
 
-A campus grid requires a framework to distribute jobs to multiple clusters in a campus grid.  My thesis \cite{weitzel2011campus} proposed a solution based on HTCondor \cite{litzkow1988condor}.  I have since expanded the solution to allow for more cluster types, and more workflows.  Additionally, I have built tools that enable easier access to the framework.  This new framework model is called Bosco \cite{}
+A campus grid requires a framework to distribute jobs to multiple clusters in a campus grid.  My thesis \cite{weitzel2011campus} proposed a solution based on HTCondor \cite{litzkow1988condor}.  The solution required installation of a campus factory \cite{TODO: campus factory} on each cluster's login node.  Although this solution was efficient and fault tolerant, as shown in my thesis, it proved difficult since the installation was manual.  There users had to install HTCondor on both the login node and their submit node.  Also, the security setup was based on IP whitelists, which can be defeated with IP spoofing.  Therefore, I set out to correct these deficiencies.
+
+I have enhanced my masters thesis' solution to include:
+\begin{itemize}
+\item Easier installation through automation
+\item Increased security through standard protocols
+\item More supported cluster types and configurations
+\item Access to computing through language frameworks
+\end{itemize}
+
+The new solution is named Bosco \cite{TODO}.  It uses secure protocols to connect to remote clusters in order to transfer files and submit / monitor jobs.  Installation of Bosco on remote clusters and the submit host has been automated with simple tools.  Clusters with restrictive firewalls are supported by multiplexing operations through a single secure connection.  Further, many cluster schedulers are supported by the underlying technology.  Access to Bosco and the computing environment has been enabled through programming language frameworks.
+
+
+
 
 
 Most major research campuses, whether a university campus, or a national lab campus, have a research computing resource.  The computing resources are broken into two categories:
@@ -38,11 +51,7 @@ Some of these job attributes can be extracted from the job submission files with
 
 \section{Overview of Dissertation}
 
-This dissertation is broken down into multiple chapters.  In Chapter \ref{chapter:relatedwork}, I will discuss related work in regards to my research.  
-
-In Chapter \ref{chapter:campusjobs} we will discuss how computing can be managed on the campus using the Bosco manager.  This chapter expands on my masters thesis.
-
-Chapter \ref{chapter:campusdata} discusses methods for describing and moving data on the campus.  
+This dissertation is broken down into multiple chapters.  In Chapter \ref{chapter:relatedwork}, I will discuss related work in regards to my research.  In Chapter \ref{chapter:campusjobs} we will discuss how computing can be managed on the campus using the Bosco manager.  This chapter expands on my masters thesis.  Chapter \ref{chapter:campusdata} discusses methods for describing and moving data on the campus.  Chapter \ref{chapter:coordinatingstorage} describes a method for coordinating storage with computing using a policy language for data transfers, and includes a novel transfer technique for large shared data.
 
 
 
