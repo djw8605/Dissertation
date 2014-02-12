@@ -15,20 +15,19 @@ Talk about:
 
 \section{Distributed Storage Access}
 
-Distributed file systems have long had their own storage access methods.  An example of this is Hadoop \cite{white2012hadoop}, a popular distributed file and processing system.  The only method to access Hadoop storage is through the Hadoop protocol.  On the Open Science Grid, the primary access methods are through file system independent middleware such as SRM and XRootd. 
+Distributed file systems have long had their own storage access methods.  An example of this is Hadoop \cite{white2012hadoop}, a popular distributed file and processing system.  The only method to access Hadoop storage is through the Hadoop protocol.  On the Open Science Grid, the primary access methods are through file system independent middleware such as SRM and XRootd.  They provide a translation layer from grid protocols and security mechanisms to the underlying storage system, such as Hadoop.
 
 
-A popular access method is SRM \cite{shoshani2002storage}.  It is a standardized protocol 
+A previously popular access method is the Storage Resource Manager (SRM) \cite{shoshani2002storage}.  It is a standardized protocol that allows remote, distributed access to large storage.  
+
 
 Beyond storage access methods is storage schedulers.  These schedulers do not define a protocol to access the storage, rather they coordinate the access.  Examples of these schedulers are NeST and Stork.
 
 NeST \cite{bent2002flexibility} is a software-only grid aware storage service.  It supports multiple transfer protocols into a storage device, including GridFTP \cite{allcock2005globus} and NFS \cite{walsh1985overview}.  Further, it provides features such as resource discovery, storage guarantees, quality of service, and user authentication.  It is layered over a distributed filesystem to provide access to it.
 
-Chirp storage access
-
 The software functions as the interface and access scheduler for a storage device.  Features such as the storage guarantees and quality of service require NeST to be the only interface into the storage device, a very rare feature in today's grid storage.  Today's storage elements, such as the 3PB storage at Nebraska, include multiple interfaces to access the storage element.  Nebraska runs at least 4 \cite{attebury2009hadoop} methods of accessing and modifying storage, SRM \cite{shoshani2002storage}, GridFTP, XrootD \cite{dorigo2005xrootd}, and Fuse \cite{szeredi2010fuse} mounted Hadoop.  All of these methods are required for compatibility with different access patterns and clients.  NeST could implement each of these protocols, but it would be extremely difficult to manage the storage centrally.  For example, Fuse is mounted on all 300 worker nodes.  The GridFTP and XrootD servers run on 10's of servers, with an aggregate bandwidth of 10Gbps.  Scaling quality of service and storage allocation / enforcement across all of these resources would likely prove impossible.
 
-Stork \cite{kosar2004stork} is a data placement scheduler.  It can schedule data placement and transfers to and from remote storage systems.  It works in
+Stork \cite{kosar2004stork} is a data placement scheduler.  It can schedule data placement and transfers to and from remote storage systems.  Stork is innovative in that it treats data transfers similar to jobs, where it queues them, and checks for proper completion of the transfers.
 
 
 TODO: discuss XROOTD
