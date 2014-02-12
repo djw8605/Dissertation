@@ -27,10 +27,8 @@ NeST \cite{bent2002flexibility} is a software-only grid aware storage service.  
 
 The software functions as the interface and access scheduler for a storage device.  Features such as the storage guarantees and quality of service require NeST to be the only interface into the storage device, a very rare feature in today's grid storage.  Today's storage elements, such as the 3PB storage at Nebraska, include multiple interfaces to access the storage element.  Nebraska runs at least 4 \cite{attebury2009hadoop} methods of accessing and modifying storage, SRM \cite{shoshani2002storage}, GridFTP, XrootD \cite{dorigo2005xrootd}, and Fuse \cite{szeredi2010fuse} mounted Hadoop.  All of these methods are required for compatibility with different access patterns and clients.  NeST could implement each of these protocols, but it would be extremely difficult to manage the storage centrally.  For example, Fuse is mounted on all 300 worker nodes.  The GridFTP and XrootD servers run on 10's of servers, with an aggregate bandwidth of 10Gbps.  Scaling quality of service and storage allocation / enforcement across all of these resources would likely prove impossible.
 
-Stork \cite{kosar2004stork} is a data placement scheduler.  It can schedule data placement and transfers to and from remote storage systems.  Stork is innovative in that it treats data transfers similar to jobs, where it queues them, and checks for proper completion of the transfers.
 
 
-TODO: discuss XROOTD
 
 Kangaroo \cite{thain2001kangaroo} is a multi-level file access system.  It allows for multiple levels of staging in order to send job output back to a storage device.  It can do this by asynchronously staging data through multiple storage devices on it's path to the destination filesystem.  The Kangaroo system only addresses output data.
 
@@ -38,13 +36,11 @@ Kangaroo \cite{thain2001kangaroo} is a multi-level file access system.  It allow
 
 Bittorrent has been used for data transfer in computational grids by Wei et. al \cite{wei2005collaborative, wei2005scheduling, wei2007towards}.  It has been shown to be optimal when compared to traditional source and sink transfer methods, in this case FTP \cite{postel1985file}, which is very similar in architecture as GridFTP, a grid enabled FTP protocol.  The researchers did not compare performance of the bittorrent protocol when compared to modern grid transfer techniques, such as using HTTP local caching.  Further, the authors do not test bittorrent on across network partitions that are common on the grid.  For example, a worker node from one cluster may not be able to communicate directly with another cluster.  Therefore, bittorrent may not work between cluster, but will work inside clusters.
 
-Xrootd
+Rooted
 
+Globus online \cite{foster2011globus} is a web interface for transferring files between sites and sharing data with other users.  It offers an intuitive web interface for bulk transfers between endpoints.  It only supports the gridftp \cite{allcock2005globus} transfer protocol, and requires gridftp implementations at all endpoints.
 
-
-Globus online
-
-Stork
+Stork \cite{kosar2004stork} is a data placement scheduler.  It can schedule data placement and transfers to and from remote storage systems.  Stork is innovative in that it treats data transfers similar to jobs, where it queues them, and checks for proper completion of the transfers.
 
 \section{Data Management}
 
