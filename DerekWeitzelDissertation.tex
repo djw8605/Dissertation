@@ -11,10 +11,11 @@
 %% For common degrees, you can use the class options:
 %% phd, edd, ms, ma
 %% phd is the default
-\documentclass[print]{nuthesis}
+\documentclass[print,phdproposal]{nuthesis}
 
 \usepackage{graphicx}
 \usepackage{listings}
+\usepackage{hyperref}
 
 
 \begin{document}
@@ -77,8 +78,8 @@
 %% The ToC is required
 \tableofcontents
 %% Uncomment these if need be
-\listoffigures
-\listoftables
+% \listoffigures
+% \listoftables
 %%
 %% ``Real'' beginning of the document.
 %% mainmatter is needed to set the page numbering correctly
