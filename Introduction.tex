@@ -48,6 +48,19 @@ The data must flow from the data source to the computational resource in an effi
 
 Some of these job attributes can be extracted from the job submission files without explicit instructions.  Input files that are shared between multiple executions can be categorized as shared.
 
+\section{Contributions}
+
+My dissertation will contain the following contributions:
+
+\being{itemize}
+
+\item A framework for job submission to remote resources for which the user does not control.  Typical grid submission is done to custom interfaces such as the Globus Resource Allocation Manager \cite{foster1999globus}, which are previously installed by an administrator.  Opportunistic resources, which are abundant, typically do not have specialized grid software installed.  Further, grid submission software adds administrator overhead for maintenance.  I propose a framework that does not require administrator intervention for remote submission to opportunistic resources.  The framework used interfaces that are installed on nearly all clusters that are typically used for interactive access.  It automates the submission and error handling of jobs submitted to remote resources, while providing the user a consistent interface over multiple, load balanced clusters.
+
+\item A modern flexible policy language for describing data handling for computation coordination.  Users of grid submission software have to explicitly define how their files will be transferred from their submission host to the remote execution resource where the data will be consumed.  They have to coordinate with the storage resources and the computation on their own.  I propose a policy language that allows the scheduler to decide a appropriate method for data transfer.  It determines the transfer method by parsing a user given policy language for the data, such as if it is shared between multiple jobs, and if it is private data, and from the remote execution resource's capabilities and preferences.  This can be used to hide data transfer details from the user while optimizing data transfers between the submission host and the execution resources.
+
+\item A new method of data transfer that will coordinate with the policy language described above and optimize for minimizing duplicated data transfers.  The method for data transfer will 
+
+\end{itemize}
 
 \section{Overview of Dissertation}
 
