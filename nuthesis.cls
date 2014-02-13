@@ -99,6 +99,12 @@
 \DeclareOption{electronic}{%
 \relax
 }
+\DeclareOption{phdproposal}{%
+  \doctype{Dissertation Proposal}
+  \degree{Doctor of Philosophy}
+  \degreeabbreviation{Ph.D.}
+}
+
 \DeclareOption{phd}{%
   \doctype{Dissertation}
   \degree{Doctor of Philosophy}
