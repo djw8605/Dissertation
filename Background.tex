@@ -5,17 +5,8 @@
 
 Several batch systems and grid schedulers are able to schedule tasks on execution resources.  Examples of cluster schedulers that are frequently used are PBS \cite{pbstorque}, HTCondor \cite{litzkow1988condor}, and SLURM \cite{yoo2003slurm}.  Each scheduler is very good at resource management on a single resource.  But, each of these resource managers have very limited ability to send processing to remote resources.  PBS and SLURM can send jobs between clusters that run the same schedulers.  HTCondor also has the ability to send processing to other clusters running HTCondor, but it can also transform jobs to the language of other schedulers.
 
-Grid schedulers have become more popular as the number of resources has increased.  Examples of grid schedulers are OSGMM \cite{website:osgmm} and GlideinWMS \cite{sfiligoi2008glideinwms}.    
+Grid schedulers have become more popular as the number of resources has increased.  Examples of grid schedulers are OSGMM \cite{website:osgmm} and GlideinWMS \cite{sfiligoi2008glideinwms}.  These schedulers are able to send jobs to remote resources using grid protocols.  OSGMM does a direct submission to the remote resources using the GRAM interface.  GlideinWMS also submits to the GRAM interface of the cluster, but provides an overlay of HTCondor daemons on top of remote systems for user.  The overlay presents a consistent HTCondor interface to the computing resources.  
 
-Talk about:
-\begin{itemize}
-\item HTCondor
-\item OSGMM
-\item PBS, SGE, SLURM
-\item GlideinWMS
-\end{itemize}
-
-Each of these 
 
 \section{Distributed Storage Access}
 
@@ -31,16 +22,11 @@ NeST \cite{bent2002flexibility} is a software-only grid aware storage service.  
 
 The software functions as the interface and access scheduler for a storage device.  Features such as the storage guarantees and quality of service require NeST to be the only interface into the storage device, a very rare feature in today's grid storage.  Today's storage elements, such as the 3PB storage at Nebraska, include multiple interfaces to access the storage element.  Nebraska runs at least 4 \cite{attebury2009hadoop} methods of accessing and modifying storage, SRM \cite{shoshani2002storage}, GridFTP, XrootD \cite{dorigo2005xrootd}, and Fuse \cite{szeredi2010fuse} mounted Hadoop.  All of these methods are required for compatibility with different access patterns and clients.  NeST could implement each of these protocols, but it would be extremely difficult to manage the storage centrally.  For example, Fuse is mounted on all 300 worker nodes.  The GridFTP and XrootD servers run on 10's of servers, with an aggregate bandwidth of 10Gbps.  Scaling quality of service and storage allocation / enforcement across all of these resources would likely prove impossible.
 
-
-
-
 Kangaroo \cite{thain2001kangaroo} is a multi-level file access system.  It allows for multiple levels of staging in order to send job output back to a storage device.  It can do this by asynchronously staging data through multiple storage devices on it's path to the destination filesystem.  The Kangaroo system only addresses output data.
 
 \section{Data Transfer Mechanisms}
 
 Bittorrent has been used for data transfer in computational grids by Wei et. al \cite{wei2005collaborative, wei2005scheduling, wei2007towards}.  It has been shown to be optimal when compared to traditional source and sink transfer methods, in this case FTP \cite{postel1985file}, which is very similar in architecture as GridFTP, a grid enabled FTP protocol.  The researchers did not compare performance of the bittorrent protocol when compared to modern grid transfer techniques, such as using HTTP local caching.  Further, the authors do not test bittorrent on across network partitions that are common on the grid.  For example, a worker node from one cluster may not be able to communicate directly with another cluster.  Therefore, bittorrent may not work between cluster, but will work inside clusters.
-
-Rooted
 
 Globus online \cite{foster2011globus} is a web interface for transferring files between sites and sharing data with other users.  It offers an intuitive web interface for bulk transfers between endpoints.  It only supports the gridftp \cite{allcock2005globus} transfer protocol, and requires gridftp implementations at all endpoints.
 
@@ -48,20 +34,9 @@ Stork \cite{kosar2004stork} is a data placement scheduler.  It can schedule data
 
 \section{Data Management}
 
-Managed placement service
+Data management is different from data transfer and access in that it provides services on top of the file systems, such as meta-data storage and search capabilities.  An example of a Data management service is iRods \cite{rajasekar2010irods}.  It provides meta-data storage and querying, and rule based placements.  Further, it can handle transfers to storage resources.
 
-iRods 
-
-DQ2 and Phedex
-
-\section{Storage Advertisement}
-
-\begin{itemize}
-\item reddnet
-\item A little about BDII?
-\item Some about class ads
-\end{itemize}
-
+DQ2 \cite{branco2008managing} and Phedex \cite{rehn2006phedex} are production transfer services for the Atlas and CMS physics experiments, respectively.  They 
 
 
 
