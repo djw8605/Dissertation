@@ -3,9 +3,9 @@
 
 \section{Distributed Batch Systems}
 
-Several batch systems and grid schedulers are able to schedule tasks on execution resources.  Examples of cluster schedulers that are frequently used are PBS \cite{pbstorque}, HTCondor \cite{litzkow1988condor}, and SLURM \cite{yoo2003slurm}.  Each scheduler has their own 
+Several batch systems and grid schedulers are able to schedule tasks on execution resources.  Examples of cluster schedulers that are frequently used are PBS \cite{pbstorque}, HTCondor \cite{litzkow1988condor}, and SLURM \cite{yoo2003slurm}.  Each scheduler is very good at resource management on a single resource.  But, each of these resource managers have very limited ability to send processing to remote resources.  PBS and SLURM can send jobs between clusters that run the same schedulers.  HTCondor also has the ability to send processing to other clusters running HTCondor, but it can also transform jobs to the language of other schedulers.
 
-Grid schedulers have become more popular as the number of resources has increased.
+Grid schedulers have become more popular as the number of resources has increased.  Examples of grid schedulers are OSGMM \cite{website:osgmm} and GlideinWMS \cite{sfiligoi2008glideinwms}.    
 
 Talk about:
 \begin{itemize}
