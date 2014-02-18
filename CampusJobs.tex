@@ -1,19 +1,14 @@
 \label{chapter:campusjobs} 
 \section{Introduction}
 
-In this chapter I will discuss the methods developed to aid in distributed scientific computing on a research campus.  
-
-\section{Access to Computation on the Campus}
-
-This could be merged with the introduction
-
-Discuss
+Campus computing is usually defined as a cluster, or a set of clusters available to researchers for computational computing.  These clusters are divided either by purpose, i.e. owned by a certain group, or by hardware generations.  Users submit to a single cluster, and their jobs are eligible to run on that single cluster.  We propose a framework to distribute jobs to multiple campus clusters transparently to the user.  We named our framework Bosco.  It provides:
 \begin{itemize}
-\item Typical Campus resources
-\item How users get access to these resources
+\item Easy installation on the client.
+\item Connections to the remote cluster using common, non-custom, protocols
+\item Load balancing across multiple clusters.
 \end{itemize}
 
-\section{Bosco}
+In this chapter I will discuss the methods developed to aid in distributed scientific computing on a research campus using Bosco.  
 
 \section{Bosco Architecture}
 \label{sec:boscoarch}
@@ -71,26 +66,14 @@ Also, an additional \emph{traceroute} was created to test each step of the job s
 
 The \emph{traceroute} is very useful for debugging issues with a Bosco installation.  It is designed to test each step in the job execution life cycle and give meaningful error messages and possible solutions.
 
-\begin{itemize}
-\item How Bosco addresses the concerns in the above.
-\item Why users would want to use Bosco over other solutions
-\item Architecture
-\end{itemize}
-
 \section{Load Balanced Access to Computational Resources}
 
-\begin{itemize}
-\item Advantages of using the Campus Factory
-\item Architecture
-\item How the campus factory + bosco create utopia!
-\item How the submission works using bosco
-\end{itemize}
+Bosco is used in conjunction with the Campus Factory, which is described in full in my Master's thesis.  The Campus factory submits jobs to remote clusters to create an overlay that provides a consistent interface to the resources.  The campus factory submits to multiple Bosco endpoints simultaneously, load balancing between them by keeping constant pressure against all clusters.
 
-
-
+Submission to the Bosco framework is done using the HTCondor submit syntax.  When an idle user job is detected by the Campus Factory, it begins to submit glide ins to all Bosco endpoints simultaneously.  The Campus Factory maintains idle glideins on each of the endpoints until the user jobs have completed.  The jobs run on any resources that become available.
 
 
 \section{Conclusion}
 
-
+Bosco and the Campus Factory combine to make an easy to use framework that can distribute jobs to many computational clusters on a campus.  Users are able to effectively distribute their processing to multiple clusters using this framework.  In my dissertation, I will show that Bosco transparently distributes computation jobs across multiple clusters on a campus.  
 
