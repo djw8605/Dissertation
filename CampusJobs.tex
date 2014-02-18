@@ -1,11 +1,11 @@
 \label{chapter:campusjobs} 
 \section{Introduction}
 
-Campus computing is usually defined as a cluster, or a set of clusters available to researchers for computational computing.  These clusters are divided either by purpose, i.e. owned by a certain group, or by hardware generations.  Users submit to a single cluster, and their jobs are eligible to run on that single cluster.  We propose a framework to distribute jobs to multiple campus clusters transparently to the user.  We named our framework Bosco.  It provides:
+Campus computing is usually defined as a cluster, or a set of clusters available to researchers for computational computing.  These clusters are divided either by purpose, i.e. owned by a certain group, or by hardware generations.  Users submit to a single cluster, and their jobs are eligible to run on that cluster.  We propose a framework to distribute jobs to multiple campus clusters transparently to the user.  We named our framework Bosco.  It provides:
 \begin{itemize}
-\item Easy installation on the client.
+\item Easy and non-root installation.  No administrative intervention is required to install and start Bosco on either the submitter or the cluster.
 \item Connections to the remote cluster using common, non-custom, protocols
-\item Load balancing across multiple clusters.
+\item Transparent load balancing across multiple clusters.
 \end{itemize}
 
 In this chapter I will discuss the methods developed to aid in distributed scientific computing on a research campus using Bosco.  
@@ -22,7 +22,7 @@ The Bosco user experience can be described in 2 sections: installation/configura
 The Bosco architecture is divided into the submit host and the cluster login node.  The submit host is where the user submits their jobs and where the user interacts with the Bosco system.  The login node is the submit host for a cluster.  The login node is assumed to not be maintained by the user submitting to Bosco.  The login node has access to the local scheduler with commands such as \texttt{qsub} and \texttt{qstat} (for PBS).  
 
 \subsection{Installation \& Configuration}
-Though typically separate, Bosco combined the installation and configuration in order to improve the user experience.  Both are done by a single script, the \texttt{bosco\_quickstart} script that follows several steps:
+Though typically separate, Bosco combined the installation and configuration steps in order to improve the user experience.  Both are done by a single script, the \texttt{bosco\_quickstart} script that follows several steps:
 
 \begin{enumerate}
 \item Determine the platform and download the appropriate version of Bosco (supports Mac, EL5/6, Debian 6)
@@ -47,7 +47,7 @@ Job submissions are done from the Bosco submit host, which in turn submit to the
 
 First, the Bosco submit node connects to the login node over an SSH connection and creates a forwarded SSH connection back to the submit node which is used for file transfer.  It creates the forwarded SSH connection in order to minimize the number of necessary connections between the Bosco submit host and the login node.  By reusing the same SSH connection, we reduce the number of necessary connections and SSH logins to 1.  Further, the number of connections is not dependent on the number of jobs, as Bosco will reuse the same connection for all jobs submitted to a cluster.  Minimizing the number of connections to a login node is important since many login nodes include firewall rules to slow down brute force SSH logins that block frequent successive SSH connections.  The Bosco submit host does not require any open ports in a firewall, only outgoing connections to remote login node's SSH port.
 
-Next, Bosco checks for the necessary installed software on the login node, and starts the BLAHP daemon that will communicate with the scheduler on the login node.  Next, the BLAHP daemon on the login node starts the file transfer daemon to connect back to the submit host through a forwarded SSH tunnel that Bosco created.  The transfer daemon creates and transfers the job sandbox to the login node.  The transfer to the login node is performed by HTCondor's fault tolerant file transfer mechanisms and are entirely encrypted over the SSH connection.  Authentication between the login node and the Bosco submit host is performed by a shared secret that was previously sent over the SSH connection to the BLAHP daemon.
+Next, Bosco checks for the necessary installed software on the login node, and starts the BLAHP daemon that will communicate with the scheduler on the login node.  The BLAHP daemon on the login node starts the file transfer daemon to connect back to the submit host through a forwarded SSH tunnel that Bosco created.  The transfer daemon creates and transfers the job sandbox to the login node.  The transfer to the login node is performed by HTCondor's fault tolerant file transfer mechanisms and are entirely encrypted over the SSH connection.  Authentication between the login node and the Bosco submit host is performed by a shared secret that was previously sent over the SSH connection to the BLAHP daemon.
 
 After the files have been transferred, Bosco sends the job's submission Classad \cite{raman1998matchmaking} to the BLAHP daemon to translate to the local site's scheduler language.  The BLAHP supports PBS \cite{computing2013torque}, LSF \cite{computinglsf}, SGE \cite{gentzsch2001sun}, SLURM \cite{yoo2003slurm}, and HTCondor schedulers.  The BLAHP creates the submission file, and submits to the cluster's scheduler.  Bosco periodically polls the BLAHP over the SSH connection for the status of the job.  Once the job is detected to have been completed, the BLAHP starts HTCondor's transfer daemon to transfer the output sandbox back to the submitter machine.
 
@@ -68,12 +68,12 @@ The \emph{traceroute} is very useful for debugging issues with a Bosco installat
 
 \section{Load Balanced Access to Computational Resources}
 
-Bosco is used in conjunction with the Campus Factory, which is described in full in my Master's thesis.  The Campus factory submits jobs to remote clusters to create an overlay that provides a consistent interface to the resources.  The campus factory submits to multiple Bosco endpoints simultaneously, load balancing between them by keeping constant pressure against all clusters.
+Bosco is used in conjunction with the Campus Factory \cite{website:campusfactory}, which is described in full in my Master's thesis \cite{weitzel2011campus}.  The Campus factory submits jobs to remote clusters to create an overlay that provides a consistent interface to the resources.  The campus factory submits to multiple Bosco endpoints simultaneously, load balancing between them by keeping idle jobs (constant pressure) on all clusters.
 
 Submission to the Bosco framework is done using the HTCondor submit syntax.  When an idle user job is detected by the Campus Factory, it begins to submit glide ins to all Bosco endpoints simultaneously.  The Campus Factory maintains idle glideins on each of the endpoints until the user jobs have completed.  The jobs run on any resources that become available.
 
 
 \section{Conclusion}
 
-Bosco and the Campus Factory combine to make an easy to use framework that can distribute jobs to many computational clusters on a campus.  Users are able to effectively distribute their processing to multiple clusters using this framework.  In my dissertation, I will show that Bosco transparently distributes computation jobs across multiple clusters on a campus.  
+Bosco and the Campus Factory combine to make an easy to use framework that can distribute jobs to many computational clusters on a campus.  Users are able to effectively distribute their processing to multiple clusters using this framework.  In my dissertation, I will show that Bosco transparently distributes computation jobs across multiple clusters on a campus, while maintaining simple usage for users.
 
