@@ -2,7 +2,7 @@
 
 \section{Introduction}
 
-Distributed computing has evolved to include many federated compute elements across geographically and administrative boundaries.  The ability to access and use federated storage has lagged behind the ability to access the compute capabilities of the resources.  In order to access the storage, the storage first needs to be accurately described to meet the needs of the application.  Further, in order to optimize data movement, the data movement should be negotiated between the storage element and the target.  The negotiated data movement device will allow the storage (or an agent on the behalf of the storage) to determine it’s preferred transfer methods, and to match that method with the target device, allowing each to express preferences and requirements.  In order to provide an additional option for distributed storage and data movement, a transfer method is introduced that is designed to run on federated resources by using peer to peer connections and data transfers.  
+Distributed computing has evolved to include many federated compute elements across geographically and administrative boundaries.  The ability to access and use federated storage has lagged behind the ability to access the compute capabilities of the resources.  In order to access the storage, the storage and the data first needs to be accurately described to meet the needs of the application.  Further, in order to optimize data movement, the data movement should be negotiated between the storage element, the user, and the target.  The negotiated data movement device will allow the storage (or an agent on the behalf of the storage) to determine it’s preferred transfer methods, and to match that method with the target device, allowing each to express preferences and requirements.
 
 
 \section{Measuring Storage}
@@ -125,7 +125,7 @@ Therefore, when mentioning storage, we must specify all of these attributes.
 
 
 
-\section{Another Method for Data Transfer}
-In addition to the above methods for transferring data to remote worker nodes, and specifying storage parameters, we can also provide another method for getting data to worker nodes that will better fit the current state of clusters and cyberinfrastructure.  The proposed methods is a dynamic deployment of a storage federation.  This can be done across a single cluster, across many clusters, or over an entire national infrastructure such as the OSG.
+%\section{Another Method for Data Transfer}
+%In addition to the above methods for transferring data to remote worker nodes, and specifying storage parameters, we can also provide another method for getting data to worker nodes that will better fit the current state of clusters and cyberinfrastructure.  The proposed methods is a dynamic deployment of a storage federation.  This can be done across a single cluster, across many clusters, or over an entire national infrastructure such as the OSG.
 
-This new method for data transfer relies on peer to peer transfers.  Data is transferred from it’s peer rather than from a single host.  As with all peer to peer systems, the benefits from this method include decreasing the required bandwidth from any single source.  As well as lower latency transfers.
+%This new method for data transfer relies on peer to peer transfers.  Data is transferred from it’s peer rather than from a single host.  As with all peer to peer systems, the benefits from this method include decreasing the required bandwidth from any single source.  As well as lower latency transfers.
