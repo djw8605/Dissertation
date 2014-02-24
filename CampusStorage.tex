@@ -2,13 +2,13 @@
 
 \section{Introduction}
 
-Distributed computing has evolved to include many federated compute elements across geographically and administrative boundaries.  The ability to access and use federated storage has lagged behind the ability to access the compute capabilities of the resources.  In order to access the storage, the storage and the data first needs to be accurately described to meet the needs of the application.  Further, in order to optimize data movement, the data movement should be negotiated between the storage element, the user, and the target.  The negotiated data movement device will allow the storage (or an agent on the behalf of the storage) to determine it’s preferred transfer methods, and to match that method with the target device, allowing each to express preferences and requirements.
+Distributed computing has evolved to include many federated compute elements across geographically and administrative boundaries.  The ability to access and use federated storage has lagged behind the ability to access the compute capabilities of the resources.  In order to access the storage, the storage and the data first need to be accurately described to meet the needs of the application.  Further, the data movement should be negotiated between the storage element, the user, and the target in order to optimize data movement.  The negotiated data movement device will allow the storage (or an agent on the behalf of the storage) to determine it’s preferred transfer methods, and to match that method with the target device, allowing each to express preferences and requirements.
 
 
 \section{Measuring Storage}
 In order to provide matchmaking for resources, the resources need to be accurately described and advertised.  This will require measuring the storage capabilities and capacity of the resources and advertising those attributes to the matchmaking service.
 
-The measurements would be performed on the execution target as well as against the storage targets.  The execution targets would measure the storage capabilities in order to determine if the jobs can run.  The storage targets would be measured in order to determine the number of jobs that could be run against a the target.
+The measurements would be performed on the execution target as well as against the storage targets.  The execution targets would measure the storage capabilities in order to determine if the jobs can run.  The storage targets would be measured in order to determine the number of jobs that could be run against the target.
 
 
 \subsection{Ranking Storage}
@@ -18,18 +18,18 @@ It is not clear how the ranking should work.  If we assume that the user accurat
 
 
 \section{Data Movement}
-We will consider 3 different types of data.  The input data, output data, and the job sandbox.  The job sandbox is the environment from which the job will run.  The sandbox is important since the user designs their job to run in this sandbox, and it must be maintained in order for the job to run.  Also, the sandbox is shared input data that multiple execution of the job can utilize.
+We will consider 3 different types of data.  The input data, output data, and the job sandbox.  The job sandbox is the environment from which the job will run.  The sandbox is important since the user designs their job to run in this sandbox, and it must be maintained in order for the job to run.  Also, the sandbox is shared input data that multiple executions of the job can utilize.
 
-The sandbox is a set of files that must be present when the job begins execution.  For example:
+The sandbox is a set of files that must be present when the job begins execution.  For example, a sandbox may contain:
 \begin{itemize}
 \item The executable that the job will run.
 \item Libraries necessary for the executable to properly function.
 \item Shared input files such as parameter files or calibration data.
 \end{itemize}
 
-The sandbox is different from input data as the input data could be unique per job.  Shared data between many executions can benefit from caching, where unique input data cannot benefit from caching.
+The input data could be unique per job, therefore will be considered separately from the job sandbox.  Shared data between many executions can benefit from caching, where unique input data cannot benefit from caching.
 
-Data for each job can be categorized as either shared, unique, or private shared, and private unique.
+Data for each job can be categorized as either shared, unique, private shared, or private unique.
 
 \subsection{Categorizing Data}
 % Describe shared data
@@ -37,7 +37,7 @@ In order to better describe how data should be moved, we must categorize the dat
 
 Shared data is data which is the same for multiple jobs in a job set.   In many cases, the majority of the files in the job sandbox can be considered shared data.  One example of shared data are job executables and libraries.  
 
-Frequently the job executables are the same for a large number of jobs.  Since the executables are the same, contextualization of the job is done through other methods, such as arguments or parameter files.  An example application that would use the same executables and libraries are Monte Carlo \cite{binder2010monte} simulations.  In these applications, they executables are the same for every job, each job is given a unique identifier which is used for the starting condition for the random generation.
+Frequently the job executables are the same for a large number of jobs.  Since the executables are the same, contextualization of the job is done through other methods, such as arguments or parameter files.  An example application that would use the same executables and libraries are Monte Carlo \cite{binder2010monte} simulations.  In these applications, the executables are the same for every job, each job is given a unique identifier which is used for the starting condition for the random generation.
 
 Experimental data could also be shared between multiple jobs in a job set.  This can include common input data such as databases or condition data.  For example, BLAST \cite{altschul1990basic} jobs require a database of sequences of proteins which are then matched with specific queries.  The database is typically the same for a large number of queries.  
 
@@ -68,7 +68,7 @@ The users must specify these items in the description of their jobs.  The exact 
 
 The language for the requirements will be similar to the current specifications for memory and cpu.  The user will request a certain amount of storage parameters, and machines will need to provide these metrics just as they do now with cpu and memory.
 
-The acceptable methods for data movement can either be specified by the user, or by the submitting system.  The system can stage the data to a third party, which will then be used for the transfer.  This can be especially useful if multiple jobs use the same input data, a useful example of this is HCC’s use of LVS to server common files on the OSG.  The server could automatically choose to use HTTP to transfer the files, especially since there are many common files, and the files would be cached on the remote sites using normal HTTP proxy caches.
+The acceptable methods for data movement can either be specified by the user, or by the submitting system.  The system can stage the data to a third party, which will then be used for the transfer to the execution target.  This can be especially useful if multiple jobs use the same input data, a useful example of this is HCC’s use of LVS to serve common files on the OSG.  The server could automatically choose to use HTTP to transfer the files, especially since there are many common files, and the files would be cached on the remote sites using normal HTTP proxy caches.
 
 Another possible scenario is when starting a job on Amazon EC2.  If it is a virtual machine job, then input data could be created as a CD drive, or a block device, and input into the machine using the block device as input storage.
 
@@ -106,7 +106,7 @@ unique_private_input = queries
 
 The blast database is public, so there is no need to encrypt or authenticate access to the database.  Further, the database is shared between all executions of the job. The \texttt{queries} are private and therefore they need to be authenticated in order to access the data.  
 
-When the job begins, it will be guaranteed to have the files \texttt{blast\_database.fasta} and \texttt{queries} available to it.  The job framework will decide on the method of transfer and transient storage based on the user specified syntax, the worker node, and the submit node.
+When the job begins, it will be guaranteed to have the files \texttt{blast\_database.fasta} and \texttt{queries} available to it.  The job framework will decide on the method of transfer and transient storage based on negotiation between the user specified syntax, the worker node, and the submit node.
 
 
 \section{Defining Storage Target}
