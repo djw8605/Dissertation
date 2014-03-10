@@ -4,21 +4,21 @@ My dissertation will focus on computing on a Campus Grid.  We are interested in 
 
 \section{Campus Batch Computing}
 
-A computational grid is a hardware and software infrastructure that provides dependable, consistent, pervasive, and inexpensive access to high-end computational capabilities\cite{foster2004grid}.  A campus grid is a specialized grid where resources are owned by the same organization, though can be in multiple administrative domains.  For our discussions of computation, we restrict our considerations to those campuses that have multiple computational resources.
+A computational grid is a hardware and software infrastructure that provides dependable, consistent, pervasive, and inexpensive access to high-end computational capabilities\cite{foster2004grid}.  A campus grid is a specialized grid where resources are owned by the same organization, though may be in multiple administrative domains.  For our discussions of computation, we restrict our considerations to those campuses that have multiple computational resources.
 
 A campus grid has become necessary to spread demand across multiple clusters.  This is important when demand for a single cluster is large, due to improved performance or more storage, and demand is low on other available clusters.  The campus grid can move computation from the in demand cluster to other clusters, which can result in a shorter time to completion for the user's jobs.
 
-A campus grid requires a framework to distribute jobs to multiple clusters in a campus grid.  My thesis \cite{weitzel2011campus} proposed a solution based on HTCondor \cite{litzkow1988condor}.  The solution required installation of a campus factory \cite{TODO: campus factory} on each cluster's login node.  Although this solution was efficient and fault tolerant, as shown in my thesis, it proved difficult since the installation was manual.  There users had to install HTCondor on both the login node and their submit node.  Also, the security setup was based on IP whitelists, which can be defeated with IP spoofing.  Therefore, I set out to correct these deficiencies.
+A campus grid requires a framework to distribute jobs to multiple clusters in a campus grid.  My thesis \cite{weitzel2011campus} proposed a solution based on HTCondor \cite{litzkow1988condor}.  The solution required installation of a campus factory \cite{website:campusfactory} on each cluster's login node.  Although this solution was efficient and fault tolerant, as shown in my thesis, it proved difficult since the installation was manual.  Users had to install HTCondor on both the login node and their submit node.  Also, the security setup was based on IP whitelists, which can be defeated with IP spoofing.  Therefore, I set out to correct these deficiencies.
 
 I have enhanced my masters thesis' solution to include:
 \begin{itemize}
 \item Easier installation through automation
 \item Increased security through standard protocols
 \item More supported cluster types and configurations
-\item Access to computing through language frameworks
+\item Access to computing through language frameworks such as R \cite{team2005r}
 \end{itemize}
 
-The new solution is named Bosco \cite{TODO}.  It uses secure protocols to connect to remote clusters in order to transfer files and submit / monitor jobs.  Installation of Bosco on remote clusters and the submit host has been automated with simple tools.  Clusters with restrictive firewalls are supported by multiplexing operations through a single secure connection.  Further, many cluster schedulers are supported by the underlying technology.  Access to Bosco and the computing environment has been enabled through programming language frameworks.
+The new solution is named Bosco \cite{chep2013weitzel}.  It uses secure protocols to connect to remote clusters in order to transfer files and submit / monitor jobs.  Installation of Bosco on remote clusters and the submit host has been automated with simple tools.  Clusters with restrictive firewalls are supported by multiplexing operations through a single secure connection.  Further, many cluster schedulers are supported by the underlying technology.  Access to Bosco and the computing environment has been enabled through programming language frameworks.
 
 
 
@@ -39,9 +39,9 @@ Most major research campuses, whether a university campus, or a national lab cam
 
 \section{Data Transfers on Campus}
 
-Data has become a limiting factor for scientific computing.  For batch computing, the issue is usually getting the data to the execution.  
+Data has become a limiting factor for scientific computing.  For batch computing, the issue is usually getting the data to the execution resources.  
 
-As the users spread their computation across multiple clusters either on the campus, or across campus's, data distribution and collection becomes more difficult.  Before using the campus grid, a user would select a cluster which will do their processing.  The user then could host all of their data on that cluster by coping the data onto the cluster's shared filesystem.  The jobs could access the data from the distributed filesystem just as it would on the user's desktop, available from all executions at the same directory.
+As the users spread their computation across multiple clusters either on the campus, or across campuses, data distribution and collection becomes more difficult.  Before using the campus grid, a user would select a cluster to do their processing.  The user then could host all of their data on that cluster by copying the data onto the cluster's shared filesystem.  The jobs could access the data from the distributed filesystem just as it would on the user's desktop, available for all executions at the same directory.
 
 
 These assumptions do not hold for a campus grid.  A grid is made up of multiple computational clusters, with potentially many separate file systems.  There is no single filesystem that a user can access from every computational resource.  Therefore, the data must be handled differently than when on a shared filesystem.  
