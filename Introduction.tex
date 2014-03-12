@@ -20,18 +20,17 @@ I have enhanced my masters thesis' solution to include:
 
 The new solution is named Bosco \cite{chep2013weitzel}.  It uses secure protocols to connect to remote clusters in order to transfer files and submit / monitor jobs.  Installation of Bosco on remote clusters and the submit host has been automated with simple tools.  Clusters with restrictive firewalls are supported by multiplexing operations through a single secure connection.  Further, many cluster schedulers are supported by the underlying technology.  Access to Bosco and the computing environment has been enabled through programming language frameworks.
 
+But Bosco is not enough for researchers that have large data requirements.  Therefore, we must consider data transfers and storage on the Campus.
 
 
+%Most major research campuses, whether a university campus, or a national lab campus, have a research computing resource.  The computing resources are broken into two categories:
 
+%\begin{itemize}
 
-Most major research campuses, whether a university campus, or a national lab campus, have a research computing resource.  The computing resources are broken into two categories:
+%\item Condominium - Resources are purchased by research groups for their dedicated use.  They are added to a cluster that may share infrastructure such as a filesystem or an interconnect.
+%\item Shared resources -  Resources are purchased by a central authority that are shared between multiple research groups.
 
-\begin{itemize}
-
-\item Condominium - Resources are purchased by research groups for their dedicated use.  They are added to a cluster that may share infrastructure such as a filesystem or an interconnect.
-\item Shared resources -  Resources are purchased by a central authority that are shared between multiple research groups.
-
-\end{itemize}
+%\end{itemize}
 
 
 
@@ -68,7 +67,11 @@ The user-given policy language specifies if the data private or public, and whet
 
 \section{Overview of Dissertation}
 
-This dissertation is broken down into multiple chapters.  In Chapter \ref{chapter:relatedwork}, I will discuss related work in regards to my research.  In Chapter \ref{chapter:campusjobs} we will discuss how computing can be managed on the campus using the Bosco manager.  This chapter expands on my masters thesis.  Chapter \ref{chapter:campusdata} discusses methods for describing and moving data on the campus.  Chapter \ref{chapter:coordinatingstorage} describes a method for coordinating storage with computing using a policy language for data transfers, and includes a novel transfer technique for large shared data.
+This dissertation is broken down into multiple chapters.  In Chapter \ref{chapter:relatedwork}, I will discuss related work in regards to my research.  
+
+In Chapter \ref{chapter:campusjobs} we will discuss how computing can be managed on the campus using the Bosco manager.  This chapter expands on my masters thesis.  But Bosco is not enough for researchers with large data requirements.  Therefore, we research methods to efficiently transfer data on the campus.   
+
+Chapter \ref{chapter:campusdata} discusses methods for describing and moving data on the campus.  Chapter \ref{chapter:coordinatingstorage} describes a method for coordinating storage with computing using a policy language for data transfers, and includes a novel transfer technique for large shared data on the campus.
 
 
 
