@@ -1,14 +1,14 @@
 \chapter{Introduction}
 
-My dissertation will focus on computing on a Campus Grid.  We are interested in optimizing a researcher's use of the computational and storage resources on the campus to increase the reliability, and decrease the time to solution for scientific results.
+This dissertation will focus on workflows on a Campus Grid.  We are interested in optimizing a researcher's use of the computational and storage resources on the campus to increase the reliability, and decrease the time to solution for scientific results.  We first extend prior work to enhance the computational capabilities of researchers on a campus.  We then explicitly expand our work to the data needs of modern workflows.
 
 \section{Campus Batch Computing}
 
-A computational grid is a hardware and software infrastructure that provides dependable, consistent, pervasive, and inexpensive access to high-end computational capabilities\cite{foster2004grid}.  A campus grid is a specialized grid where resources are owned by the same organization, though may be in multiple administrative domains.  For our discussions of computation, we restrict our considerations to those campuses that have multiple computational resources.
+A computational grid is a hardware and software infrastructure that provides dependable, consistent, pervasive, and inexpensive access to high-end computational capabilities\cite{foster2004grid}.  A campus grid is a specialized grid where resources are owned by the same organization, though it may be in multiple administrative domains.  For our discussion of computation, we restrict our consideration to those campuses that have multiple computational resources.
 
-A campus grid has become necessary to spread demand across multiple clusters.  This is important when demand for a single cluster is large, due to improved performance or more storage, and demand is low on other available clusters.  The campus grid can move computation from the in demand cluster to other clusters, which can result in a shorter time to completion for the user's jobs.
+A campus grid has become necessary to spread demand across multiple clusters.  This is important when demand for a single cluster is large, due to improved performance or more storage, and demand is low on other available clusters.  The campus grid can move computation from the in demand cluster to other clusters, which can result in a shorter time to completion for the users' jobs.
 
-A campus grid requires a framework to distribute jobs to multiple clusters in a campus grid.  My thesis \cite{weitzel2011campus} proposed a solution based on HTCondor \cite{litzkow1988condor}.  The solution required installation of a campus factory \cite{website:campusfactory} on each cluster's login node.  Although this solution was efficient and fault tolerant, as shown in my thesis, it proved difficult since the installation was manual.  Users had to install HTCondor on both the login node and their submit node.  Also, the security setup was based on IP whitelists, which can be defeated with IP spoofing.  Therefore, I set out to correct these deficiencies.
+A campus grid requires a framework to distribute jobs to multiple clusters in a campus.  My thesis \cite{weitzel2011campus} proposed a solution based on HTCondor \cite{litzkow1988condor}.  The solution required installation of a campus factory \cite{website:campusfactory} on each cluster's login node.  Although this solution was efficient and fault tolerant, it proved difficult since the installation was manual.  Users had to install HTCondor on both the login node and their submit node.  Also, the security setup was based on IP whitelists, which can be defeated with IP spoofing.  Therefore, I set out to correct these deficiencies.
 
 I have enhanced my masters thesis' solution to include:
 \begin{itemize}
@@ -20,7 +20,7 @@ I have enhanced my masters thesis' solution to include:
 
 The new solution is named Bosco \cite{chep2013weitzel}.  It uses secure protocols to connect to remote clusters in order to transfer files and submit / monitor jobs.  Installation of Bosco on remote clusters and the submit host has been automated with simple tools.  Clusters with restrictive firewalls are supported by multiplexing operations through a single secure connection.  Further, many cluster schedulers are supported by the underlying technology.  Access to Bosco and the computing environment has been enabled through programming language frameworks.
 
-But Bosco is not enough for researchers that have large data requirements.  Therefore, we must consider data transfers and storage on the Campus.
+But Bosco is not enough for researchers that have large data requirements.  Therefore, we must consider data transfers and storage on the campus.
 
 
 %Most major research campuses, whether a university campus, or a national lab campus, have a research computing resource.  The computing resources are broken into two categories:
@@ -38,7 +38,7 @@ But Bosco is not enough for researchers that have large data requirements.  Ther
 
 \section{Data Transfers on Campus}
 
-Data has become a limiting factor for scientific computing.  For batch computing, the issue is usually getting the data to the execution resources.  
+Data management has become a bottleneck for many in for scientific computing.  For batch computing, the issue is usually getting the data to the execution resources.  
 
 As the users spread their computation across multiple clusters either on the campus, or across campuses, data distribution and collection becomes more difficult.  Before using the campus grid, a user would select a cluster to do their processing.  The user then could host all of their data on that cluster by copying the data onto the cluster's shared filesystem.  The jobs could access the data from the distributed filesystem just as it would on the user's desktop, available for all executions at the same directory.
 
@@ -51,27 +51,27 @@ Some of these job attributes can be extracted from the job submission files with
 
 \section{Contributions}
 
-My dissertation will contain the following contributions:
+This dissertation will contain the following contributions:
 
 \begin{itemize}
 
 \item A framework for job submission to remote resources which the user does not control.  Typical grid submission is done to custom interfaces such as the Globus Resource Allocation Manager \cite{foster1999globus} (GRAM), which are previously installed by an administrator.  Opportunistic resources, which are abundant, typically do not have specialized grid software installed.  Further, grid submission software adds administrator overhead for maintenance.  I propose a framework that does not require administrator intervention for remote submission to opportunistic resources.  The framework uses interfaces that are installed on nearly all clusters that are typically used for interactive access.  It automates the submission and error handling of jobs submitted to remote resources, while providing the user a consistent interface over multiple, load balanced clusters.
 
-\item A modern flexible policy language for describing data handling for computation coordination.  Users of grid submission software have to explicitly define how their files will be transferred from their submission host to the remote execution resource where the data will be consumed.  They have to coordinate with the storage resources and the computation on their own.  I propose a policy language that allows the scheduler to decide an appropriate method for data transfer.  It determines the transfer method by negotiating between 3 sources, a user-given policy language for the data, from the remote execution resource's capabilities and preferences, and the submitter's capabilities and preferences.  
+\item A modern flexible policy language for describing data handling for computation coordination.  Users of grid submission software have to explicitly define how their files will be transferred from their submission host to the remote execution resource where the data will be consumed.  They have to coordinate with the storage resources and the computation on their own.  I propose a policy language that allows the scheduler to decide an appropriate method for data transfer.  It determines the transfer method by negotiating between the following 3 sources: a user-given policy language for the data, the remote execution resource's capabilities and preferences, and the submitting resource's capabilities and preferences.  
 
-The user-given policy language specifies if the data private or public, and whether the data is shared between multiple jobs or is unique to each job.  This negotiation can be used to hide data transfer details from the user while optimizing data transfers between the submission host and the execution resources.
+The user-given policy language specifies if the data is private or public, and whether the data is shared between multiple jobs or is unique to each job.  This negotiation can be used to hide data transfer details from the user while optimizing data transfers between the submission host and the execution resources.
 
-\item A new method of data transfer that will coordinate with the policy language described above and optimize for minimizing duplicated data transfers.  In this thesis, I propose to investigate transfer techniques that support multiple administrative and network domains that are typical in a distributed computing environment.
+\item A new method of data transfer that will coordinate with the policy language described above and optimize for minimizing duplicated data transfers.  In this dissertation, I propose to investigate transfer techniques that support multiple administrative and network domains that are typical in a distributed computing environment.
 
 \end{itemize}
 
 \section{Overview of Dissertation}
 
-This dissertation is broken down into multiple chapters.  In Chapter \ref{chapter:relatedwork}, I will discuss related work in regards to my research.  
+This dissertation is broken down into multiple chapters.  In Chapter \ref{chapter:relatedwork}, I will discuss work related to my research.  
 
-In Chapter \ref{chapter:campusjobs} we will discuss how computing can be managed on the campus using the Bosco manager.  This chapter expands on my masters thesis.  But Bosco is not enough for researchers with large data requirements.  Therefore, we research methods to efficiently transfer data on the campus.   
+In Chapter \ref{chapter:campusjobs} we will discuss how computing can be managed on the campus using the Bosco manager.  This chapter expands on my masters thesis.  But Bosco is not enough for researchers with large data requirements.  Therefore, we research methods to expedite data transfer on the campus.   
 
-Chapter \ref{chapter:campusdata} discusses methods for describing and moving data on the campus.  Chapter \ref{chapter:coordinatingstorage} describes a method for coordinating storage with computing using a policy language for data transfers, and includes a novel transfer technique for large shared data on the campus.
+Chapter \ref{chapter:campusdata} discusses these methods for describing and moving data on the campus.  Chapter \ref{chapter:coordinatingstorage} describes a method for coordinating storage with computing using a policy language for data transfers, and includes a novel transfer technique for large shared data on the campus.
 
 
 
