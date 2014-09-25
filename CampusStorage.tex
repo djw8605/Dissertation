@@ -8,17 +8,17 @@ Distributed computing has evolved to include many federated compute elements acr
 \section{Measuring Storage}
 In order to provide matchmaking for resources, the resources need to be accurately described and advertised.  This will require measuring the storage capabilities and capacity of the resources and advertising those attributes to the matchmaking service.
 
-The measurements would be performed on the execution target as well as against the storage targets.  The execution targets would measure the storage capabilities in order to determine if the jobs can run.  The storage targets would be measured in order to determine the number of jobs that could be run against the target.
+The measurements must be performed on the execution target as well as against the storage targets.  The execution targets will measure the storage capabilities in order to determine if the jobs can run.  The storage targets will be measured in order to determine the number of jobs that can be run against the target.
 
 
 \subsection{Ranking Storage}
-In order to find the most ideal resource for a job, the resources need to be ranked.  The simplest is a greedy approach where the resources are simply ranked by their benchmark speeds.  Additionally, they should only be ranked on the attributes requested by the job, IE, if the job is only requesting X iops, then only rank resources on the IOPS available.
+In order to find the most ideal resource for a job, the resources need to be ranked.  The simplest is a greedy approach where the resources are simply ranked by their benchmark speeds.  Additionally, they should only be ranked on the attributes requested by the job, i.e. if the job is only requesting X iops, then only rank resources on the IOPS available.
 
-It is not clear how the ranking should work.  If we assume that the user accurately describes their application’s needs, then we can pack the jobs onto resources by placing the job on the resource that meets the IOPS requirements, but has the least amount of IOPS remaining.  This will be an area of research to compare scheduling techniques on execution resources when considering their storage capabilities.
+It is not immediately clear how the ranking should work.  If we assume that the user accurately describes their application needs, then we can pack the jobs onto resources by placing the job on the resource that meets the IOPS requirements, but has the least amount of IOPS remaining.  This will be an area of research to compare scheduling techniques on execution resources when considering their storage capabilities.
 
 
 \section{Data Movement}
-We will consider 3 different types of data.  The input data, output data, and the job sandbox.  The job sandbox is the environment from which the job will run.  The sandbox is important since the user designs their job to run in this sandbox, and it must be maintained in order for the job to run.  Also, the sandbox is shared input data that multiple executions of the job can utilize.
+We will consider three different types of data.  The input data, output data, and the job sandbox.  The job sandbox is the environment from which the job will run.  The sandbox is important since the user designs their job to run in this sandbox, and it must be maintained in order for the job to run.  Also, the sandbox is shared input data that multiple executions of the job can utilize.
 
 The sandbox is a set of files that must be present when the job begins execution.  For example, a sandbox may contain:
 \begin{itemize}
@@ -27,30 +27,43 @@ The sandbox is a set of files that must be present when the job begins execution
 \item Shared input files such as parameter files or calibration data.
 \end{itemize}
 
-The input data could be unique per job, therefore will be considered separately from the job sandbox.  Shared data between many executions can benefit from caching, where unique input data cannot benefit from caching.
+Some input data could be unique per job, therefore will be considered separately from the job sandbox.  Shared data between many executions can benefit from caching, where unique input data cannot benefit from caching.
 
 Data for each job can be categorized as either shared, unique, private shared, or private unique.
 
 \subsection{Categorizing Data}
 % Describe shared data
-In order to better describe how data should be moved, we must categorize the data as shared or unique, private or non-private.  This creates a 2x2 matrix of possibilities of data.  Below, we define each of these categorizations.  Each of these categories comes with it's own restrictions on how the data may be moved, and how it is presented to the user.
 
-Shared data is data which is the same for multiple jobs in a job set.   In many cases, the majority of the files in the job sandbox can be considered shared data.  One example of shared data are job executables and libraries.  
+\begin{table}
+\begin{tabular}{l | l | l }
+& Public & Private \\ 
+\hline
+Shared & Executables and Libraries & Personal identifying information \\ 
+\hline
+Unique & Input parameters & BLAST Query files \\
+\hline
+\end{tabular}
+
+\end{table}
+
+In order to better describe how data should be moved, we must categorize the data as shared or unique, private or non-private.  This creates a 2x2 matrix of possibilities of data.  Below, we define each of these categorizations.  Each of these categories comes with its own restrictions on how the data may be moved, and how it is presented to the user.
+
+Shared data is data that is the same for multiple jobs in a job set.   In many cases, the majority of the files in the job sandbox can be considered shared data.  Examples of shared data are job executables and libraries.  
 
 Frequently the job executables are the same for a large number of jobs.  Since the executables are the same, contextualization of the job is done through other methods, such as arguments or parameter files.  An example application that would use the same executables and libraries are Monte Carlo \cite{binder2010monte} simulations.  In these applications, the executables are the same for every job, each job is given a unique identifier which is used for the starting condition for the random generation.
 
 Experimental data could also be shared between multiple jobs in a job set.  This can include common input data such as databases or condition data.  For example, BLAST \cite{altschul1990basic} jobs require a database of sequences of proteins which are then matched with specific queries.  The database is typically the same for a large number of queries.  
 
 % May go into introduction
-Many optimizations may be done to transfer shared data.  For example, people have used caching \cite{blumenfeld2008cms} the shared data per site.  Others have experimented using group transfer protocols such as Bittorrent \cite{cohen2008bittorrent} to distributed the shared data \cite{wei2005collaborative}.
+Many optimizations may be done to transfer shared data.  For example, people have used caching \cite{blumenfeld2008cms} the shared data per site.  Others have experimented using group transfer protocols such as Bittorrent \cite{cohen2008bittorrent} to distribute the shared data \cite{wei2005collaborative}.
 
 % unique data
 Data which is different for each job we define as unique data.  The unique data may be small things such as parameter files.  Or they may be large, such as sections of a database to search.  Unique data is defined as data which would not benefit from shared transfer, i.e., no other job needs the same data.
 
-In addition to unique and shared data, there is unique shared data.  This is data which is not the same for every job in a job set, but is shared between jobs in a subset of the jobs.  For our consideration, we will will deem this shared data.
+For our consideration, data which is not the same for every job in a job set, but is shared between jobs in a subset of the jobs will be considered shared data.
 
 % private versions of shared and unique
-We define private data as data which is the user wants to prevent others from viewing.  The level of privacy requested by a user could determine how it can be enforced.  It could be enforced through authenticated access, encrypted data transfers, or both.  In most cases, authenticated data access is sufficient.
+We define private data as data which the user wants to prevent others from viewing.  The level of privacy requested by a user could determine how it can be enforced.  It could be enforced through authenticated access, encrypted data transfers, or both.  In most cases, authenticated data access is sufficient.
 
 Private versions of shared and unique data cannot use the same optimization as public data.  For example, the data could not be transferred using a caching daemon if authenticated access is required.   Transferring data unauthenticated, even encrypted, is dangerous due to susceptibility to brute force.
 
@@ -64,13 +77,13 @@ Logically, we can separate these items into 2 categories
 \item Acceptable methods of data movement
 \end{itemize}
 
-The users must specify these items in the description of their jobs.  The exact language used for these specifications is yet to be determined.  
+The users must specify these items in the description of their jobs.  No consensus language for these specifications currently exists.  
 
-The language for the requirements will be similar to the current specifications for memory and cpu.  The user will request a certain amount of storage parameters, and machines will need to provide these metrics just as they do now with cpu and memory.
+The language for the requirements will be similar to the current specifications for memory and cpu.  The user will request certain storage parameters, and machines will need to provide these metrics just as they do now with cpu and memory.
 
-The acceptable methods for data movement can either be specified by the user, or by the submitting system.  The system can stage the data to a third party, which will then be used for the transfer to the execution target.  This can be especially useful if multiple jobs use the same input data, a useful example of this is HCC’s use of LVS to serve common files on the OSG.  The server could automatically choose to use HTTP to transfer the files, especially since there are many common files, and the files would be cached on the remote sites using normal HTTP proxy caches.
+The acceptable methods for data movement can either be specified by the user, or by the submitting system.  The system can stage the data to a third party, which will then be used for the transfer to the execution target.  This can be especially useful if multiple jobs use the same input data, a useful example of this is HCC’s use of LVS \cite{zhang2000linux} to serve common files on the OSG.  The server could automatically choose to use HTTP to transfer the files, especially since there are many common files, and the files would be cached on the remote sites using normal HTTP proxy caches.
 
-Another possible scenario is when starting a job on Amazon EC2.  If it is a virtual machine job, then input data could be created as a CD drive, or a block device, and input into the machine using the block device as input storage.
+%Another possible scenario is when starting a job on Amazon EC2.  If it is a virtual machine job, then input data could be created as a CD drive, or a block device, and input into the machine using the block device as input storage.
 
 \section{Policy language for matchmaking storage}
 The goal is to enable the user to describe their application to the scheduler in such a way that the scheduler can make intelligent decisions on:
@@ -84,9 +97,9 @@ The goal is to enable the user to describe their application to the scheduler in
 
 \section{User Scenario}
 
-A user creates their submit file and specifies their data.  The above policies will can be matched to syntax in the submit file.  The syntax is shown in Listing \ref{lst:inputsyntax}.  An example BLAST syntax is shown in Listing \ref{lst:blastsyntax}.  
+A user creates their submit file and specifies their data.  The above policies will be matched to syntax in the submit file.  The syntax is shown in Listing \ref{lst:inputsyntax}.  We illustrate a shared, non-private case using a BLAST database, and a unique private file with the BLAST queries in Listing \ref{lst:blastsyntax}.  
 
-\begin{figure}
+\begin{figure}[h!]
 \centering
 \begin{lstlisting}[frame=single,caption={Input Syntax},captionpos=b,label={lst:inputsyntax}] 
 {shared|unique}_{public|private}_input = <file1>,<file2>,...
@@ -95,7 +108,7 @@ A user creates their submit file and specifies their data.  The above policies w
 
 
 
-\begin{figure}
+\begin{figure}[h!]
 \centering
 \begin{lstlisting}[frame=single,caption={Blast input syntax},captionpos=b,label={lst:blastsyntax}]
 shared_public_input = blast_database.fasta
@@ -104,21 +117,21 @@ unique_private_input = queries
 \end{figure}
 
 
-The blast database is public, so there is no need to encrypt or authenticate access to the database.  Further, the database is shared between all executions of the job. The \texttt{queries} are private and therefore they need to be authenticated in order to access the data.  
+The blast database is public, so there is no need to encrypt or authenticate access to the database.  Further, the database is shared between all executions of the job. The \texttt{queries} may contain personal identifiable information, and are therefore private and need authenticated access control in order to access the data.  
 
 When the job begins, it will be guaranteed to have the files \texttt{blast\_database.fasta} and \texttt{queries} available to it.  The job framework will decide on the method of transfer and transient storage based on negotiation between the user specified syntax, the worker node, and the submit node.
 
 
 \section{Defining Storage Target}
-In this paper, we define storage based on it’s capabilities:
+In this section, we define storage based on it’s capabilities:
 \begin{itemize}
 \item The total space available for an application or set of applications to store data.
 \item The bandwidth available to the storage target.
-\item The IOPS available to to read / write to the storage (more applicable to local storage).
+\item The IOPS available to read / write to the storage (more applicable to local storage).
 \item Access Protocol
 \end{itemize}
 
-Therefore, when mentioning storage, we must specify all of these attributes.
+Therefore, when mentioning storage, we must specify or estimate or discover all of these attributes.
 
 
 

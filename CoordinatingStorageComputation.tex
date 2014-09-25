@@ -3,19 +3,19 @@
 
 \section{Introduction}
 
-As it has been shown in the previous chapters, computation and storage are intrinsically linked.  Further, it is necessary for the computation to communicate it's requirements and preferences to the storage.  In order to meet these demands, I have designed a new file transfer service that can be used to coordinate storage with the computation.  The new storage system, (insert name), is  
+Computation and storage are intrinsically linked.  Further, it is necessary for the computation to communicate its requirements and preferences to the storage.  In order to meet these demands, I have designed a new file transfer service that can be used to coordinate storage with the computation.  
 
-As has been described in the previous chapters, large inputs into a pipeline are becoming more common.  Unfortunately, on the Grid there is no solution to many of these use cases.  The typical use case that we see on the Grid is:
+Large input datasets are becoming common in scientific computing.  Unfortunately, on the Grid there is no solution for many use cases.  The typical use case that we see on the Grid is:
 
 \begin{itemize}
 
 \item User has a set of jobs, for example 1000
 \item There are 200 machines available.
-\item Each job has a large amount of shared input files.
+\item Each job has a large number of shared input files.
 
 \end{itemize}
 
-Since each machine will run multiple of the jobs, by default, all batch systems will transfer the large input file for each job.  Our goal is to minimize the number of times the input data is transferred from the submit host to the execution target.  As it was described in the previous chapters, a shared filesystem is frequently not available when submitting to multiple campus clusters.
+Since each machine will run multiple jobs, by default, all batch systems will transfer the large input file for each job.  Our goal is to minimize the number of times the input data is transferred from the submit host to the execution target.  As it was described in the previous chapters, a shared filesystem is frequently not available when submitting to multiple campus clusters.  Therefore a framework of local caching and distributed file transfer is proposed to be developed to address these situations.
 
 When transferring files in a distributed framework, network bandwidth can be a limiting factor. 
 
@@ -32,11 +32,11 @@ The requirements of the caching are:
 
 \section{Design}
 
-The caching daemon will run on both the submit and execute hosts.  A user will copy files into the cache and will assign it a lease with a explicit expiration time.  The user will provide a replication policy expression that will be used to determine which execution hosts to replicate the files.
+The caching daemon will run on both the submit and execute hosts.  A user, or a software agent on their behalf, will copy files into the cache and will assign it a lease with an explicit expiration time.  The user will provide a replication policy expression that will be used to determine to which execution hosts to replicate the files.
 
-The caching daemon that is running on the submit host will manage the user's cache.  The user will communicate with the caching daemon in order to copy files into the cache and to assign attributes to the cache, including expiration time and replication policy.  After the expiration time, the daemon can choose to delete the files in the cache.  
+The caching daemon that is running on the submit host will manage the user's cache.  The user will communicate with the caching daemon in order to copy files into the cache and to assign attributes to the cache, including expiration time and replication policy.  After the expiration time, the local daemon can choose to delete the files in the cache.
 
-The policy expression language is the modeled after the matchmaking language in the Condor system \cite{raman1998matchmaking}.  The caching daemon is matchmaking the cache contents to a set of resources, therefore it is natural to use Condor's matchmaking language that is used to match jobs to resources.  Once a resource is determined to match the caching contents policy expression, the caching daemon will contact the resource's caching daemon in order to initiate a cache replication.  The caching daemon on the remote resource is an independent agent that has the ability deny a caching replication.  Reasons to deny a caching replication request could be:
+The policy expression language is modeled after the matchmaking language in the Condor system \cite{raman1998matchmaking}.  The caching daemon is matching the cache contents to a set of resources, therefore it is natural to use Condor's matchmaking language that is used to match jobs to resources.  Once a resource is determined to match the caching contents policy expression, the caching daemon will contact the resource's caching daemon in order to initiate a cache replication.  The caching daemon on the remote resource is an independent agent that has the ability to deny a caching replication even after matchmaking is successful.  The state of the caching daemon on the remote resource can change between matchmaking in beginning of the transfers.  Reasons to deny a caching replication request could be:
 
 \begin{itemize}
 \item The resource does not have the space to accommodate the cache.
@@ -44,32 +44,31 @@ The policy expression language is the modeled after the matchmaking language in 
 \item The resource does not expect to be able to run the user's jobs and has determined that replicating the cached files will not be used.
 \end{itemize}
 
-In addition to traditional source and sink transfers, the caching daemon will employ a group transfer method modeled after the bittorrent \cite{cohen2008bittorrent} transfer mechanisms.  It will utilize the shared transfer techniques of Bittorrent in order to minimize the bandwidth between the execution resource and the submit host.  The execution host will download data not only from the submit host, but also from other nearby execution hosts.  Most resources will be on network partitions, therefore communication between clusters will likely be impossible.  Communication within the cluster is traditionally optimized, therefore execution resources talking with one another will efficient.
-
-\subsection{User Experience}
+In addition to traditional source and sink transfers, the caching daemon will employ a group transfer method modeled after the bittorrent \cite{cohen2008bittorrent} transfer mechanisms.  It will utilize the shared transfer techniques of Bittorrent in order to minimize the bandwidth between the execution resource and the submit host.  The execution host will download data not only from the submit host, but also from other nearby execution hosts.  Most resources will be on network partitions, therefore communication between clusters will likely be impossible.  Communication within the cluster is traditionally optimized, therefore execution resources talking with one another will be most efficient.
 
 \section{Usage}
+The command line usage of this caching daemon has not been fully designed.
 
 \section{Tests}
 
-There are many tests that can be used to determine if we met our requirements.  I will list a few here.  As the implementation matures, further tests may be developed.
+There are many tests that can be used to determine if we meet our requirements.  I will list a few here.  As the implementation matures, further tests may be developed.
 
 \begin{itemize}
-\item Cache Hit Rate - The percentage of the time that jobs 
-\item Replicated Bytes sent from the submit host vs. traditional transfers
+\item Cache Hit Rate - The percentage of the time that jobs transfer input files from the cache rather than from the submit host.
+\item Replicated Bytes - Number of bytes that are sent multiple times from the submit host to any execution host.
+\item Time to completion - Does the caching improve the total time to completion for workflows?
 
 \end{itemize}
-
-TODO: Add more tests as relevant
 
 Many of these tests are dependent on the workflow used to evaluate the caching.  Therefore, we will use sample workflows from the community such as a BLAST and AutoDock to evaluate the solution.
 
 \subsection{Expected Results}
 
-If the caching daemon implemention is successful, I anticipate that the cache hit rate is high and the replicated bytes sent from the submit host is low.  Further, with the Bittorrent transfer method, I would expect the bytes sent inside the cluster to be much larger then the bytes copied from the submit host.
+If the caching daemon implemention is successful, I anticipate that the cache hit rate is high and the replicated bytes sent from the submit host is low.  Further, with the Bittorrent transfer method, I would expect the bytes sent inside the cluster to be much larger then the bytes copied from the submit host, which is preferable since the bandwidth between nodes inside the same cluster is typically much larger than the bandwidth from an external source, such as the submit host.
 
 \section{Conclusion}
 
+Work on the daemon has begun.  A full design document has been create, which includes protocol specifics and prototyped usage of the caching framework.  Implementing the protocol handlers and the matchmaking is to be completed.
 
 
 
