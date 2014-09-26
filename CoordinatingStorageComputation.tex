@@ -34,9 +34,11 @@ The requirements of the caching are:
 \item Each cached item must have a lease and an expiration to enable the deletion of items.
 \end{itemize}
 
+
+
 \section{Design}
 
-The caching daemon is run on both the submit and execute hosts.  It acts as an independent agent managing the host's cache.
+The caching daemon is run on both the submit and execute hosts.  It acts as an independent agent managing the host's cache, while interacting with the both user and other deamons that may make requests to the cache.
 
 
 
@@ -44,7 +46,9 @@ The caching daemon is run on both the submit and execute hosts.  It acts as an i
 
 A user, or a software agent on their behalf, will copy files into the cache and will assign it a lease with an explicit expiration time.  The user will provide a replication policy expression that will be used to determine to which execution hosts to replicate the files.
 
-The caching daemon that is running on the submit host will manage the user's cache.  The user will communicate with the caching daemon in order to copy files into the cache and to assign attributes to the cache, including expiration time and replication policy.  After the expiration time, the local daemon can choose to delete the files in the cache.
+The caching daemon that is running on the submit host will manage the user's cache.  The user communicates with the caching daemon in order to copy files into the cache and to assign attributes to the cache, including expiration time and replication policy.  After the expiration time, the local daemon can choose to delete the files in the cache.
+
+The user may assign a replication policy to the cache.  The replication policy has 2 components, the requirements on the nodes which to replicate and the method used to replicate the data to other caches.  The replication policy may include the methods that can be used to replicate and transfer the files.  For example, for private files, secured transfers are required.  While, for public data, you may be able to use bittorrent which in most situations will be no worse than direct transfers.  The cache originator has a default replication policy set by an administrator.
 
 An important concept of the caching framework is a cache originator.  The cache originator is the original daemon that the user uploaded their input files.  A cache originator is in charge of distributing replication requests to potential nodes, as well as providing the files when requested.
 
