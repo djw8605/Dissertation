@@ -15,7 +15,11 @@ Large input datasets are becoming common in scientific computing.  Unfortunately
 
 \end{itemize}
 
-Since each machine will run multiple jobs, by default, all batch systems will transfer the large input file for each job.  Our goal is to minimize the number of times the input data is transferred from the submit host to the execution target.  As it was described in the previous chapters, a shared filesystem is frequently not available when submitting to multiple campus clusters.  Therefore a framework of local caching and distributed file transfer is proposed to be developed to address these situations.
+Since each machine will run multiple jobs, by default, all batch systems will transfer the large input file for each job.  Our goal is to minimize the number of times the input data is transferred from the submit host to the execution target.  As it was described in the previous chapters, a shared filesystem is frequently not available when submitting to multiple campus clusters, or on the Grid.  Therefore a framework of local caching and distributed file transfer is proposed to be developed to address these situations.
+
+Local caching is defined as saving the input files on the local machine and making them available to local jobs.  Local caching is different from site caching, which is done in the OSG by squid caches.  We define site caching in which data files are stored and available to jobs from a closer source than the original.  In most cases on the OSG, the site cache is a node inside the cluster that has both low latency and high bandwidth connections to all of the execution hosts.
+
+We use distributed transfer to mean transfers that are not from a single source.  In our case, we will be using Bittorrent \cite{cohen2008bittorrent}, which a client may download parts of files from multiple sources.  Additionally, the client may make available parts of the file that have already been downloaded.
 
 When transferring files in a distributed framework, network bandwidth can be a limiting factor. 
 
@@ -32,9 +36,28 @@ The requirements of the caching are:
 
 \section{Design}
 
-The caching daemon will run on both the submit and execute hosts.  A user, or a software agent on their behalf, will copy files into the cache and will assign it a lease with an explicit expiration time.  The user will provide a replication policy expression that will be used to determine to which execution hosts to replicate the files.
+The caching daemon is run on both the submit and execute hosts.  It acts as an independent agent managing the host's cache.
+
+
+
+\subsection{User Interaction}
+
+A user, or a software agent on their behalf, will copy files into the cache and will assign it a lease with an explicit expiration time.  The user will provide a replication policy expression that will be used to determine to which execution hosts to replicate the files.
 
 The caching daemon that is running on the submit host will manage the user's cache.  The user will communicate with the caching daemon in order to copy files into the cache and to assign attributes to the cache, including expiration time and replication policy.  After the expiration time, the local daemon can choose to delete the files in the cache.
+
+An important concept of the caching framework is a cache originator.  The cache originator is the original daemon that the user uploaded their input files.  A cache originator is in charge of distributing replication requests to potential nodes, as well as providing the files when requested.
+
+\subsection{Daemon Interaction}
+
+The caching daemons interact with each other
+
+
+\subsection{Job Interaction}
+
+
+
+
 
 The policy expression language is modeled after the matchmaking language in the Condor system \cite{raman1998matchmaking}.  The caching daemon is matching the cache contents to a set of resources, therefore it is natural to use Condor's matchmaking language that is used to match jobs to resources.  Once a resource is determined to match the caching contents policy expression, the caching daemon will contact the resource's caching daemon in order to initiate a cache replication.  The caching daemon on the remote resource is an independent agent that has the ability to deny a caching replication even after matchmaking is successful.  The state of the caching daemon on the remote resource can change between matchmaking in beginning of the transfers.  Reasons to deny a caching replication request could be:
 
