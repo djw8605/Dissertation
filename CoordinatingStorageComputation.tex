@@ -50,11 +50,11 @@ The caching daemon that is running on the submit host will manage the user's cac
 
 The user may assign a replication policy to the cache.  The replication policy has 2 components, the requirements on the nodes which to replicate and the method used to replicate the data to other caches.  The replication policy may include the methods that can be used to replicate and transfer the files.  For example, for private files, secured transfers are required.  While, for public data, you may be able to use bittorrent which in most situations will be no worse than direct transfers.  The cache originator has a default replication policy set by an administrator.
 
-An important concept of the caching framework is a cache originator.  The cache originator is the original daemon that the user uploaded their input files.  A cache originator is in charge of distributing replication requests to potential nodes, as well as providing the files when requested.
+An important concept of the caching framework is a cache originator.  The cache originator is the original daemon that the user uploaded their input files.  A cache originator is in charge of distributing replication requests to potential nodes, as well as providing the cached files when requested.
 
 \subsection{Daemon Interaction}
 
-The caching daemons interact with each other
+The caching daemons interact with each other during replication requests.  A cache originator sends replication requests to remote caching daemons that match the replication policy that is set by the user.  The remote caching daemon then confirms that the cache data can be hosted on the server.  The remote cache then initiates a file transfer in order to transfer the cached data from the origin to the remote cached.
 
 
 \subsection{Job Interaction}
