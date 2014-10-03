@@ -54,7 +54,19 @@ An important concept of the caching framework is a cache originator.  The cache 
 
 \subsection{Daemon Interaction}
 
+% Caching daemons register with the collector
+Each caching daemon registers with the pool collector.  The pool collector 
+
 The caching daemons interact with each other during replication requests.  A cache originator sends replication requests to remote caching daemons that match the replication policy that is set by the user.  The remote caching daemon then confirms that the cache data can be hosted on the server.  The remote cache then initiates a file transfer in order to transfer the cached data from the origin to the remote cached.
+
+A pull model was designed in order to increase the autonomy of the caching daemons.  The cache originator daemon will send requests to the remote caching daemons.  But it does not expect a response.  It is up to the remote caching daemon whether to pull the files into it's own cache.  This allows the remote caching daemon the autonomy to deny a replication request for any reason.  Though the cache originator does attempt to match caches with remote resources based on the advertised resource requirements, the remote cache state may change between advertisements, and therefore deny a replication even if the originator matches the resource with a cache.  Reasons to deny a caching replication request could be:
+
+\begin{itemize}
+\item The resource does not have the space to accommodate the cache.
+\item The resource may not have the necessary bandwidth available in order to transfer the cache files.
+\item The resource does not expect to be able to run the user's jobs and has determined that replicating the cached files will not be used.
+\end{itemize}
+
 
 
 \subsection{Job Interaction}
@@ -63,13 +75,7 @@ The caching daemons interact with each other during replication requests.  A cac
 
 
 
-The policy expression language is modeled after the matchmaking language in the Condor system \cite{raman1998matchmaking}.  The caching daemon is matching the cache contents to a set of resources, therefore it is natural to use Condor's matchmaking language that is used to match jobs to resources.  Once a resource is determined to match the caching contents policy expression, the caching daemon will contact the resource's caching daemon in order to initiate a cache replication.  The caching daemon on the remote resource is an independent agent that has the ability to deny a caching replication even after matchmaking is successful.  The state of the caching daemon on the remote resource can change between matchmaking in beginning of the transfers.  Reasons to deny a caching replication request could be:
-
-\begin{itemize}
-\item The resource does not have the space to accommodate the cache.
-\item The resource may not have the necessary bandwidth available in order to transfer the cache files.
-\item The resource does not expect to be able to run the user's jobs and has determined that replicating the cached files will not be used.
-\end{itemize}
+The policy expression language is modeled after the matchmaking language in the Condor system \cite{raman1998matchmaking}.  The caching daemon is matching the cache contents to a set of resources, therefore it is natural to use Condor's matchmaking language that is used to match jobs to resources.  Once a resource is determined to match the caching contents policy expression, the caching daemon will contact the resource's caching daemon in order to initiate a cache replication.  The caching daemon on the remote resource is an independent agent that has the ability to deny a caching replication even after matchmaking is successful.  
 
 In addition to traditional source and sink transfers, the caching daemon will employ a group transfer method modeled after the bittorrent \cite{cohen2008bittorrent} transfer mechanisms.  It will utilize the shared transfer techniques of Bittorrent in order to minimize the bandwidth between the execution resource and the submit host.  The execution host will download data not only from the submit host, but also from other nearby execution hosts.  Most resources will be on network partitions, therefore communication between clusters will likely be impossible.  Communication within the cluster is traditionally optimized, therefore execution resources talking with one another will be most efficient.
 
