@@ -10,6 +10,10 @@
 
 %\end{abstract}
 
+The following chapter is a combination of the following publication and additional work that is being prepared for publication.
+
+\bibentry{weitzel2015pdpta}
+
 
 
 
@@ -240,111 +244,6 @@ In the future we plan to investigate incorporating job matchmaking with cache pl
 
 This research was done using resources provided by the Open Science Grid, which is supported by the National Science Foundation and the U.S. Department of Energy's Office of Science.
 
-
-
-
-
-\section{Introduction}
-
-Computation and storage are intrinsically linked.  Further, it is necessary for the computation to communicate its requirements and preferences to the storage.  In order to meet these demands, I have designed a new file transfer service that can be used to coordinate storage with the computation.  
-
-Large input datasets are becoming common in scientific computing.  Unfortunately, on the Grid there is no solution for many use cases.  The typical use case that we see on the Grid is:
-
-\begin{itemize}
-
-\item User has a set of jobs, for example 1000
-\item There are 200 machines available.
-\item Each job has a large number of shared input files.
-
-\end{itemize}
-
-Since each machine will run multiple jobs, by default, all batch systems will transfer the large input file for each job.  Our goal is to minimize the number of times the input data is transferred from the submit host to the execution target.  As it was described in the previous chapters, a shared filesystem is frequently not available when submitting to multiple campus clusters, or on the Grid.  Therefore a framework of local caching and distributed file transfer is proposed to be developed to address these situations.
-
-Local caching is defined as saving the input files on the local machine and making them available to local jobs.  Local caching is different from site caching, which is done in the OSG by squid caches.  We define site caching in which data files are stored and available to jobs from a closer source than the original.  In most cases on the OSG, the site cache is a node inside the cluster that has both low latency and high bandwidth connections to all of the execution hosts.
-
-We use distributed transfer to mean transfers that are not from a single source.  In our case, we will be using Bittorrent \cite{cohen2008bittorrent}, which a client may download parts of files from multiple sources.  Additionally, the client may make available parts of the file that have already been downloaded.
-
-When transferring files in a distributed framework, network bandwidth can be a limiting factor. 
-
-
-\section{Requirements}
-
-The requirements of the caching are:
-\begin{itemize}
-\item Minimize the number of times the input files are transferred.
-\item Coordinate transfers with job submissions.
-\item Provide a intuitive user interface for ease of use.
-\item Each cached item must have a lease and an expiration to enable the deletion of items.
-\end{itemize}
-
-
-
-\section{Design}
-
-The caching daemon is run on both the submit and execute hosts.  It acts as an independent agent managing the host's cache, while interacting with the both user and other deamons that may make requests to the cache.
-
-
-
-\subsection{User Interaction}
-
-A user, or a software agent on their behalf, will copy files into the cache and will assign it a lease with an explicit expiration time.  The user will provide a replication policy expression that will be used to determine to which execution hosts to replicate the files.
-
-The caching daemon that is running on the submit host will manage the user's cache.  The user communicates with the caching daemon in order to copy files into the cache and to assign attributes to the cache, including expiration time and replication policy.  After the expiration time, the local daemon can choose to delete the files in the cache.
-
-The user may assign a replication policy to the cache.  The replication policy has 2 components, the requirements on the nodes which to replicate and the method used to replicate the data to other caches.  The replication policy may include the methods that can be used to replicate and transfer the files.  For example, for private files, secured transfers are required.  While, for public data, you may be able to use bittorrent which in most situations will be no worse than direct transfers.  The cache originator has a default replication policy set by an administrator.
-
-An important concept of the caching framework is a cache originator.  The cache originator is the original daemon that the user uploaded their input files.  A cache originator is in charge of distributing replication requests to potential nodes, as well as providing the cached files when requested.
-
-\subsection{Daemon Interaction}
-
-% Caching daemons register with the collector
-Each caching daemon registers with the pool collector.  The collector serves as a catalog of available cache daemons that can be used for replication.  Additionally, each cache originator advertises their original caches to the pool collector.
-
-The caching daemons interact with each other during replication requests.  A cache originator sends replication requests to remote caching daemons that match the replication policy that is set by the user.  The remote caching daemon then confirms that the cache data can be hosted on the server.  The remote cache then initiates a file transfer in order to transfer the cached data from the origin to the remote cached.
-
-A pull model was designed in order to increase the autonomy of the caching daemons.  The cache originator daemon will send requests to the remote caching daemons.  But it does not expect a response.  It is up to the remote caching daemon whether to pull the files into it's own cache.  This allows the remote caching daemon the autonomy to deny a replication request for any reason.  Though the cache originator does attempt to match caches with remote resources based on the advertised resource requirements, the remote cache state may change between advertisements, and therefore deny a replication even if the originator matches the resource with a cache.  Reasons to deny a caching replication request could be:
-
-\begin{itemize}
-\item The resource does not have the space to accommodate the cache.
-\item The resource may not have the necessary bandwidth available in order to transfer the cache files.
-\item The resource does not expect to be able to run the user's jobs and has determined that replicating the cached files will not be used.
-\end{itemize}
-
-With the autonomy that the pull model, the caching daemons are able to refuse a replication request without causing faults in the system.
-
-\subsection{Job Interaction}
-
-
-
-
-
-The policy expression language is modeled after the matchmaking language in the Condor system \cite{raman1998matchmaking}.  The caching daemon is matching the cache contents to a set of resources, therefore it is natural to use Condor's matchmaking language that is used to match jobs to resources.  Once a resource is determined to match the caching contents policy expression, the caching daemon will contact the resource's caching daemon in order to initiate a cache replication.  The caching daemon on the remote resource is an independent agent that has the ability to deny a caching replication even after matchmaking is successful.  
-
-In addition to traditional source and sink transfers, the caching daemon will employ a group transfer method modeled after the bittorrent \cite{cohen2008bittorrent} transfer mechanisms.  It will utilize the shared transfer techniques of Bittorrent in order to minimize the bandwidth between the execution resource and the submit host.  The execution host will download data not only from the submit host, but also from other nearby execution hosts.  Most resources will be on network partitions, therefore communication between clusters will likely be impossible.  Communication within the cluster is traditionally optimized, therefore execution resources talking with one another will be most efficient.
-
-\section{Usage}
-The command line usage of this caching daemon has not been fully designed.
-
-\section{Tests}
-
-There are many tests that can be used to determine if we meet our requirements.  I will list a few here.  As the implementation matures, further tests may be developed.
-
-\begin{itemize}
-\item Cache Hit Rate - The percentage of the time that jobs transfer input files from the cache rather than from the submit host.
-\item Replicated Bytes - Number of bytes that are sent multiple times from the submit host to any execution host.
-\item Time to completion - Does the caching improve the total time to completion for workflows?
-
-\end{itemize}
-
-Many of these tests are dependent on the workflow used to evaluate the caching.  Therefore, we will use sample workflows from the community such as a BLAST and AutoDock to evaluate the solution.
-
-\subsection{Expected Results}
-
-If the caching daemon implemention is successful, I anticipate that the cache hit rate is high and the replicated bytes sent from the submit host is low.  Further, with the Bittorrent transfer method, I would expect the bytes sent inside the cluster to be much larger then the bytes copied from the submit host, which is preferable since the bandwidth between nodes inside the same cluster is typically much larger than the bandwidth from an external source, such as the submit host.
-
-\section{Conclusion}
-
-Work on the daemon has begun.  A full design document has been create, which includes protocol specifics and prototyped usage of the caching framework.  Implementing the protocol handlers and the matchmaking is to be completed.
 
 
 
