@@ -6,5 +6,6 @@
 *.out
 *.pdf
 !images/*.pdf
+!BoscoRImages/*.pdf
 *.gz
 *.toc
