@@ -85,6 +85,15 @@ In \cite{briquet2007scheduling}, the authors use scheduling, caching, and BitTor
 
 The HTCondor CacheD is a daemon that runs on both the execution host and the submitter.  For our purposes, a cache is defined as an immutable set of files that has metadata associated with it.  The metadata can include a cache expiration time, as well as ownership and acceptable transfer methods.
 
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\textwidth]{images/DaemonLayout.pdf}
+\caption{Daemon Locations}
+\label{fig:daemonlayout}
+\end{figure}
+
+
 The CacheD follows the HTCondor design paradigm of a system of independent agents cooperating.  Each CacheD makes decisions independently of each other.  Coordination is done by CacheDÕs communicating and negotiating with each other.
 
 Each caching daemon registers with the HTCondor Collector.  The collector serves as a catalog of available cache daemons that can be used for replication.
