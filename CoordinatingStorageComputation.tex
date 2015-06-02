@@ -94,7 +94,7 @@ The HTCondor CacheD is a daemon that runs on both the execution host and the sub
 \end{figure}
 
 
-The CacheD follows the HTCondor design paradigm of a system of independent agents cooperating.  Each CacheD makes decisions independently of each other.  Coordination is done by CacheDÕs communicating and negotiating with each other.
+The CacheD follows the HTCondor design paradigm of a system of independent agents cooperating.  Each CacheD makes decisions independently of each other.  Coordination is done by CacheDÕs communicating and negotiating with each other.  Figure \ref{fig:daemonlayout} shows the location of daemons both on the submission host and the worker nodes.
 
 Each caching daemon registers with the HTCondor Collector.  The collector serves as a catalog of available cache daemons that can be used for replication.
 
@@ -118,7 +118,7 @@ The receiving CacheD can deny a replication request for many reasons, including:
 
 The ability of the receiving CacheD to deny a replication request follows HTCondor's independent agent model.
 
-The policy expression language is modeled after the matchmaking language in the HTCondor system \cite{raman1998matchmaking}.  The caching daemon is matching the cache contents to a set of resources; therefore, it is natural to use HtCondor's same matchmaking language that is used to match jobs to resources.  Once a resource is determined to match the cache's policy expression, the caching daemon will contact the resource's caching daemon in order to initiate a cache replication.  The caching daemon on the remote resource is an independent agent that has the ability to deny a caching replication even after matchmaking is successful.  
+The policy expression language is modeled after the matchmaking language in the HTCondor system \cite{raman1998matchmaking}.  The caching daemon is matching the cache contents to a set of resources; therefore, it is natural to use HTCondor's same matchmaking language that is used to match jobs to resources.  Once a resource is determined to match the cache's policy expression, the caching daemon will contact the resource's caching daemon in order to initiate a cache replication.  The caching daemon on the remote resource is an independent agent that has the ability to deny a caching replication even after matchmaking is successful.  A full discussion of the policy language, as well as possible configurations, is discussed in Chapter \ref{chapter:campusdata}.
 
 Libtorrent is built into the CacheD to provide native BitTorrent functionality.  The CacheD is capable of creating torrents from sets of files in a cache, as well as downloading cache files using the BitTorrent protocol.  Since this is a distributed set of caches, we will not use a static torrent tracker.  Rather, we will use a Distributed Hash Table \cite{dinger2009decentralized} and local peer discovery \cite{legout2007clustering} features of the BitTorrent protocol.  This ensures that there are no single points of failure.
 
@@ -138,10 +138,12 @@ When a job starts, the CacheD begins to download the cache file.  The cache is i
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=0.5\textwidth]{images/CacheDownloadFlow.pdf}
+\includegraphics[width=0.7\textwidth]{images/CacheDownloadFlow.pdf}
 \caption{Flow of Replication Requests}
 \label{fig:replicationflow}
 \end{figure}
+
+Figure \ref{fig:replicationflow}'s flow can be shown in the steps:
 
 \begin{enumerate}
 \item The plugin contacts the node local CacheD daemon on the worker node.  It requests that the cache is replicated locally in order to perform a local transfer.
@@ -173,7 +175,9 @@ In Figure \ref{fig:cachebottleneck}, you can see a traditional configuration of 
 
 
 \subsection{Parenting of CacheDs}
-During testing of the CacheD, it was apparent that BitTorrent increases the IO queue on the host server significantly, degrading the IO performance for all jobs on the server.  This increased IO queue leads to competition between BitTorrent-enabled CacheD's on the same host.  In order to address the increased IO queue, each CacheD will designate a single daemon on the host that downloads the files through BitTorrent.  All other CacheDÕs will then download the cache from the parent using Direct file transfer mechanisms.  
+During testing of the CacheD, it was apparent that BitTorrent increases the IO queue on the host server significantly, degrading the IO performance for all jobs on the server.  This increased IO queue leads to competition between BitTorrent-enabled CacheD's on the same host.  In order to address the increased IO queue, each CacheD will designate a single daemon on the host that downloads the files through BitTorrent.  All other CacheD's will then download the cache from the parent using Direct file transfer mechanisms.  
+
+A CacheD will discover a node local parent by querying the HTCondor Collector that holds a catalog of all CacheD's known to the system.  If it discovers a CacheD on the same node as itself, the CacheD started first will be chosen.  By choosing a parent that is older, it improves the chance that the parent CacheD may already have the cache downloaded.  If multiple CacheD's have the same starting time, they are alphabetically ordered by their unique name, and the first CacheD alphabetically is chosen as parent.
 
 \section{Results}
 
