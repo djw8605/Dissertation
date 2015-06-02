@@ -5,6 +5,7 @@
 *.blg
 *.out
 *.pdf
+*.dvi
 !images/*.pdf
 !BoscoRImages/*.pdf
 *.gz
