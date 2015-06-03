@@ -94,7 +94,7 @@ The HTCondor CacheD is a daemon that runs on both the execution host and the sub
 \end{figure}
 
 
-The CacheD follows the HTCondor design paradigm of a system of independent agents cooperating.  Each CacheD makes decisions independently of each other.  Coordination is done by CacheDÕs communicating and negotiating with each other.  Figure \ref{fig:daemonlayout} shows the location of daemons both on the submission host and the worker nodes.
+The CacheD follows the HTCondor design paradigm of a system of independent agents cooperating.  Each CacheD makes decisions independently of each other.  Coordination is done by CacheD's communicating and negotiating with each other.  Figure \ref{fig:daemonlayout} shows the location of daemons both on the submission host and the worker nodes.  The CacheD on the user's submit machine acts as the cache originator, discussed below.  The CacheDs on the worker nodes download the cache when requested.
 
 Each caching daemon registers with the HTCondor Collector.  The collector serves as a catalog of available cache daemons that can be used for replication.
 
@@ -153,9 +153,7 @@ Figure \ref{fig:replicationflow}'s flow can be shown in the steps:
 \item Once the cache is replicated locally, the plugin downloads the files from the local CacheD.
 \end{enumerate}
 
-
-
-
+All communication between CacheDs are authenticated using the regular HTCondor methods.  ClassAds are used for communication between the CacheDs so that the protocol can be expanded if needed. 
 
 
 Each download is negotiated for the appropriate transfer method between the parent and the client.  Between parent and client CacheD's, the cache's individual replication preferences are honored.  Between a CacheD and the transfer plugin, an additional protocol is offered: symbolic link (symlink).
@@ -177,7 +175,19 @@ In Figure \ref{fig:cachebottleneck}, you can see a traditional configuration of 
 \subsection{Parenting of CacheDs}
 During testing of the CacheD, it was apparent that BitTorrent increases the IO queue on the host server significantly, degrading the IO performance for all jobs on the server.  This increased IO queue leads to competition between BitTorrent-enabled CacheD's on the same host.  In order to address the increased IO queue, each CacheD will designate a single daemon on the host that downloads the files through BitTorrent.  All other CacheD's will then download the cache from the parent using Direct file transfer mechanisms.  
 
-A CacheD will discover a node local parent by querying the HTCondor Collector that holds a catalog of all CacheD's known to the system.  If it discovers a CacheD on the same node as itself, the CacheD started first will be chosen.  By choosing a parent that is older, it improves the chance that the parent CacheD may already have the cache downloaded.  If multiple CacheD's have the same starting time, they are alphabetically ordered by their unique name, and the first CacheD alphabetically is chosen as parent.
+A CacheD will discover a node local parent by querying the HTCondor Collector that holds a catalog of all CacheD's known to the system.  Figure \ref{fig:daemonlayout} illistrates the layout of the HTCondor Collector in respect to the worker nodes.  If it discovers a CacheD on the same node as itself, the CacheD started first will be chosen.  By choosing a parent that is older, it improves the chance that the parent CacheD may already have the cache downloaded.  If multiple CacheD's have the same starting time, they are alphabetically ordered by their unique name, and the first CacheD alphabetically is chosen as parent.
+
+Parenting can also be used to create a hierarchy of caching.  This is especially useful for direct transfer mechanisms.  Figure \ref{fig:cacheparenting} shows an example of caching parenting on different clusters.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\textwidth]{images/CacheDParenting.pdf}
+\caption{Illustration of Cache Parenting}
+\label{fig:cacheparenting}
+\end{figure}
+
+A CacheD's parent is discovered through the configuration.  When a CacheD starts, it checks the configuration for a special attribute, the \texttt{CACHED\_PARENT}.  It then attempts to connect to the parent, to verify that the parent is functional.  If the parent is found to be functional and responding to queries, the child then forwards all requests it receives to the parent, just as the node local CacheD will forward all requests to the origin in Figure \ref{fig:replicationflow}.
+
 
 \section{Results}
 
