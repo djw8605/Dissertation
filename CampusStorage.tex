@@ -2,7 +2,18 @@
 
 \section{Introduction}
 
-Distributed computing has evolved to include many federated compute elements across geographically and administrative boundaries.  The ability to access and use federated storage has lagged behind the ability to access the compute capabilities of the resources.  In order to access the storage, the storage and the data first need to be accurately described to meet the needs of the application.  Further, the data movement should be negotiated between the storage element, the user, and the target in order to optimize data movement.  The negotiated data movement device will allow the storage (or an agent on the behalf of the storage) to determine it’s preferred transfer methods, and to match that method with the target device, allowing each to express preferences and requirements.
+In the previous chapter, Chapter \ref{chapter:coordinatingstorage}, I discussed the HTCondor CacheD.  In this section, I will discuss the policy framework that allows the CacheD to represent heterogeneous resources on campus or cyberinfrastructure resources.  The CacheD's policy framework inserts itself whenever it interacts with another CacheD.  This policy framework allows the CacheD to act as an independent agent within the distributed system.
+
+\begin{description}
+	\item[Choosing a Replication Target] - A CacheD that is the origin to a cache may choose to proactively replicate to other CacheDs.  Choosing a replication target requires matching the cache's requirements with that of the target CacheD's.
+	\item[Accepting Cache] - A CacheD must decide if it can accept a cache when it receives a replication request.  This decision is based on it's own policy, as well as attributes of the cache.
+	\item[Transfer Method] - The transfer method for a cache to be replicated is chosen after a cache has been accepted.
+
+\end{description}
+
+
+
+
 
 
 \section{Measuring Storage}
