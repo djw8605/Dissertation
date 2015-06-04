@@ -6,13 +6,39 @@ In the previous chapter, Chapter \ref{chapter:coordinatingstorage}, I discussed 
 
 \begin{description}
 	\item[Choosing a Replication Target] - A CacheD that is the origin to a cache may choose to proactively replicate to other CacheDs.  Choosing a replication target requires matching the cache's requirements with that of the target CacheD's.
-	\item[Accepting Cache] - A CacheD must decide if it can accept a cache when it receives a replication request.  This decision is based on it's own policy, as well as attributes of the cache.
-	\item[Transfer Method] - The transfer method for a cache to be replicated is chosen after a cache has been accepted.
+	\item[Accepting Cache Replication] - A CacheD must decide if it can accept a cache when it receives a replication request.  This decision is based on it's own policy, as well as attributes of the incoming cache.
+	\item[Transfer Method] - The transfer method for a cache to be replicated is chosen after a cache has been accepted.  This is a prioritized list of acceptable transfer methods for the cache.
 
 \end{description}
 
+\section{Policy Language}
+The policy language used by the CacheD is the HTCondor ClassAds \cite{raman1998matchmaking}.  ClassAds offer the flexibility to both describe resources, as well as describe boolean expressions 
+
+% example policy language
+
+\section{Choosing a Replication Target}
+% when it is used, and by who
+
+% What is it matching against
+
+% What if it doesn't match
+
+% What if it does match
 
 
+\section{Accepting Cache Replication}
+% When it is used, and by who
+
+% Special attributes
+
+% 
+
+
+\section{Transfer Method}
+
+% List formation
+
+% Negotiating preferences
 
 
 
