@@ -12,9 +12,49 @@ In the previous chapter, Chapter \ref{chapter:coordinatingstorage}, I discussed 
 \end{description}
 
 \section{Policy Language}
-The policy language used by the CacheD is the HTCondor ClassAds \cite{raman1998matchmaking}.  ClassAds offer the flexibility to both describe resources, as well as describe boolean expressions 
+The policy language used by the CacheD is the HTCondor ClassAds \cite{raman1998matchmaking}.  ClassAds offer the flexibility to both describe resources with attributes.  A ClassAd is a set of key value attributes.  The values can be numbers, strings, lists of strings, or boolean expressions.
 
-% example policy language
+% example CacheD ClassAd
+\begin{figure}
+\begin{lstlisting}[breaklines=true, breakatwhitespace=true,frame=single]
+CachedServer = true
+Machine = "red-foreman.unl.edu"
+LastHeardFrom = 1433790880
+UpdatesTotal = 8660
+Name = "cached-22815@red-foreman.unl.edu"
+CondorPlatform = "$CondorPlatform: X86_64-ScientificLinux_6.5 $"
+UpdatesHistory = "0x00000000000000000000000000000000"
+UpdatesLost = 0
+TotalDisk = 6769920
+UpdateSequenceNumber = 32307
+UpdatesSequenced = 8659
+MyAddress = "<129.93.239.170:11000?noUDP&sock=22815_fb39>"
+AuthenticatedIdentity = "dweitzel@unl.edu"
+DetectedMemory = 7807
+Requirements = MY.TotalDisk > TARGET.DiskUsage
+CondorVersion = "$CondorVersion: 8.3.1 Dec 22 2014 BuildID: UW_development PRE-RELEASE-UWCS $"
+DetectedCpus = 2
+DaemonStartTime = 1431839398
+CurrentTime = time()
+MyCurrentTime = 1433790880
+\end{lstlisting}
+\caption{CacheD ClassAd Example}
+\label{lst:cachedclassad}
+\end{figure}
+
+Figure \ref{lst:cachedclassad} shows an example of a CacheD's ClassAd.  The attributes describe the CacheD daemon and the host it runs on.  For example, the \texttt{DaemonStartTime} is a representation of when the daemon started.  \texttt{TotalDisk} describes how much disk is available on the host that the CacheD is running.
+
+% How matching works
+Matching of ClassAds is done by comparing attributes between 2 sets of ClassAds.  The attribute \texttt{Requirements} takes a special meaning when matching two ClassAds.  The 
+texttt{Requirements} attribute is a boolean expression that is evaluated in the context of both the current ClassAd and the matching ClassAd.  In the example in Figure \ref{lst:cachedclassad}, the CacheD's ClassAd would only match another ClassAd if the expression \texttt{MY.TotalDisk > TARGET.DiskUsage}.  This means that the CacheD will only accept caches that are smaller in size than the available disk on the host.  \texttt{MY} and \texttt{TARGET} refer to the current ClassAd and the matching ClassAd, respectively.
+
+
+The \texttt{Requirements} attribute in Figure \ref{lst:cachedclassad} references other attributes in both the current ClassAd and the matching ClassAd.  Attributes can reference other attributes in order to form strings, lists, or boolean expressions.  In this example, the \texttt{Requirements} attribute references other attributes in order to create a boolean expression.
+
+
+% Extending policy language
+The ClassAd describing the CacheD can be extended by using the CacheD Cron mechanism.  The CacheD Cron executes an external program in order to collect statistics and reports the results in the CacheD's ClassAd.  These statistics can then be used to better describe either the daemon or the host machine.  A example of using the CacheD Cron is to collect the IO operations per second that a host is able to complete.  This information can be used to better match caches with machine which can run the applications, which is described in the sections below.
+
 
 \section{Choosing a Replication Target}
 % when it is used, and by who
