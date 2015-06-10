@@ -73,28 +73,79 @@ CACHED_CRON_TEST_PERIOD = 15s
 
 Figure \ref{lst:cachedcronconfiguration} shows the configuration in order for the CacheD to periodically run a program named 'test'.  The executable is \texttt{test.sh}, which will run tests and output a ClassAd that will be merged into the CacheD's ClassAd.  It will be run periodically at periods of every 15 seconds.
 
+%TODO: Better example for CacheD Cron output!
+\begin{figure}
+\begin{lstlisting}
+TestResult = 100
+TestRan = TRUE
+TestHost = "hostname.unl.edu"
+\end{lstlisting}
+\caption{Example Output from CacheD Cron}
+\label{lst:cachedcronoutput}
+\end{figure}
+
+The output of the test executable is ClassAds that will be injected into the daemon.  Figure \ref{lst:cachedcronoutput} shows the example output from running the test program.  In this output, it sets 3 attributes, an integer, a boolean value, and a string.  
+
 A example of using the CacheD Cron is to collect the IO operations per second that a host is able to complete.  This information can be used to better match caches with machine which can run the applications, which is described in the sections below.  The period of testing the IO capabilities of a node should be longer than the 15 seconds shown in Figure \ref{lst:cachedcronconfiguration}.
 
 
-\section{Choosing a Replication Target}
+\section{Uses of the Policy Language in the CacheD}
+
+The CacheD uses the ClassAd policy language when communicating with other daemons.  Each interaction, the CacheD must make a decision, and therefore relies on the ClassAd policies in order to decide whether to perform an action.  Each of these actions are described briefly above in the Introduction.  I will now discuss the details of those interactions and choices the CacheD may make in the next few sections.
+
+
+\subsection{Choosing a Replication Target}
 % when it is used, and by who
+Each cache has a single origin CacheD.  This CacheD is usually the same CacheD which the user initially uploaded the cache.  This origin CacheD has the option to proactively replicate the cache without it being requested by jobs.  The data transfer can occur while another job is currently being run.
 
 % What is it matching against
+The origin CacheD will periodically query the HTCondor Collector to receive a list of CacheD ClassAds.  Then, the origin will iterate through each of the ClassAds, attempting to match the cache with a CacheD.
 
-% What if it doesn't match
+For each ClassAd from the cache and a remote CacheD, the origin will attempt a mutual match.  Therefore, the cache's preferences must accept the CacheD, and the CacheD must accept the cache.  The \texttt{Requirements} expression is evaluated for both of the ClassAds.  The default basic \texttt{Requirements} expression is to require that the CacheD has enough disk space for the cache.
+
+For the CacheD, the default \texttt{Requirements} are:
+\begin{lstlisting}
+Requirements = MY.TotalDisk > TARGET.DiskUsage
+\end{lstlisting}
+
+And for an uploaded cache, the default \texttt{Requirements} are:
+\begin{lstlisting}
+Requirements = MY.DiskUsage < TARGET.TotalDisk
+\end{lstlisting}
+
+\texttt{MY} refers to attributes in the current ClassAd, while \texttt{TARGET} refers to attributes in the matching ClassAd.  \texttt{TotalDisk} is the amount of disk available to a CacheD.  \texttt{DiskUsage} is the total file size of the cache.  An example value of the \texttt{TotalDisk} can be seen in the example ClassAd of a CacheD shown above in Figure \ref{lst:cachedclassad} on page \pageref{lst:cachedclassad}.
 
 % What if it does match
 
+If the cache and remote CacheD match, the origin CacheD will send a cache replication request to the remote CacheD.  The remote CacheD will then decide if it will accept the replication request.
 
-\section{Accepting Cache Replication}
-% When it is used, and by who
+% What if it does not match
+If the two do not match, then the origin server will not send a replication request to the remote CacheD.
 
 % Special attributes
+Additionally, there are special attributes available during this matching.  One special attribute used during some of the experiments is the \texttt{CacheRequested} attribute.  This attribute is set to the boolean \texttt{TRUE} when the cache is requested by a job.  When the cache is requested by a origin CacheD replication request, it is set to \texttt{FALSE}.  This attribute can be used in a cache's \texttt{Requirements} expression to limit cache replication to only those nodes that have jobs that have requested the cache.  An example expression would be:
+\begin{lstlisting}
+Requirements = (MY.DiskUsage < TARGET.TotalDisk) && (TARGET.CacheRequested =?= true)
+\end{lstlisting}
 
-% 
+Further special attributes are planned, such as an attribute whose value is the number of replications of the cache already completed.  This can be used to limit the number of CacheDs that have the cache.
+
+\subsection{Accepting Cache Replication}
+% When it is used, and by who
+A CacheD can receive cache replication request from three sources:
+
+\begin{enumerate}
+	\item An origin CacheD sending out proactive replication requests.
+	\item A job requesting a cache.
+	\item A child CacheD when it is the parent (as described in section \ref{sec:cachedparenting}).
+\end{enumerate}
+
+In each of these requests, the receiving CacheD has the choice to accept the replication or deny it.  When it receives a cache replication request, it looks up the cache's ClassAd and does mutual matching with it's own ClassAd.  This is similar to the mutual matching done when an origin CacheD is issuing proactive replication requests.  It is important to re-run this mutual matching in case the CacheD's state has changed, such as it has downloaded a large cache altering the available disk.
 
 
-\section{Transfer Method}
+
+
+\subsection{Transfer Method}
 
 % List formation
 

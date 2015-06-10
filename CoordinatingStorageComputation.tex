@@ -173,7 +173,7 @@ In Figure \ref{fig:cachebottleneck}, you can see a traditional configuration of 
 % Discuss the possiblity of jobs modifying the cache?
 
 
-\subsection{Parenting of CacheDs}
+\subsection{Parenting of CacheDs} \label{sec:cachedparenting}
 During testing of the CacheD, it was apparent that BitTorrent increases the IO queue on the host server significantly, degrading the IO performance for all jobs on the server.  This increased IO queue leads to competition between BitTorrent-enabled CacheD's on the same host.  In order to address the increased IO queue, each CacheD will designate a single daemon on the host that downloads the files through BitTorrent.  All other CacheD's will then download the cache from the parent using Direct file transfer mechanisms.  
 
 A CacheD will discover a node local parent by querying the HTCondor Collector that holds a catalog of all CacheD's known to the system.  Figure \ref{fig:daemonlayout} illistrates the layout of the HTCondor Collector in respect to the worker nodes.  If it discovers a CacheD on the same node as itself, the CacheD started first will be chosen.  By choosing a parent that is older, it improves the chance that the parent CacheD may already have the cache downloaded.  If multiple CacheD's have the same starting time, they are alphabetically ordered by their unique name, and the first CacheD alphabetically is chosen as parent.
