@@ -123,6 +123,7 @@ The policy expression language is modeled after the matchmaking language in the 
 Libtorrent is built into the CacheD to provide native BitTorrent functionality.  The CacheD is capable of creating torrents from sets of files in a cache, as well as downloading cache files using the BitTorrent protocol.  Since this is a distributed set of caches, we will not use a static torrent tracker.  Rather, we will use a Distributed Hash Table \cite{dinger2009decentralized} and local peer discovery \cite{legout2007clustering} features of the BitTorrent protocol.  This ensures that there are no single points of failure.
 
 
+% Do the command line usage
 
 \subsection{Creation and Uploading Caches}
 The user begins using the caching system by uploading a cache to their own CacheD, which then becomes the cache originator.  This is very similar to a user submitting a job to their own HTCondor SchedD.  Using the cache's metadata, the CacheD decides whether to accept or reject the cache.  If the CacheD accepts the cache, it stores the metadata into resilient storage.  The user then proceeds to upload the cache files to the CacheD.

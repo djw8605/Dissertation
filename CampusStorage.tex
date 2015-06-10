@@ -16,7 +16,7 @@ The policy language used by the CacheD is the HTCondor ClassAds \cite{raman1998m
 
 % example CacheD ClassAd
 \begin{figure}
-\begin{lstlisting}[breaklines=true, breakatwhitespace=true,frame=single]
+\begin{lstlisting}
 CachedServer = true
 Machine = "red-foreman.unl.edu"
 LastHeardFrom = 1433790880
@@ -51,9 +51,29 @@ texttt{Requirements} attribute is a boolean expression that is evaluated in the 
 
 The \texttt{Requirements} attribute in Figure \ref{lst:cachedclassad} references other attributes in both the current ClassAd and the matching ClassAd.  Attributes can reference other attributes in order to form strings, lists, or boolean expressions.  In this example, the \texttt{Requirements} attribute references other attributes in order to create a boolean expression.
 
+\subsection{Extending CacheD Attributes}
 
 % Extending policy language
-The ClassAd describing the CacheD can be extended by using the CacheD Cron mechanism.  The CacheD Cron executes an external program in order to collect statistics and reports the results in the CacheD's ClassAd.  These statistics can then be used to better describe either the daemon or the host machine.  A example of using the CacheD Cron is to collect the IO operations per second that a host is able to complete.  This information can be used to better match caches with machine which can run the applications, which is described in the sections below.
+The ClassAd describing the CacheD can be extended by using the CacheD Cron mechanism.  The CacheD Cron executes an external program in order to collect statistics and reports the results in the CacheD's ClassAd.  These statistics can then be used to better describe either the daemon or the host machine.  
+
+% How it is configured
+The CacheD Cron is configured by specifying the job's attributes in the HTCondor configuration.
+
+\begin{figure}[h!t]
+\begin{lstlisting}
+CACHED_CRON_CONFIG_VAL = $(RELEASE_DIR)/bin/condor_config_val
+CACHED_CRON_JOBLIST = $(STARTD_CRON_JOBLIST) test
+CACHED_CRON_TEST_MODE = Periodic
+CACHED_CRON_TEST_EXECUTABLE = $(RELEASE_DIR)/test.sh
+CACHED_CRON_TEST_PERIOD = 15s
+\end{lstlisting}
+\caption{CacheD Cron Configuration}
+\label{lst:cachedcronconfiguration}
+\end{figure}
+
+Figure \ref{lst:cachedcronconfiguration} shows the configuration in order for the CacheD to periodically run a program named 'test'.  The executable is \texttt{test.sh}, which will run tests and output a ClassAd that will be merged into the CacheD's ClassAd.  It will be run periodically at periods of every 15 seconds.
+
+A example of using the CacheD Cron is to collect the IO operations per second that a host is able to complete.  This information can be used to better match caches with machine which can run the applications, which is described in the sections below.  The period of testing the IO capabilities of a node should be longer than the 15 seconds shown in Figure \ref{lst:cachedcronconfiguration}.
 
 
 \section{Choosing a Replication Target}
