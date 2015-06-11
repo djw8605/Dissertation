@@ -81,7 +81,7 @@ In \cite{briquet2007scheduling}, the authors use scheduling, caching, and BitTor
 
 \section{Implementation}
 
-
+%TODO: Discuss cached interface (python, dc_cached c api...)
 
 The HTCondor CacheD is a daemon that runs on both the execution host and the submitter.  For our purposes, a cache is defined as an immutable set of files that has metadata associated with it.  The metadata can include a cache expiration time, as well as ownership and acceptable transfer methods.
 
@@ -157,7 +157,7 @@ Figure \ref{fig:replicationflow}'s flow can be shown in the steps:
 
 All communication between CacheDs are authenticated using the regular HTCondor methods.  ClassAds are used for communication between the CacheDs so that the protocol can be expanded if needed. 
 
-
+%TODO: Bigger discussion of transfer methods
 Each download is negotiated for the appropriate transfer method between the parent and the client.  Between parent and client CacheD's, the cache's individual replication preferences are honored.  Between a CacheD and the transfer plugin, an additional protocol is offered: symbolic link (symlink).
 
 If the transfer plugin successfully authenticates with a local CacheD, transfer methods are negotiated.  If supported, the symlink method may be chosen.  The symlink transfer method allows near instant transfer of the cache from the CacheD to the plugin.  A symlink is created by the CacheD in the job's working directory pointing to the cache directory.  This symlink method eliminates transferring the cache to each job.

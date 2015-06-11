@@ -152,6 +152,7 @@ The approval or rejection of the cache is done asynchronously from the request f
 % Who uses it
 Each cache has a list of acceptable transfer methods.  A user may set this list of acceptable transfer methods when uploading the cache.  This list is a priority ordered, with the preferred transfer method listed first.  An example transfer method list is show in Figure \ref{lst:cachetransferlist}
 
+% List formation
 \begin{figure}
 \begin{lstlisting}
 ReplicationMethods = "BITTORRENT, DIRECT"
@@ -160,12 +161,32 @@ ReplicationMethods = "BITTORRENT, DIRECT"
 \label{lst:cachetransferlist}
 \end{figure}
 
-In the example show in Figure \ref{lst:cachetransferlist}, the cache has a preference for transferring the files over BitTorrent, but will accept the Direct transfer method if needed.  Transfer methods are described in full in section \ref{sec:cachedtransfermethods}.  
-
-% List formation
+In the example show in Figure \ref{lst:cachetransferlist}, the cache has a preference for transferring the files over BitTorrent, but will accept the Direct transfer method if needed.  Transfer methods are described in full in section \ref{sec:cachedtransfermethods}.
 
 % Negotiating preferences
+After accepting a cache to be downloaded, the CacheD will negotiate the transfer method with the cache's ClassAd that was downloaded during the acceptance testing stage. The cache's ClassAd includes the \texttt{ReplicationMethods} attribute, which is a priority list of acceptable transfer methods.  The CacheD has it's own \texttt{ReplicationMethods} that is set in it's configuration.  The CacheD iterates through it's own methods until it finds a matching transfer method in the cache's methods.
 
+As an independent agent, the CacheD prefers it's own transfer priority list than the cache's priority list.  Psuedo code for the transfers:
+
+\begin{algorithm}
+\begin{algorithmic}
+\State $cacheMethods\gets cacheClassAd[ReplicationMethods]$
+\State $cachedMethods\gets config(ReplicationMethods)$
+\ForAll{$cachedMethod \in cachedMethods$}
+
+\ForAll{$cacheMethod \in cacheMethods$}
+\If{$cachedMethod = cacheMethod$} 
+\Return $cachedMethod$
+\EndIf
+
+
+\EndFor
+
+\EndFor
+\end{algorithmic}
+
+\end{algorithm}
+	
 
 
 \section{Measuring Storage}
