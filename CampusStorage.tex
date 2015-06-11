@@ -142,10 +142,25 @@ A CacheD can receive cache replication request from three sources:
 
 In each of these requests, the receiving CacheD has the choice to accept the replication or deny it.  When it receives a cache replication request, it looks up the cache's ClassAd and does mutual matching with it's own ClassAd.  This is similar to the mutual matching done when an origin CacheD is issuing proactive replication requests.  It is important to re-run this mutual matching in case the CacheD's state has changed, such as it has downloaded a large cache altering the available disk.
 
+If the CacheD's mutual matching with the cache's ClassAd is successful, then CacheD will accept the cache and begin negotiating transfer methods.  If the CacheD and the cache's ClassAd do not match, then the CacheD will reject the cache.
 
+The approval or rejection of the cache is done asynchronously from the request for replication.  Therefore, the CacheD keeps a data structure of rejected caches (accepted caches are kept in the normal cache database).  When the client next asks for the replication status of the cache, the CacheD will respond with the accept or reject status. 
 
 
 \subsection{Transfer Method}
+
+% Who uses it
+Each cache has a list of acceptable transfer methods.  A user may set this list of acceptable transfer methods when uploading the cache.  This list is a priority ordered, with the preferred transfer method listed first.  An example transfer method list is show in Figure \ref{lst:cachetransferlist}
+
+\begin{figure}
+\begin{lstlisting}
+ReplicationMethods = "BITTORRENT, DIRECT"
+\end{lstlisting}
+\caption{Example Replication Method for a Cache}
+\label{lst:cachetransferlist}
+\end{figure}
+
+In the example show in Figure \ref{lst:cachetransferlist}, the cache has a preference for transferring the files over BitTorrent, but will accept the Direct transfer method if needed.  Transfer methods are described in full in section \ref{sec:cachedtransfermethods}.  
 
 % List formation
 
