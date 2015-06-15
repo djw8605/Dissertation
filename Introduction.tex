@@ -2,13 +2,17 @@
 
 This dissertation will focus on workflows on a Campus Grid.  We are interested in optimizing a researcher's use of the computational and storage resources on the campus to increase the reliability, and decrease the time to solution for scientific results.  We first extend prior work to enhance the computational capabilities of researchers on a campus.  We then explicitly expand our work to the data needs of modern workflows.
 
-\section{Campus Batch Computing}
+\section{Campus Grid Computing}
+
+Despite the ever increasing performance of computer hardware following Moore's law \cite{schaller1997moore}, applications are keeping pace with hardware's capabilities.  For some users, their applications far exceed the capabilities of computers that are immediately available to them.  Such application may be able to use multiple computers either to utilize more computational, memory, or storage than a single computer can provide.
+
+Batch computing can combine the computational, memory, and storage resources of multiple computers by scheduling an application on them.  
 
 A computational grid is a hardware and software infrastructure that provides dependable, consistent, pervasive, and inexpensive access to high-end computational capabilities\cite{foster2004grid}.  A campus grid is a specialized grid where resources are owned by the same organization, though it may be in multiple administrative domains.  For our discussion of computation, we restrict our consideration to those campuses that have multiple computational resources.
 
 A campus grid has become necessary to spread demand across multiple clusters.  This is important when demand for a single cluster is large, due to improved performance or more storage, and demand is low on other available clusters.  The campus grid can move computation from the in demand cluster to other clusters, which can result in a shorter time to completion for the users' jobs.
 
-A campus grid requires a framework to distribute jobs to multiple clusters in a campus.  My thesis \cite{weitzel2011campus} proposed a solution based on HTCondor \cite{litzkow1988condor}.  The solution required installation of a campus factory \cite{website:campusfactory} on each cluster's login node.  Although this solution was efficient and fault tolerant, it proved difficult since the installation was manual.  Users had to install HTCondor on both the login node and their submit node.  Also, the security setup was based on IP whitelists, which can be defeated with IP spoofing.  Therefore, I set out to correct these deficiencies.
+A campus grid requires a framework to distribute jobs to multiple clusters in a campus.  My masters thesis \cite{weitzel2011campus} proposed a solution based on HTCondor \cite{litzkow1988condor}.  The solution required installation of a campus factory \cite{website:campusfactory} on each cluster's login node.  Although this solution was efficient and fault tolerant, it proved difficult since the installation was manual.  Users had to install HTCondor on both the login node and their submit node.  Also, the security setup was based on IP whitelists, which can be defeated with IP spoofing.  Therefore, I set out to correct these deficiencies.
 
 I have enhanced my masters thesis' solution to include:
 \begin{itemize}
@@ -71,7 +75,7 @@ This dissertation is broken down into multiple chapters.  In Chapter \ref{chapte
 
 In Chapter \ref{chapter:campusjobs} we will discuss how computing can be managed on the campus using the Bosco manager.  This chapter expands on my masters thesis.  But Bosco is not enough for researchers with large data requirements.  Therefore, we research methods to expedite data transfer on the campus.   
 
-Chapter \ref{chapter:campusdata} discusses these methods for describing and moving data on the campus.  Chapter \ref{chapter:coordinatingstorage} describes a method for coordinating storage with computing using a policy language for data transfers, and includes a novel transfer technique for large shared data on the campus.
+Chapter \ref{chapter:campusdata} discusses these methods for describing and moving data on the campus.  Chapter \ref{chapter:coordinatingstorage} describes a method for coordinating storage with computing using a policy language for data transfers and transfer decisions, and includes a novel transfer technique for large shared data on the campus.
 
 
 

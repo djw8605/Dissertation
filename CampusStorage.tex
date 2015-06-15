@@ -166,9 +166,10 @@ In the example show in Figure \ref{lst:cachetransferlist}, the cache has a prefe
 % Negotiating preferences
 After accepting a cache to be downloaded, the CacheD will negotiate the transfer method with the cache's ClassAd that was downloaded during the acceptance testing stage. The cache's ClassAd includes the \texttt{ReplicationMethods} attribute, which is a priority list of acceptable transfer methods.  The CacheD has it's own \texttt{ReplicationMethods} that is set in it's configuration.  The CacheD iterates through it's own methods until it finds a matching transfer method in the cache's methods.
 
-As an independent agent, the CacheD prefers it's own transfer priority list than the cache's priority list.  Psuedo code for the transfers:
+As an independent agent, the CacheD prefers it's own transfer priority list than the cache's priority list.  Psuedo code for the transfer negotiation is shown in Algorithm \ref{alg:negotiatetransfer}.
 
 \begin{algorithm}
+\caption{Negotiating Transfer Method Function}
 \begin{algorithmic}
 \State $cacheMethods\gets cacheClassAd[ReplicationMethods]$
 \State $cachedMethods\gets config(ReplicationMethods)$
@@ -176,7 +177,7 @@ As an independent agent, the CacheD prefers it's own transfer priority list than
 
 \ForAll{$cacheMethod \in cacheMethods$}
 \If{$cachedMethod = cacheMethod$} 
-\Return $cachedMethod$
+\State \Return $cachedMethod$
 \EndIf
 
 
@@ -184,9 +185,11 @@ As an independent agent, the CacheD prefers it's own transfer priority list than
 
 \EndFor
 \end{algorithmic}
-
+\label{alg:negotiatetransfer}
 \end{algorithm}
 	
+	
+
 
 
 \section{Measuring Storage}

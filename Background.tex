@@ -3,6 +3,7 @@
 
 \section{Distributed Batch Systems}
 
+
 Several batch systems and grid schedulers are able to schedule tasks on execution resources.  Examples of cluster schedulers that are frequently used are PBS \cite{pbstorque}, \mbox{HTCondor} \cite{litzkow1988condor}, and SLURM \cite{yoo2003slurm}.  Each scheduler is very good at resource management within a single administrative domain.  But, each of these resource managers have very limited ability to send processing to remote resources, which are typically under a separate administrative domain.  PBS and SLURM can send jobs between clusters that run the same schedulers.  HTCondor also has the ability to send processing to other clusters running HTCondor and it can also transform jobs to the language of other schedulers such as PBS and SLURM.
 
 Grid schedulers have become more popular as the number of resources has increased.  Examples of grid schedulers are OSGMM \cite{website:osgmm} and GlideinWMS \cite{sfiligoi2008glideinwms}.  These schedulers are able to send jobs to remote resources using grid protocols.  OSGMM performs a direct grid submission to the remote resources using the GRAM  \cite{foster1999globus} interface.  GlideinWMS also submits to the GRAM interface of the cluster, but provides an overlay of HTCondor daemons on top of remote resources.  The overlay presents a consistent HTCondor interface to the computing resources for ease of use.  
