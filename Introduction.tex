@@ -6,7 +6,7 @@ This dissertation will focus on workflows on a Campus Grid.  We are interested i
 
 Despite the ever increasing performance of computer hardware following Moore's law \cite{schaller1997moore}, applications are keeping pace with hardware's capabilities.  For some users, their applications far exceed the capabilities of computers that are immediately available to them.  Such application may be able to use multiple computers either to utilize more computational, memory, or storage than a single computer can provide.
 
-Batch computing can combine the computational, memory, and storage resources of multiple computers by scheduling an application on them.  
+Batch computing can combine the computational, memory, and storage resources of multiple computers by scheduling applications on them.  A computational grid is an extension of batch computing, where resources may be combined from multiple pools of resources may be combined to be used for an application.
 
 A computational grid is a hardware and software infrastructure that provides dependable, consistent, pervasive, and inexpensive access to high-end computational capabilities\cite{foster2004grid}.  A campus grid is a specialized grid where resources are owned by the same organization, though it may be in multiple administrative domains.  For our discussion of computation, we restrict our consideration to those campuses that have multiple computational resources.
 
@@ -22,7 +22,7 @@ I have enhanced my masters thesis' solution to include:
 \item Access to computing through language frameworks such as R \cite{team2005r}
 \end{itemize}
 
-The new solution is named Bosco \cite{chep2013weitzel}.  It uses secure protocols to connect to remote clusters in order to transfer files and submit / monitor jobs.  Installation of Bosco on remote clusters and the submit host has been automated with simple tools.  Clusters with restrictive firewalls are supported by multiplexing operations through a single secure connection.  Further, many cluster schedulers are supported by the underlying technology.  Access to Bosco and the computing environment has been enabled through programming language frameworks.
+The new solution is named Bosco \cite{chep2013weitzel}.  It uses secure protocols to connect to remote clusters in order to transfer files and submit / monitor jobs.  Installation of Bosco on remote clusters and the submit host has been automated with simple tools.  Clusters with restrictive firewalls are supported by multiplexing operations through a single secure connection.  Further, many cluster schedulers are supported by the underlying technology.  Access to Bosco and the computing environment has been enabled through programming language frameworks, such as R in the BoscoR  framework.
 
 But Bosco is not enough for researchers that have large data requirements.  Therefore, we must consider data transfers and storage on the campus.
 
@@ -42,16 +42,25 @@ But Bosco is not enough for researchers that have large data requirements.  Ther
 
 \section{Data Transfers on Campus}
 
-Data management has become a bottleneck for many in for scientific computing.  For batch computing, the issue is usually getting the data to the execution resources.  
+Data management has become a bottleneck for many in for scientific computing.  For batch computing, the issue is usually getting the data from the user's computer to the execution resources.  Large data workflows can strain the network near the user's computer, and can take unreasonable amounts of time.
 
-As the users spread their computation across multiple clusters either on the campus, or across campuses, data distribution and collection becomes more difficult.  Before using the campus grid, a user would select a cluster to do their processing.  The user then could host all of their data on that cluster by copying the data onto the cluster's shared filesystem.  The jobs could access the data from the distributed filesystem just as it would on the user's desktop, available for all executions at the same directory.
-
+As users spread their computation across multiple clusters either on the campus, or across campuses, data distribution and collection becomes more difficult.  Before using the campus grid, a user would select a cluster to do their processing.  The user then could host all of their data on that cluster by copying the data onto that cluster's shared filesystem.  The jobs could access the data from the distributed filesystem just as it would on the user's desktop, available for all executions at the same directory.
 
 These assumptions do not hold for a campus grid.  A grid is made up of multiple computational clusters, with potentially many separate file systems.  There is no single filesystem that a user can access from every computational resource.  Therefore, the data must be handled differently than when on a shared filesystem.  
 
+Data will be transferred from the source (usually the user's computer) to the execution resources for processing.  The network connection between the execution resources may be a bottleneck for the computation.  Further, frequent re-transfers of the data each time a job begins will increase the running time of 
+
+Efficiently transferring data between the source and the execution resources requires 
+
+%TODO: Describe the CacheD
+
+\section{Data Distribution Policy Language}
 The data must flow from the data source to the computational resource in an efficient manner.  For this reason, it is necessary to extract information about the data from the user, such as if it is shared between many jobs, or unique to each and every job.  Further, some data needs to be protected, therefore we must learn if the data is private or public.  Different transfer methods are necessary for different data types.  For example, if the data is shared between many executions, then it may be cached or can be group transferred.  
 
 Some of these job attributes can be extracted from the job submission files without explicit instructions.  Input files that are shared between multiple executions can be categorized as shared.
+
+
+
 
 \section{Contributions}
 
@@ -77,6 +86,17 @@ In Chapter \ref{chapter:campusjobs} we will discuss how computing can be managed
 
 Chapter \ref{chapter:campusdata} discusses these methods for describing and moving data on the campus.  Chapter \ref{chapter:coordinatingstorage} describes a method for coordinating storage with computing using a policy language for data transfers and transfer decisions, and includes a novel transfer technique for large shared data on the campus.
 
+
+\newpage
+\section{A Note on Terms}
+
+\begin{description}
+	\item[Job:] A packaged unit of work with input and output.  A job may consuming computational, memory, and/or storage resources in a batch system.
+	\item[Workflow:] A sequence of jobs executed on resources.  The jobs may have some ordering.
+	\item[Campus:] An administrative domain where all resources have similar access policies.
+	\item[Execution Resource:] A resource which fulfill the requirements of a job, and may run it.  This may be a worker node in a cluster.
+	\item[Cluster:] A set of execution resources that have high interconnection bandwidth and are managed by a single scheduler.
+\end{description}
 
 
 
