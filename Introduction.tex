@@ -48,11 +48,12 @@ As users spread their computation across multiple clusters either on the campus,
 
 These assumptions do not hold for a campus grid.  A grid is made up of multiple computational clusters, with potentially many separate file systems.  There is no single filesystem that a user can access from every computational resource.  Therefore, the data must be handled differently than when on a shared filesystem.  
 
-Data will be transferred from the source (usually the user's computer) to the execution resources for processing.  The network connection between the execution resources may be a bottleneck for the computation.  Further, frequent re-transfers of the data each time a job begins will increase the running time of 
 
-Efficiently transferring data between the source and the execution resources requires 
+Most batch schedulers transfer the input data for each job execution.  Each job starts with an empty sandbox and the scheduler will transfer the files into the execution area.  This is true even when not using the scheduler to download input files.  Data will be transferred from the source (usually the user's computer) to the execution resources for processing.  The network connection between the source and the execution resources may be a bottleneck for the computation.  Frequent re-transfers of the same input data will further congest the network between the source and the execution resources.
 
-%TODO: Describe the CacheD
+Efficiently transferring data between the source and the execution resources requires two attributes: efficient transfer method, and reduction of duplicate transfers.  
+
+I introduce the CacheD, a caching and data transfer daemon and framework for input data in distributed computing.  The CacheD uses novel data transfer methods based on successful large data transfers on the internet.  It also caches input data on the execution resources to enable quick transfers on repeated subsequent requests for the same input data.
 
 \section{Data Distribution Policy Language}
 The data must flow from the data source to the computational resource in an efficient manner.  For this reason, it is necessary to extract information about the data from the user, such as if it is shared between many jobs, or unique to each and every job.  Further, some data needs to be protected, therefore we must learn if the data is private or public.  Different transfer methods are necessary for different data types.  For example, if the data is shared between many executions, then it may be cached or can be group transferred.  
