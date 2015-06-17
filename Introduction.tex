@@ -24,6 +24,18 @@ I have enhanced my masters thesis' solution to include:
 
 The new solution is named Bosco \cite{chep2013weitzel}.  It uses secure protocols to connect to remote clusters in order to transfer files and submit / monitor jobs.  Installation of Bosco on remote clusters and the submit host has been automated with simple tools.  Clusters with restrictive firewalls are supported by multiplexing operations through a single secure connection.  Further, many cluster schedulers are supported by the underlying technology.  Access to Bosco and the computing environment has been enabled through programming language frameworks, such as R in the BoscoR  framework.
 
+Bosco, in coordination with technologies in HTCondor, enable a job distribution method which grows organically with demand.  A default Bosco installation is able to submit to one cluster locally.  If that cluster does not meet the user's computational demands, then Bosco can be configured to submit to multiple clusters, load balancing between them.  Further, if the user's computational demands are still not met with multiple clusters, they can configure Bosco to submit resource requests to national cyberinfrastructure such as the Open Science Grid (OSG) \cite{pordes2007open}.  The organic growing capabilities of Bosco creates a framework which can be broken down to a diagram show in figure \ref{fig:boscogrowing}.
+
+\begin{figure}[ht!]
+	\centering
+	\includegraphics{images/BoscoGrowing.pdf}
+	\caption{Bosco's Growing Reach as Demand Increases}
+	\label{fig:boscogrowing}
+\end{figure}
+
+A framework for job submission to remote resources which the user does not control.  Typical grid submission is done to custom interfaces such as the Globus Resource Allocation Manager \cite{foster1999globus} (GRAM), which are previously installed by an administrator.  Opportunistic resources, which are abundant, typically do not have specialized grid software installed.  Further, grid submission software adds administrator overhead for maintenance.  I propose a framework that does not require administrator intervention for remote submission to opportunistic resources.  The framework uses interfaces that are installed on nearly all clusters that are typically used for interactive access.  It automates the submission and error handling of jobs submitted to remote resources, while providing the user a consistent interface over multiple, load balanced clusters.
+
+
 But Bosco is not enough for researchers that have large data requirements.  Therefore, we must consider data transfers and storage on the campus.
 
 
@@ -53,39 +65,36 @@ Most distributed batch schedulers are able to transfer the input data for each j
 
 In this dissertation, I optimized two attributes of distributed data management: efficient transfer methods and reduction of duplicate transfers.
 
-I introduce the CacheD, a caching and data transfer daemon for input data in distributed computing.  The CacheD uses novel data transfer methods based on technology developed for large data transfers on the internet.  It also caches input data on the execution resources to enable quick transfers on subsequent requests for the same input data.
+I introduce the CacheD, a caching and data transfer daemon for input data in distributed computing.  The CacheD uses novel data transfer methods based on technology developed for large data transfers on the internet, BitTorrent.  It also caches input data on the execution resources to enable quick transfers on subsequent requests for the same input data.
+
+
 
 \section{Data Distribution Policy Language}
 The data must flow from the data source to the computational resource in an efficient manner.  For this reason, it is necessary to extract information about the data from the user, such as if it is shared between many jobs, or unique to each and every job.  Further, some data needs to be protected, therefore we must learn if the data is private or public.  Different transfer methods are necessary for different data types.  For example, if the data is shared between many executions, then it may be cached or can be group transferred.  
 
 Some of these job attributes can be extracted from the job submission files without explicit instructions.  Input files that are shared between multiple executions can be categorized as shared.
 
-
-
-
-\section{Contributions}
-
-This dissertation will contain the following contributions:
-
-\begin{itemize}
-
-\item A framework for job submission to remote resources which the user does not control.  Typical grid submission is done to custom interfaces such as the Globus Resource Allocation Manager \cite{foster1999globus} (GRAM), which are previously installed by an administrator.  Opportunistic resources, which are abundant, typically do not have specialized grid software installed.  Further, grid submission software adds administrator overhead for maintenance.  I propose a framework that does not require administrator intervention for remote submission to opportunistic resources.  The framework uses interfaces that are installed on nearly all clusters that are typically used for interactive access.  It automates the submission and error handling of jobs submitted to remote resources, while providing the user a consistent interface over multiple, load balanced clusters.
-
-\item A modern flexible policy language for describing data handling for computation coordination.  Users of grid submission software have to explicitly define how their files will be transferred from their submission host to the remote execution resource where the data will be consumed.  They have to coordinate with the storage resources and the computation on their own.  I propose a policy language that allows the scheduler to decide an appropriate method for data transfer.  It determines the transfer method by negotiating between the following 3 sources: a user-given policy language for the data, the remote execution resource's capabilities and preferences, and the submitting resource's capabilities and preferences.  
+A modern flexible policy language for describing data handling for computation coordination.  Users of grid submission software have to explicitly define how their files will be transferred from their submission host to the remote execution resource where the data will be consumed.  They have to coordinate with the storage resources and the computation on their own.  I propose a policy language that allows the scheduler to decide an appropriate method for data transfer.  It determines the transfer method by negotiating between the following 3 sources: a user-given policy language for the data, the remote execution resource's capabilities and preferences, and the submitting resource's capabilities and preferences.  
 
 The user-given policy language specifies if the data is private or public, and whether the data is shared between multiple jobs or is unique to each job.  This negotiation can be used to hide data transfer details from the user while optimizing data transfers between the submission host and the execution resources.
 
-\item A new method of data transfer that will coordinate with the policy language described above and optimize for minimizing duplicated data transfers.  In this dissertation, I propose to investigate transfer techniques that support multiple administrative and network domains that are typical in a distributed computing environment.
-
-\end{itemize}
 
 \section{Overview of Dissertation}
 
-This dissertation is broken down into multiple chapters.  In Chapter \ref{chapter:relatedwork}, I will discuss work related to my research.  
+This dissertation describes how data intensive applications can be rn in a distributed campus environment.   is broken down into multiple chapters.  
 
-In Chapter \ref{chapter:campusjobs} we will discuss how computing can be managed on the campus using the Bosco manager.  This chapter expands on my masters thesis.  But Bosco is not enough for researchers with large data requirements.  Therefore, we research methods to expedite data transfer on the campus.   
+\begin{description}
+	\item[Chapter \ref{chapter:relatedwork}:]  Distributed computing and storage has a computational 
+	\item[Chapter \ref{chapter:campusjobs}:] we will discuss how computing can be managed on the campus using the Bosco manager.  This chapter expands on my masters thesis.  But Bosco is not enough for researchers with large data requirements.  Therefore, we research methods to expedite data transfer on the campus.
+	\item[Chapter \ref{chapter:campusdata}:] discusses these methods for describing and moving data on the campus
+	\item[Chapter \ref{chapter:coordinatingstorage}:]
+\end{description}
 
-Chapter \ref{chapter:campusdata} discusses these methods for describing and moving data on the campus.  Chapter \ref{chapter:coordinatingstorage} describes a method for coordinating storage with computing using a policy language for data transfers and transfer decisions, and includes a novel transfer technique for large shared data on the campus.
+In Chapter \ref{chapter:relatedwork}, I will discuss work related to my research.  
+
+In Chapter \ref{chapter:campusjobs} 
+
+Chapter \ref{chapter:campusdata} .  Chapter \ref{chapter:coordinatingstorage} describes a method for coordinating storage with computing using a policy language for data transfers and transfer decisions, and includes a novel transfer technique for large shared data on the campus.
 
 
 \newpage
