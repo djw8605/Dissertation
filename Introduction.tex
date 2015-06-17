@@ -1,23 +1,23 @@
 \chapter{Introduction}
 
-This dissertation will focus on workflows on a Campus Grid.  We are interested in optimizing a researcher's use of the computational and storage resources on the campus to increase the reliability, and decrease the time to solution for scientific results.  We first extend prior work to enhance the computational capabilities of researchers on a campus.  We then explicitly expand our work to the data needs of modern workflows.
+This dissertation will focus on workflows on a Campus Grid.  We are interested in optimizing a researcher's use of the computational and storage resources on the campus to increase the reliability, and decrease the time to solution for scientific results.  We first extend prior work to enhance the computational capabilities of researchers on a campus.  We then expand our work to the data needs of modern workflows.
 
 \section{Campus Grid Computing}
 
-Despite the ever increasing performance of computer hardware following Moore's law \cite{schaller1997moore}, applications are keeping pace with hardware's capabilities.  For some users, their applications far exceed the capabilities of computers that are immediately available to them.  Such application may be able to use multiple computers either to utilize more computational, memory, or storage than a single computer can provide.
+Despite the ever increasing performance of computer hardware following Moore's law \cite{schaller1997moore}, applications continue to keep pace with hardware's capabilities.  For some users, their applications far exceed the capabilities of computers that are immediately available to them.  Such applications may be able to use multiple computers to aggregate  more computational, memory, or storage resources than a single computer can provide.
 
-Batch computing can combine the computational, memory, and storage resources of multiple computers by scheduling applications on them.  A computational grid is an extension of batch computing, where resources may be combined from multiple pools of resources may be combined to be used for an application.
+Batch computing can combine the computational, memory, and storage resources of multiple computers through concurrent scheduling of applications.  A computational grid is an extension of batch computing, where resources may be combined from multiple pools of resources to be used for an application.
 
-A computational grid is a hardware and software infrastructure that provides dependable, consistent, pervasive, and inexpensive access to high-end computational capabilities\cite{foster2004grid}.  A campus grid is a specialized grid where resources are owned by the same organization, though it may be in multiple administrative domains.  For our discussion of computation, we restrict our consideration to those campuses that have multiple computational resources.
+A computational grid is a hardware and software infrastructure that provides dependable, consistent, pervasive, and inexpensive access to high-end computational capabilities \cite{foster2004grid}.  A campus grid is a specialized grid where resources are owned by the same organization, though it may be in multiple administrative domains.  For our discussion of computation, we restrict our consideration to those campuses that have multiple computational resources.
 
-A campus grid has become necessary to spread demand across multiple clusters.  This is important when demand for a single cluster is large, due to improved performance or more storage, and demand is low on other available clusters.  The campus grid can move computation from the in demand cluster to other clusters, which can result in a shorter time to completion for the users' jobs.
+A campus grid has become necessary to spread demand across multiple clusters.  This is important when demand for a single cluster is large, due to improved performance or increased storage, and demand is low on other available clusters.  The campus grid can move computation from the in demand cluster to other clusters, which can result in a shorter time to completion for the users' jobs.
 
 A campus grid requires a framework to distribute jobs to multiple clusters in a campus.  My masters thesis \cite{weitzel2011campus} proposed a solution based on HTCondor \cite{litzkow1988condor}.  The solution required installation of a campus factory \cite{website:campusfactory} on each cluster's login node.  Although this solution was efficient and fault tolerant, it proved difficult since the installation was manual.  Users had to install HTCondor on both the login node and their submit node.  Also, the security setup was based on IP whitelists, which can be defeated with IP spoofing.  Therefore, I set out to correct these deficiencies.
 
 I have enhanced my masters thesis' solution to include:
 \begin{itemize}
 \item Easier installation through automation
-\item Increased security through standard protocols
+\item Increased security through secured protocols
 \item More supported cluster types and configurations
 \item Access to computing through language frameworks such as R \cite{team2005r}
 \end{itemize}
@@ -42,18 +42,18 @@ But Bosco is not enough for researchers that have large data requirements.  Ther
 
 \section{Data Transfers on Campus}
 
-Data management has become a bottleneck for many in for scientific computing.  For batch computing, the issue is usually getting the data from the user's computer to the execution resources.  Large data workflows can strain the network near the user's computer, and can take unreasonable amounts of time.
+Data management and distribution has become a bottleneck in for scientific computing.  For batch computing, the impediment is transferring the data from the user's computer to the execution resources.  Large data workflows can strain the network near the user's computer which can take unreasonable amounts of time.
 
-As users spread their computation across multiple clusters either on the campus, or across campuses, data distribution and collection becomes more difficult.  Before using the campus grid, a user would select a cluster to do their processing.  The user then could host all of their data on that cluster by copying the data onto that cluster's shared filesystem.  The jobs could access the data from the distributed filesystem just as it would on the user's desktop, available for all executions at the same directory.
+As users spread their computation across multiple clusters either on the campus or across campuses, data distribution and collection becomes more difficult.  Before using the campus grid, a user would select a cluster to do their processing.  The user then could host all of their data on that cluster by copying the data onto that cluster's shared filesystem.  The jobs access the data from the distributed filesystem just as it would on the user's desktop, available for all executions at the same directory.
 
 These assumptions do not hold for a campus grid.  A grid is made up of multiple computational clusters, with potentially many separate file systems.  There is no single filesystem that a user can access from every computational resource.  Therefore, the data must be handled differently than when on a shared filesystem.  
 
 
-Most batch schedulers transfer the input data for each job execution.  Each job starts with an empty sandbox and the scheduler will transfer the files into the execution area.  This is true even when not using the scheduler to download input files.  Data will be transferred from the source (usually the user's computer) to the execution resources for processing.  The network connection between the source and the execution resources may be a bottleneck for the computation.  Frequent re-transfers of the same input data will further congest the network between the source and the execution resources.
+Most distributed batch schedulers are able to transfer the input data for each job execution.  Each job starts with an empty sandbox and the scheduler will transfer the files into it.  When the user is not using the scheduler to transfer data, the input data must still reach the execution host.  Data will be transferred from the source (usually the user's computer) to the execution resources for processing.  The network connection between the source and the execution resources may be a bottleneck for the computation.  Frequent re-transfers of the same input data will further congest the network between the source and the execution resources.
 
-Efficiently transferring data between the source and the execution resources requires two attributes: efficient transfer method, and reduction of duplicate transfers.  
+In this dissertation, I optimized two attributes of distributed data management: efficient transfer methods and reduction of duplicate transfers.
 
-I introduce the CacheD, a caching and data transfer daemon and framework for input data in distributed computing.  The CacheD uses novel data transfer methods based on successful large data transfers on the internet.  It also caches input data on the execution resources to enable quick transfers on repeated subsequent requests for the same input data.
+I introduce the CacheD, a caching and data transfer daemon for input data in distributed computing.  The CacheD uses novel data transfer methods based on technology developed for large data transfers on the internet.  It also caches input data on the execution resources to enable quick transfers on subsequent requests for the same input data.
 
 \section{Data Distribution Policy Language}
 The data must flow from the data source to the computational resource in an efficient manner.  For this reason, it is necessary to extract information about the data from the user, such as if it is shared between many jobs, or unique to each and every job.  Further, some data needs to be protected, therefore we must learn if the data is private or public.  Different transfer methods are necessary for different data types.  For example, if the data is shared between many executions, then it may be cached or can be group transferred.  
