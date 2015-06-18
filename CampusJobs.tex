@@ -39,11 +39,11 @@ We have also created a native installer, a PKG, for the Mac version of Bosco.  I
 
 The image shown in Figure \ref{fig:archgraph1} shows the architecture of job submissions of a Bosco submit node.  Job submissions are done from the Bosco submit host, which in turn submit to the connected cluster login node.  
 
-\begin{figure}[ht!]
+\begin{sidewaysfigure}[ht!]
 \includegraphics[width=\textwidth]{images/ArchitectureGraph1}
 \caption{Bosco Architecture}
 \label{fig:archgraph1}
-\end{figure}
+\end{sidewaysfigure}
 
 First, the Bosco submit node connects to the login node over an SSH connection and creates the forwarded SSH connection back to the submit node which is used for file transfer.  It creates the forwarded SSH connection in order to minimize the number of necessary connections between the Bosco submit host and the login node.  By reusing the same SSH connection, we reduce the number of necessary connections and SSH logins to 1.  Further, the number of connections is not dependent on the number of jobs, as Bosco will reuse the same connection for all jobs submitted to a cluster.  Minimizing the number of connections to a login node is important since many login nodes include firewall rules to slow down brute force SSH logins that block frequent successive SSH connections.  The Bosco submit host does not require any open ports in a firewall, only outgoing connections to remote login node's SSH port.
 
