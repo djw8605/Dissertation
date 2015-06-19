@@ -302,6 +302,10 @@ The experimental testing we ran showed that glidein submission method is signifi
 
 Bosco and the Campus Factory combine to make an easy to use framework that can distribute jobs to many computational clusters on a campus.  Users are able to effectively distribute their processing to multiple clusters using this framework.  In this section, I showed that Bosco transparently and effectively distributes computational jobs across multiple clusters on a campus, while maintaining simple usage for users.
 
+Using Bosco as a foundation, we were able to create an interface from the R programming language called BoscoR.  This interface proved very simple for users to use.  
+
+During the evaluation of BoscoR, we confirmed our suspicions that the Direct submission method is slower for quick jobs than the glidein submission method.  But, for longer jobs, there is almost no difference between direct and glidein jobs.
+
 Bosco's usage has increased since I originally published the Bosco paper.  For example, it is heavily used by the University of Chicago in order to submit OSG processing to opportunistic resources around the country.  They find Bosco useful since it does not require the installation of any software on the remote cluster.
 
 Additionally, the CMS experiment has used Bosco to access opportunistic resources around the world, and has published many papers on the subject \cite{hufnagelcmsopportunistic, piperovoperationalchep15, wagner2013using, kreuzer2014opportunistic}.

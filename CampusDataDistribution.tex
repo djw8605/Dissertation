@@ -81,12 +81,11 @@ In \cite{briquet2007scheduling}, the authors use scheduling, caching, and BitTor
 
 \section{Implementation}
 
-%TODO: Discuss cached interface (python, dc_cached c api...)
-
 The HTCondor CacheD is a daemon that runs on both the execution host and the submitter.  For our purposes, a cache is defined as an immutable set of files that has metadata associated with it.  The metadata can include a cache expiration time, as well as ownership and acceptable transfer methods.
 
 The CacheD is designed to interface with other daemons as well as the user.  The CacheD communicates only over sockets (whether file sockets or network sockets, it doesn't matter). The communication protocol is over ClassAds \cite{raman1998matchmaking}, a key value data structure.  
 
+\subsection{Interface and API}
 To simplify communication with the CacheD, clients may use an API which will communicate with the CacheD using ClassAds.  Further, Python bindings to the CacheD C++ API were written in order to make communicating with the daemon even easier.  Figure \ref{fig:createcacheexamplecode} shows the example code necessary to create a cache.  As you can see, the code is very simple.
 
 \begin{figure}[ht!]
@@ -120,7 +119,27 @@ except:
 \label{fig:createcacheexamplecode}
 \end{figure}
 
-Creating a simple API to interact with the CacheD improves the user experience of using the CacheD.  The CacheD also uses this same API in order to communicate with other CacheDs.  Users may also use this API in order to modify the replication policies of the job, to extend the lease time of a cache, or to download the cache.  All interactions with the CacheD are available through the API.
+Creating a simple API to interact with the CacheD improves the user experience of using the CacheD.  The CacheD also uses this same API in order to communicate with other CacheDs.  For example, the call to replicate a cache is shown in Figure \ref{fig:requestlocalcall}.  All CacheD's and client use this same function.
+
+\begin{figure}[h!]
+\begin{lstlisting}[language=C,backgroundcolor=\color{grey},frame=none]
+int requestLocalCache(const std::string &cached_server, const std::string &cached_name, compat_classad::ClassAd& response, CondorError& err)
+\end{lstlisting}
+\caption{Function to Request a Replica of the Cache}
+\label{fig:requestlocalcall}
+\end{figure}
+
+The function \texttt{requestLocalCache} asks whatever CacheD you are communicating with to replicate the cache to itself.  It may respond with several options:
+
+\begin{description}
+	\item[\texttt{OK}:] The cache will be replicated.  The current status of the replication is in the \texttt{CacheState} attribute of the returned ClassAd \texttt{Reponse}.
+	\item[\texttt{WAIT}:] If the CacheD has not decided whether or not to accept the cache, it can send a \texttt{WAIT} signal to the requester to ask again after some delay.
+	\item[\texttt{REJECTED}:] If the CacheD has decided, through the policy language described in Chapter \ref{chapter:campusstoragepolicylanguage}, to not replicate the cache, the CacheD will respond with \texttt{REJECTED}
+\end{description}
+
+A CacheD may call this function in order to replicate a cache it stores to other CacheD's.  A transfer plugin may call this function in order to replicate the cache locally before downloading the cache.
+
+Users may also use this API in order to modify the replication policies of the job, to extend the lease time of a cache, or to download the cache.  All interactions with the CacheD are available through the API.
 
 
 \begin{figure}[ht]
@@ -156,7 +175,7 @@ The receiving CacheD can deny a replication request for many reasons, including:
 
 The ability of the receiving CacheD to deny a replication request follows HTCondor's independent agent model.
 
-The policy expression language is modeled after the matchmaking language in the HTCondor system \cite{raman1998matchmaking}.  The caching daemon is matching the cache contents to a set of resources; therefore, it is natural to use HTCondor's same matchmaking language that is used to match jobs to resources.  Once a resource is determined to match the cache's policy expression, the caching daemon will contact the resource's caching daemon in order to initiate a cache replication.  The caching daemon on the remote resource is an independent agent that has the ability to deny a caching replication even after matchmaking is successful.  A full discussion of the policy language, as well as possible configurations, is discussed in Chapter \ref{chapter:campusdata}.
+The policy expression language is modeled after the matchmaking language in the HTCondor system \cite{raman1998matchmaking}.  The caching daemon is matching the cache contents to a set of resources; therefore, it is natural to use HTCondor's same matchmaking language that is used to match jobs to resources.  Once a resource is determined to match the cache's policy expression, the caching daemon will contact the resource's caching daemon in order to initiate a cache replication.  The caching daemon on the remote resource is an independent agent that has the ability to deny a caching replication even after matchmaking is successful.  A full discussion of the policy language, as well as possible configurations, is discussed in Chapter \ref{chapter:campusstoragepolicylanguage}.
 
 Libtorrent is built into the CacheD to provide native BitTorrent functionality.  The CacheD is capable of creating torrents from sets of files in a cache, as well as downloading cache files using the BitTorrent protocol.  Since this is a distributed set of caches, we will not use a static torrent tracker.  Rather, we will use a Distributed Hash Table \cite{dinger2009decentralized} and local peer discovery \cite{legout2007clustering} features of the BitTorrent protocol.  This ensures that there are no single points of failure.
 
@@ -195,6 +214,7 @@ Figure \ref{fig:replicationflow}'s flow can be shown in the steps:
 All communication between CacheDs are authenticated using the regular HTCondor methods.  ClassAds are used for communication between the CacheDs so that the protocol can be expanded if needed. 
 
 %TODO: Bigger discussion of transfer methods
+%TODO: show graph of bittorrent downloads
 Each download is negotiated for the appropriate transfer method between the parent and the client.  Between parent and client CacheD's, the cache's individual replication preferences are honored.  Between a CacheD and the transfer plugin, an additional protocol is offered: symbolic link (symlink).
 
 If the transfer plugin successfully authenticates with a local CacheD, transfer methods are negotiated.  If supported, the symlink method may be chosen.  The symlink transfer method allows near instant transfer of the cache from the CacheD to the plugin.  A symlink is created by the CacheD in the job's working directory pointing to the cache directory.  This symlink method eliminates transferring the cache to each job.
@@ -228,7 +248,7 @@ Parenting can also be used to create a hierarchy of caching.  This is especially
 A CacheD's parent is discovered through the configuration.  When a CacheD starts, it checks the configuration for a special attribute, the \texttt{CACHED\_PARENT}.  It then attempts to connect to the parent, to verify that the parent is functional.  If the parent is found to be functional and responding to queries, the child then forwards all requests it receives to the parent, just as the node local CacheD will forward all requests to the origin in Figure \ref{fig:replicationflow}.
 
 
-\section{Results}
+\section{Results For Campus Cluster}
 
 \subsection{Experimental Design}
 To evaluate our solution, we will run a BLAST benchmark from UC Davis \cite{blastbenchmark}.  We chose a BLAST benchmark due to many factors.  BLAST is used frequently on campuses, but used infrequently on clusters due to the size of the database. BLAST has very large databases that are required by each job.  This makes it difficult to use on distributed resources since each job requires significant data.
@@ -290,7 +310,76 @@ The HTCondor file transfer method has a shorter stage-in time for low numbers of
 
 %it begins with less overhead than the direct or the BitTorrent methods at low job counts.  But as the number of jobs increase, so to does the total stage-in time.  Since the condor file transfer method does not cache the data, it continues to linearly increase in stage-in time as the number of jobs increase.
 
+\section{Results for Open Science Grid}
 
+\subsection{Experimental Design}
+For the OSG testing, we again used Bosco.  Bosco was connected to the Holland Computing Center's (HCC) GlideinWMS frontend which will run the Bosco glideins on worker nodes on the OSG.  The GlideinWMS system for HCC submits to about 20 sites on the OSG.  Not all sites where available to run jobs during our experiments.
+
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=\textwidth]{images/OSGDaemonLayout.pdf}
+	\caption{OSG Daemon Locations, Described Below}
+	\label{fig:osgdaemonlayoutcached}
+\end{figure}
+
+Figure \ref{fig:osgdaemonlayoutcached} shows the daemon layout when running on the Open Science Grid.  The flow of the experimental BLAST jobs are:
+
+\begin{enumerate}
+	\item The user submits jobs to Bosco using standard HTCondor commands.
+	\item Bosco detect idle jobs on the Bosco system, and deploys Bosco glideins to the connected HCC GlideinWMS frontend in order to service the idle jobs.  Bosco transfers the worker node binaries to the HCC GlideinWMS frontend to be run as the jobs.
+	\item The GlideinWMS glidein starts on the remote OSG cluster.  It communicates back with the GlideinWMS Frontend in order to retrieve the job, which is a Bosco glidein.
+	\item The Bosco glidein starts and reports back to the Bosco system on the user's submit machine.  The submit machine then will send the BLAST job to the remote Bosco glidein running on the OSG cluster.
+	\item At the same time that the Bosco glidein reports back to the Bosco system, the CacheD is reporting to the HTCondor Collector on the User's submit machine.  This will add the CacheD to the list of known CacheD's in the system.
+\end{enumerate}
+
+For each experiment, we submitted 100 BLAST jobs at a time.  We compared our BitTorrent transfer method to that of the leading transfer method on the OSG, HTTP Caching. 
+
+The HTTP caching jobs pulled the BLAST database through HTTP from the job submission server.  Figure \ref{fig:httpcachearchitecture} shows the architecture of HTTP caching on the OSG.  The HTTP request is cached through a Squid server near the execution host.
+
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=\textwidth]{images/HTTPCache.pdf}
+	\caption{HTTP Cache Architecture}
+	\label{fig:httpcachearchitecture}
+\end{figure}
+
+The HTTP requests have no method to parent to one another, therefore we will not compare the number of parents for HTTP compared to BitTorrent as we did for the campus experimental runs.  Instead, we will compare the average time to complete the transfer of the input data files.
+
+Since the CacheD is able to cache the input data on the node, and we have shown in the campus experiments that the CacheD is nearly instantaneous in transferring the cached data to the job directory, we will not compare subsequent total stagein times as we did in the campus experiments.
+
+\subsection{Results}
+
+While processing the results from the experimental runs, we noticed that the vast majority of CacheDs where running in parent mode.  In our results, we saw between 71 and 96 parents out of 100 jobs.
+
+Indeed, we experienced so many parents, that we were unable to complete any Direct transfer experiments.  The transfers took too long to complete and the jobs where evicted from the remote OSG clusters before the could complete the transfer of the BLAST databases.  Therefore, we will not test the Direct transfer method on the OSG.
+
+\begin{table}[h!t]
+	\centering
+\begin{tabular}{|l|r|r|}
+\hline
+Transfer Type & Average Time (minutes) & Average MB/s \\ \hline
+BitTorrent & 17.77 & 13.66 \\ \hline
+HTTP & 52.17 & 4.65 \\ \hline
+\end{tabular}
+\caption{Transfer Times for Different Transfer Type}
+\label{tbl:osgtransferstats}
+\end{table}
+
+As you can see in Table \ref{tbl:osgtransferstats}, the Bittorrent method is significantly faster than the HTTP method.  
+
+We can also compare all of the transfer methods across both the campus and OSG experiments.  We show this comparison in a violin plot in Figure \ref{fig:violinplots}.  The violin plot shows a probability distribution of transfer speeds for the different transfer methods.  We ran each experiment at least 25 times, but as much as 43 times in the case of OSG BitTorrent runs.
+
+\begin{figure}[h!t]
+\includegraphics[width=\textwidth]{images/ViolinPlot.pdf}
+\caption{Violin Plot of the Transfer Speed Comparing Transfer Speeds}
+\label{fig:violinplots}
+\end{figure}
+
+Figure \ref{fig:violinplots} clearly shows that the BitTorrent methods are faster at transferring the experimental data than the Direct or HTTP methods.  Even though the HTTP and Direct methods look similar in speed, they are comparing different aspects of the transfers.  Direct method has sometimes as much as half as many downloaders (parents) as the HTTP method, in which all of the downloaders are parents.
+
+The BitTorrent method for the campus has a much wider variance of transfer speeds than any other transfer method.  This can be explained by the large variance in the number of parents available to download, compared to the other transfer methods.  The BitTorrent method for the OSG is almost exclusively faster than the HTTP method on the OSG.
+
+%TODO: expand on transfer speeds
 
 \section{Conclusions}
 We have presented the HTCondor CacheD, a technique to decrease the stage-in time for large shared input datasets.  Our experiments proved that the CacheD decreases stage-in time for these datasets.  Additionally, the transfer method that the CacheD used can significantly affect the stage-in time of the jobs.
@@ -300,6 +389,8 @@ The BitTorrent transfer method proved to be a efficient method to transfer cache
 %For caching methods that attempt to optimize per cluster access, such as HTTP proxy methods, the results would like be very similar to those shown above.  Per cluster caching still bottlenecks the transfers to a single or set of nodes near the cluster.  They are better for optimizing latency of small accesses rather than aggregate bandwidth, which is required for large input datasets.
 
 In the future we plan to investigate incorporating job matchmaking with cache placement.  The HTCondor Negotiator could attempt to match jobs first against resources that have the input files before matching against any available computing resources.
+
+%TODO future work of testing on the OSG
 
 
 \section*{Acknowledgment}
