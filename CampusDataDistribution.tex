@@ -85,6 +85,43 @@ In \cite{briquet2007scheduling}, the authors use scheduling, caching, and BitTor
 
 The HTCondor CacheD is a daemon that runs on both the execution host and the submitter.  For our purposes, a cache is defined as an immutable set of files that has metadata associated with it.  The metadata can include a cache expiration time, as well as ownership and acceptable transfer methods.
 
+The CacheD is designed to interface with other daemons as well as the user.  The CacheD communicates only over sockets (whether file sockets or network sockets, it doesn't matter). The communication protocol is over ClassAds \cite{raman1998matchmaking}, a key value data structure.  
+
+To simplify communication with the CacheD, clients may use an API which will communicate with the CacheD using ClassAds.  Further, Python bindings to the CacheD C++ API were written in order to make communicating with the daemon even easier.  Figure \ref{fig:createcacheexamplecode} shows the example code necessary to create a cache.  As you can see, the code is very simple.
+
+\begin{figure}[ht!]
+
+\begin{lstlisting}[language=Python]
+#!/bin/env python
+
+import htcondor
+import glob
+import time
+import sys
+
+cached = htcondor.Cached()
+cacheName = sys.argv[1]
+
+try:
+	cached.createCacheDir(cacheName, int(time.time())+1000)
+except RuntimeError:
+	print "Create cache failed"
+	sys.exit(1)
+
+input_glob = glob.glob(sys.argv[2])
+print input_glob
+try:
+	cached.uploadFiles(cacheName, input_glob)
+except:
+	print "Upload files Fail"
+	sys.exit(1)
+\end{lstlisting}
+\caption{Example Code to Create a Cache}
+\label{fig:createcacheexamplecode}
+\end{figure}
+
+Creating a simple API to interact with the CacheD improves the user experience of using the CacheD.  The CacheD also uses this same API in order to communicate with other CacheDs.  Users may also use this API in order to modify the replication policies of the job, to extend the lease time of a cache, or to download the cache.  All interactions with the CacheD are available through the API.
+
 
 \begin{figure}[ht]
 \centering
