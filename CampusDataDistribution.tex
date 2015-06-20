@@ -345,6 +345,8 @@ The HTTP caching jobs pulled the BLAST database through HTTP from the job submis
 
 The HTTP requests have no method to parent to one another, therefore we will not compare the number of parents for HTTP compared to BitTorrent as we did for the campus experimental runs.  Instead, we will compare the average time to complete the transfer of the input data files.
 
+We again used the same data source node as in the campus experiments.  It has a 1Gbps connection to the internet.
+
 Since the CacheD is able to cache the input data on the node, and we have shown in the campus experiments that the CacheD is nearly instantaneous in transferring the cached data to the job directory, we will not compare subsequent total stagein times as we did in the campus experiments.
 
 \subsection{Results}
@@ -375,16 +377,33 @@ We can also compare all of the transfer methods across both the campus and OSG e
 \label{fig:violinplots}
 \end{figure}
 
-Figure \ref{fig:violinplots} clearly shows that the BitTorrent methods are faster at transferring the experimental data than the Direct or HTTP methods.  Even though the HTTP and Direct methods look similar in speed, they are comparing different aspects of the transfers.  Direct method has sometimes as much as half as many downloaders (parents) as the HTTP method, in which all of the downloaders are parents.
+Figure \ref{fig:violinplots} clearly shows that the BitTorrent methods are faster at transferring the experimental data than the Direct or HTTP methods.  Even though the HTTP and Direct methods look similar in speed, they are comparing different aspects of the transfers.  Direct method has sometimes as much as half as many downloaders (parents) as the HTTP method, in which all of the downloaders are parents.  Therefore, given the same number of downloaders, HTTP should be faster than direct.
 
 The BitTorrent method for the campus has a much wider variance of transfer speeds than any other transfer method.  This can be explained by the large variance in the number of parents available to download, compared to the other transfer methods.  The BitTorrent method for the OSG is almost exclusively faster than the HTTP method on the OSG.
 
-%TODO: expand on transfer speeds
+\subsection{Aggregate Bandwidth}
+
+While running the CacheD experiments, we discovered that the average bandwidth for transfers was much higher that of the source node.  Therefore, we set out to compare the aggregate bandwidth of different transfer methods.
+
+\begin{figure*}[h!t]
+\centering
+\subfloat[Campus Direct\label{fig:aggregatecampusdirect}]{\includegraphics[width=0.5\textwidth]{images/campus-aggregatedirect.png}}
+\subfloat[Campus BitTorrent\label{fig:aggregatecampusbittorrent}]{\includegraphics[width=0.5\textwidth]{images/crane-agreggatebittorrent.png}} \\
+\subfloat[OSG BitTorrent\label{fig:aggregateosgbittorrent}]{\includegraphics[width=0.5\textwidth]{images/osg-aggregatebittorrent.png}}
+\subfloat[OSG HTTP\label{fig:aggregateosghttp}]{\includegraphics[width=0.5\textwidth]{images/osg-aggregatehttp.png}}
+\caption{Comparison of Aggregate Bandwidth During Transfers}
+\label{fig:aggregatebandwidthcached}
+	
+\end{figure*}
+
+%TODO: discuss graphs
 
 \section{Conclusions}
 We have presented the HTCondor CacheD, a technique to decrease the stage-in time for large shared input datasets.  Our experiments proved that the CacheD decreases stage-in time for these datasets.  Additionally, the transfer method that the CacheD used can significantly affect the stage-in time of the jobs.
 
 The BitTorrent transfer method proved to be a efficient method to transfer caches from the originator to the execution hosts.  In fact, the transfer time for jobs did not increase as the number of distinct nodes requesting the data increased.  Any bottlenecks that surround the cluster are therefore irrelevant using the BitTorrent transfer method.
+
+In addition, we found that the CacheD using BitTorrent transfer method out performed the HTTP transfer method on the OSG.
 
 %For caching methods that attempt to optimize per cluster access, such as HTTP proxy methods, the results would like be very similar to those shown above.  Per cluster caching still bottlenecks the transfers to a single or set of nodes near the cluster.  They are better for optimizing latency of small accesses rather than aggregate bandwidth, which is required for large input datasets.
 
