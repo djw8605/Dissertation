@@ -357,12 +357,15 @@ Indeed, we experienced so many parents, that we were unable to complete any Dire
 
 \begin{table}[h!t]
 	\centering
+	\bgroup
+	\def\arraystretch{1.5}
 \begin{tabular}{|l|r|r|}
 \hline
-Transfer Type & Average Time (minutes) & Average MB/s \\ \hline
+\textbf{Transfer Type} & \textbf{Average Time (minutes)} & \textbf{Average MB/s} \\ \hline
 BitTorrent & 17.77 & 13.66 \\ \hline
 HTTP & 52.17 & 4.65 \\ \hline
 \end{tabular}
+\egroup
 \caption{Transfer Times for Different Transfer Type}
 \label{tbl:osgtransferstats}
 \end{table}
@@ -403,15 +406,26 @@ From Figure \ref{fig:aggregatebandwidthcached}, you can see the difference betwe
 
 For the two OSG transfer methods \ref{fig:aggregateosghttp} and \ref{fig:aggregateosgbittorrent}, you can see that the HTTP method almost reaches the same aggregate bandwidth as the BitTorrent method, nearly 10Gbps.  Both transfer methods have long tails after large peak in transfer speed.  But, the BitTorrent method maintains the peak of transfer speed until roughly 1200 seconds into the transfer.  The HTTP method's peak drops significantly before 800 seconds into the transfer.  The HTTP also has significant transfers yet to be completed, hence the not only long tail, but high transfer speed of the tail.  Upon further investigation, we found that the HTTP performance differed signficantly between sites.  Table \ref{tbl:transferspeedsites} shows the transfer speeds of sites in the same run.
 
-%TODO: talk about the disparity between sites with bittorrent and http 
-
-\begin{table}
+\begin{table}[h!t]
+	\centering
+	\bgroup
+	\def\arraystretch{1.5}
 	\begin{tabular}{l|r}
-		content...
+\textbf{OSG Site} & \textbf{Average Transfer Speed} \\ \hline
+UCSD & 236 Mbps \\ \hline
+Nebraska & 116.8 Mbps \\ \hline
+AGLT2 & 104 Mbps \\ \hline
+Wisconsin & 91.2 Mbps \\ \hline
+UChicago & 90.4 Mbps \\ \hline
+SPRACE & 80.8 Mbps \\ \hline
+MIT & 26.4 Mbps \\ \hline
 	\end{tabular}
-	\caption{Table of transfer speeds by site}
+	\egroup
+	\caption{Transfer Speeds by Site}
 	\label{tbl:transferspeedsites}
 \end{table}
+
+In Table \ref{tbl:transferspeedsites}, you can see the disparity in transfer speeds between sites.  UCSD is twice as fast downloading input HTTP data than the next highest, Nebraska.
 
 
 The long tail of the BitTorrent method is very slow transfers, and can be attributed to a failed transfer that must be restarted.
