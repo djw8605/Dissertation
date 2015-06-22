@@ -4,7 +4,9 @@
 
 In the previous chapter, Chapter \ref{chapter:coordinatingstorage}, I discussed the HTCondor CacheD.  In this section, I will discuss the policy framework that allows the CacheD to represent heterogeneous resources on campus or cyberinfrastructure resources.  The CacheD's policy framework inserts itself whenever it interacts with another CacheD.  This policy framework allows the CacheD to act as an independent agent within the distributed system.
 
-In a distributed computing system, independent agents are designed to act on behalf of entities such as users, hosts, or entire clusters.  The agents attempt to fulfill the goals of the entities that they represent, even in the chaotic environment of a distributed computing system.  This
+In a distributed computing system, independent agents are designed to act on behalf of entities such as users, hosts, or entire clusters.  The agents attempt to fulfill the goals of the entities that they represent, even in the chaotic environment of a distributed computing system.  In order to fufill these goals, the agents must know and understand them.  Therefore, a policy language exist to express the goals of the entity.
+
+
 
 
 The CacheD has a few interaction points when it must interact with other agents, such as other CacheD's or users.  Those interaction points are:
