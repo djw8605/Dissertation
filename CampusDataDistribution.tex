@@ -214,7 +214,6 @@ Figure \ref{fig:replicationflow}'s flow can be shown in the steps:
 All communication between CacheDs are authenticated using the regular HTCondor methods.  ClassAds are used for communication between the CacheDs so that the protocol can be expanded if needed. 
 
 %TODO: Bigger discussion of transfer methods
-%TODO: show graph of bittorrent downloads
 Each download is negotiated for the appropriate transfer method between the parent and the client.  Between parent and client CacheD's, the cache's individual replication preferences are honored.  Between a CacheD and the transfer plugin, an additional protocol is offered: symbolic link (symlink).
 
 If the transfer plugin successfully authenticates with a local CacheD, transfer methods are negotiated.  If supported, the symlink method may be chosen.  The symlink transfer method allows near instant transfer of the cache from the CacheD to the plugin.  A symlink is created by the CacheD in the job's working directory pointing to the cache directory.  This symlink method eliminates transferring the cache to each job.
@@ -408,7 +407,7 @@ HTTP & 52.17 & 4.65 \\ \hline
 
 As you can see in Table \ref{tbl:osgtransferstats}, the Bittorrent method is significantly faster than the HTTP method.  
 
-We can also compare all of the transfer methods across both the campus and OSG experiments.  We show this comparison in a violin plot in Figure \ref{fig:violinplots}.  The violin plot shows a probability distribution of transfer speeds for the different transfer methods.  We ran each experiment at least 25 times, but as much as 43 times in the case of OSG BitTorrent runs.
+We can also compare all of the transfer methods across both the campus and OSG experiments.  We show this comparison in a Violin Plot \cite{hintze1998violin} in Figure \ref{fig:violinplots}.  The violin plot shows a probability distribution of transfer speeds for the different transfer methods.  We ran each experiment at least 25 times, but as much as 43 times in the case of OSG BitTorrent runs.
 
 \begin{figure}[h!t]
 \includegraphics[width=\textwidth]{images/ViolinPlot.pdf}
@@ -429,14 +428,14 @@ While running the CacheD experiments, we discovered that the average bandwidth f
 \subfloat[Campus Direct\label{fig:aggregatecampusdirect}]{\includegraphics[width=0.5\textwidth]{images/campus-aggregatedirect.png}}
 \subfloat[Campus BitTorrent\label{fig:aggregatecampusbittorrent}]{\includegraphics[width=0.5\textwidth]{images/crane-agreggatebittorrent.png}} \\
 \subfloat[OSG HTTP\label{fig:aggregateosghttp}]{\includegraphics[width=0.5\textwidth]{images/osg-aggregatehttp.png}}
-\subfloat[OSG BitTorrent\label{fig:aggregateosgbittorrent}]{\includegraphics[width=0.5\textwidth]{images/osg-aggregatebittorrent.png}}
+\subfloat[OSG BitTorrent\label{fig:aggregateosgbittorrent}]{\includegraphics[width=0.5\textwidth]{images/osg-aggregatebittorrent2.png}}
 
 \caption{Comparison of Aggregate Bandwidth During Transfers}
 \label{fig:aggregatebandwidthcached}
 	
 \end{figure*}
 
-The aggregate bandwidth shown in Figure \ref{fig:aggregatebandwidthcached} is calculated from the historical logs of the experimental runs.  For each transfer, the average bandwidth is assumed to start at the transfer start time, and end at the transfer end time.  Then, each of these transfers is overlay on top of each other.  Each of the graphs in the Figure are a single experimental run, but are typical for the transfers.  The Origin server's available bandwidth is also shown on the graphs.
+The aggregate bandwidth shown in Figure \ref{fig:aggregatebandwidthcached} is calculated from the historical logs of the experimental runs.  For each transfer, the average bandwidth is assumed to start at the transfer start time, and end at the transfer end time.  Then, each of these transfers is overlay on top of each other.  Each of the graphs in the Figure are a single experimental run, but are typical for the transfers.  The Origin server's available bandwidth is also shown on the graphs as a horizontal line at 1 Gbps.
 
 From Figure \ref{fig:aggregatebandwidthcached}, you can see the difference between the different transfer methods.  The Campus Direct method in Figure \ref{fig:aggregatecampusdirect} has the lowest aggregate bandwidth of all of the transfer methods, while BitTorrent on the campus in \ref{fig:aggregatecampusbittorrent} has the highest.  The campus BitTorrent method multiplies the available bandwidth of the origin server by over 12 times.  This factor of 12 can be attributed to servers in the cluster distributing data between with the BitTorrent protocol without transferring it from the origin server.  Using the Direct method, the CacheD must transfer the data from either the origin or a parent on the local node.
 
@@ -463,17 +462,28 @@ MIT & 26.4 Mbps \\ \hline
 
 In Table \ref{tbl:transferspeedsites}, you can see the disparity in transfer speeds between sites.  University of California, Sand Diego (UCSD) is twice as fast downloading input HTTP data than the next highest, Nebraska.  But MIT was 10 times as slow as UCSD.  This can be attributed to the speed and configuration of the HTTP caching servers at the different sites.  UCSD has a HTTP caching server with a 10 Gigabit connection and a solid state disk.  This enables very fast transfers from the caching server to the worker nodes.
 
+When comparing the campus and OSG transfer, you can notice long tails as the transfer speeds slowly decline.  This can happen for many reasons.  For example, for the OSG HTTP method, it occured because a single cluster had a very slow transfer speed, which slowed the download for all jobs running at that cluster.
 
-The long tail of the BitTorrent method is very slow transfers, and can be attributed to a failed transfer that must be restarted.
+The long tail of the OSG BitTorrent method is very slow transfers.  After the initial very fast BitTorrent transfers,  then children CacheDs begin their download of the cache.  These downloads of the cache from the parent are slower than the BitTorrent downloads because they are coming from a single source, and multiple children may be downloading at the same time.  To further look at the OSG BitTorrent method, I graphed the download time by the mode (either Cached, Parent, or Child) in Figure \ref{fig:dowloadmodebittorrent}.
 
-Further trends are also visible on these graphs.  
+\begin{figure}[h!t]
+\centering
+\includegraphics[width=0.8\textwidth]{images/osg-aggregatebittorrentmodes.png}
+\caption{Download Time by Mode for a single OSG BitTorrent}
+\label{fig:dowloadmodebittorrent}
+	
+\end{figure}
+
+Figure \ref{fig:dowloadmodebittorrent} shows the download method time by mode.  As you can see in the graph, the vast majority of downloads are from Parents.  But some children are also interleaved with the parent downloads.  The final download is a singular child download.  This child download may have gone slow because of inadequate disk bandwidth on the local node.  This inadequate disk bandwidth could be exacerbated by the parent CacheD running BLAST while the child is still downloading the cache.
+
+
 
 \section{Conclusions}
 We have presented the HTCondor CacheD, a technique to decrease the stage-in time for large shared input datasets.  Our experiments proved that the CacheD decreases stage-in time for these datasets.  Additionally, the transfer method that the CacheD used can significantly affect the stage-in time of the jobs.
 
 The BitTorrent transfer method proved to be a efficient method to transfer caches from the originator to the execution hosts.  In fact, the transfer time for jobs did not increase as the number of distinct nodes requesting the data increased.  Any bottlenecks that surround the cluster are therefore irrelevant using the BitTorrent transfer method.
 
-In addition, we found that the CacheD using BitTorrent transfer method out performed the HTTP transfer method on the OSG.
+In addition, we found that the CacheD using BitTorrent transfer method out performed the popular HTTP transfer method on the OSG.  Further investigation of slow transfers must be completed in order further optimize the BitTorrent transfers on the OSG.  A possible solution could be to give up on the transfer after some timeout, or if the transfer speed is too slow.  Though, this timeout and transfer speed thresholds would be difficult to set accurately.
 
 %For caching methods that attempt to optimize per cluster access, such as HTTP proxy methods, the results would like be very similar to those shown above.  Per cluster caching still bottlenecks the transfers to a single or set of nodes near the cluster.  They are better for optimizing latency of small accesses rather than aggregate bandwidth, which is required for large input datasets.
 
