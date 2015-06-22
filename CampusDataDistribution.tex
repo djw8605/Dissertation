@@ -129,7 +129,7 @@ int requestLocalCache(const std::string &cached_server, const std::string &cache
 \label{fig:requestlocalcall}
 \end{figure}
 
-The function \texttt{requestLocalCache} asks whatever CacheD you are communicating with to replicate the cache to itself.  It may respond with several options:
+The function \texttt{requestLocalCache} asks the CacheD you are communicating with to replicate the cache to itself.  It may respond with several options:
 
 \begin{description}
 	\item[\texttt{OK}:] The cache will be replicated.  The current status of the replication is in the \texttt{CacheState} attribute of the returned ClassAd \texttt{Reponse}.
@@ -192,7 +192,7 @@ Numerous protections are used in order to ensure proper usage of the CacheD.  Th
 A client may mark a cache as only allowing certain replication methods.  This can be useful if a user wishes to keep data private. BitTorrent doesn't offer the authorization framework to ensure privacy of caches. Users may mark the cache as only allowing DIRECT replications, which are encrypted and authenticated.
 
 \subsection{Downloading Caches}
-When a job starts, the CacheD begins to download the cache file.  The cache is identified by a unique string that includes the cache's name and the cache's originator host.  The flow of replication requests is illustrated in Figure \ref{fig:replicationflow}.  The replication requests originate from the file transfer plugin, which sends the replication request to the node local CacheD.  The node local CacheD then sends the replication to its parent or the origin cache.  The propagation of replication requests are modeled after well-known caching mechanisms such as DNS.
+When a job starts, the CacheD begins to download the cache file using a file transfer plugin.  The cache is identified by a unique string that includes the cache's name and the cache's originator host.  The flow of replication requests is illustrated in Figure \ref{fig:replicationflow}.  The replication requests originate from the file transfer plugin, which sends the replication request to the node local CacheD.  The node local CacheD then sends the replication to its parent or the origin cache.  The propagation of replication requests are modeled after well-known caching mechanisms such as DNS.
 
 \begin{figure}[ht]
 \centering
@@ -213,10 +213,19 @@ Figure \ref{fig:replicationflow}'s flow can be shown in the steps:
 
 All communication between CacheDs are authenticated using the regular HTCondor methods.  ClassAds are used for communication between the CacheDs so that the protocol can be expanded if needed. 
 
-%TODO: Bigger discussion of transfer methods
-Each download is negotiated for the appropriate transfer method between the parent and the client.  Between parent and client CacheD's, the cache's individual replication preferences are honored.  Between a CacheD and the transfer plugin, an additional protocol is offered: symbolic link (symlink).
+Each download is negotiated for the appropriate transfer method between the source, client, and the cache.  Each entity has it's own preferences on the method of transfer.   Further discussion of this negotiation is discussed in Chapter \ref{chapter:campusstoragepolicylanguage}.
 
-If the transfer plugin successfully authenticates with a local CacheD, transfer methods are negotiated.  If supported, the symlink method may be chosen.  The symlink transfer method allows near instant transfer of the cache from the CacheD to the plugin.  A symlink is created by the CacheD in the job's working directory pointing to the cache directory.  This symlink method eliminates transferring the cache to each job.
+By default, the CacheD is capable of two transfer methods between CacheDs, the BitTorrent and the Direct transfer methods.  
+
+If the transfer plugin successfully authenticates with a local CacheD, transfer methods are negotiated.  If supported, another transfer method is possible, the symbolic link (symlink) method.  The symlink method is preferred to directly downloading the cache for two reasons
+\begin{enumerate}
+	\item Downloading the cache will create yet another copy of it, filling disk space on the local node.
+	\item A symlink can create a nearly instantaneous transfer of the data from the cache directory to the execution directory.
+\end{enumerate}
+
+A symlink does not actually copy the data.  Instead, it creates a pointer to the data which is in another directory.  This symlink creates the possibility that the cache may be altered by the job, but this issue is largely ignored for now.  BitTorrent will not allow a modified cache to be replicated, therefore there no chance that the altered cache will propagate to other nodes in the system.  BitTorrent provides this guarentee by checksumming all files in the cache before and after transfers.  If the checksum does not match, the file is re-downloaded.
+
+The symlink transfer method allows near instant transfer of the cache from the CacheD to the file transfer plugin.  A symlink is created by the CacheD in the job's working directory pointing to the cache directory.  This symlink method eliminates transferring the cache to each job.
 
 \begin{figure}[ht]
 \centering
@@ -230,7 +239,6 @@ In Figure \ref{fig:cachebottleneck}, you can see a traditional configuration of 
 
 
 % Discuss the possiblity of jobs modifying the cache?
-%TODO: Discuss reporting of replica to origin
 
 \subsection{Reporting of Replicas}
 
