@@ -228,8 +228,10 @@ If the transfer plugin successfully authenticates with a local CacheD, transfer 
 
 In Figure \ref{fig:cachebottleneck}, you can see a traditional configuration of a cluster.  The configuration shows that there is a Network Address Translation bottleneck or a network bottleneck between the submit machine and the execution nodes.  The bottleneck limits the bandwidth between the submit machine and the execution nodes.
 
-% Discuss the possiblity of jobs modifying the cache?
 
+
+% Discuss the possiblity of jobs modifying the cache?
+%TODO: Discuss reporting of replica to origin
 
 \subsection{Parenting of CacheDs} \label{sec:cachedparenting}
 During testing of the CacheD, it was apparent that BitTorrent increases the IO queue on the host server significantly, degrading the IO performance for all jobs on the server.  This increased IO queue leads to competition between BitTorrent-enabled CacheD's on the same host.  In order to address the increased IO queue, each CacheD will designate a single daemon on the host that downloads the files through BitTorrent.  All other CacheD's will then download the cache from the parent using Direct file transfer mechanisms.  
@@ -288,25 +290,59 @@ The average download times for BitTorrent stage-ins are also shown in Figure \re
 
 \begin{figure}[ht!]
 \centering
-\includegraphics[width=0.5\textwidth]{images/modes_vs_downloadtimes.png}
+\includegraphics[width=0.8\textwidth]{images/modes_vs_downloadtimes.png}
 \caption{Historgram of Transfers Mode vs Download Times}
 \label{fig:histmethod}
 \end{figure}
 
 To better illustrate how parenting affects the download time of a cache, we show a histogram of the different modes in Figure \ref{fig:histmethod}.  The figure shows that while the parents download first, and nearly at all the same time, the children take a variable amount of time to download.  This variability can be attributed to the number of children on a node.  The more children downloading the cache at the same time, the slower each download will take. 
 
+ 
+
+\begin{figure}[h!t]
+\centering
+\includegraphics[width=\textwidth]{images/BlastRunOverview.pdf}
+\caption{Timeline of Blast Runs}
+\label{fig:timelineblastruns}
+\end{figure}
+
+The observed behavior of the CacheD timeline is shown in Figure \ref{fig:timelineblastruns}.  If there are several children on a node, then the CacheD will wait for the parent to download the cache, then each child will download from the parent.  The parent will begin the BLAST job immediately after downloading the cache.  
+
+Disk contention was observed on the nodes while the children were downloading the cache and the parent was running BLAST.  This disk contention warrants further investigation.  Multiple copies of the cache will reside on the same node, but this is necessary since the CacheD is running on opportunistic resources.  At any time, a parent or child may be preempted, and their copy of the cache will be removed.  An independent copy of a cache for each CacheD will guarantee that the cache will survive as long as the CacheD, and will be available for subsequent executions.
+
 For our second experiment, we calculated the total stage-in time for a variable number of jobs.
 
-\begin{figure*}[ht!]
+\begin{figure}[h!t]
 \centering
 \includegraphics[width=\textwidth]{images/StageinPlot.pdf}
 \caption{Transfer Method vs Number of Jobs}
 \label{fig:methodvsnumjobs}
-\end{figure*}
+\end{figure}
 
 When we limit the number of nodes to 50, we can clearly see the effect of the caching by varying the number of jobs.  In Figure \ref{fig:methodvsnumjobs}, both the Direct and BitTorrent transfer methods have a natural bend at about 50 jobs.  This correlates to when the CacheD has on-disk caches of the datasets, and the transfer to the job's sandbox is nearly instantaneous.  
 
 The HTCondor file transfer method has a shorter stage-in time for low numbers of distinct nodes than the Direct method.  This can be explained by the increased overhead that the CacheD introduces when transferring datasets.  After all 50 nodes have the dataset cached locally, the Direct transfer method becomes more efficient than the HTCondor file transfers.
+
+\subsubsection{BitTorrent Behavior}
+
+To verify that BitTorrent was working as expected on the campus, we captured each block (the smallest unit of transfer in the BitTorrent protocol) from the source to the destination.  We then graphed the resulting transfer links.  For this experiment, we only submitted five jobs in order to limit the size of the graph, and to improve readibility.  We used the same 15GB NR database as before.
+
+\begin{figure}[h!t]
+	
+\centering
+\includegraphics[width=\textwidth]{images/verbose_group.png}
+\caption{Graph of Transfer Nodes in the BitTorrent Transfer}
+\label{fig:bittorrenttransfernodes}
+	
+\end{figure}
+
+Figure \ref{fig:bittorrenttransfernodes} shows the transfers between the nodes.  The libtorrent library that is used by the CacheD to implement the BitTorrent protocol allows for alerts to be propagated each time a block is transfered.  The CacheD periodically polls the library for alerts and prints any block movement activity.  For this graph, we were moving the 15GB subset of the NR database mentioned in the experimental design.  It is expected that we are not able to capture every block transferred between the nodes, since the alert buffer may overflow and further alerts will be lost until the alert buffer is cleared by the periodic check.
+
+Scanning software was written to scan the debug output from the CacheD for the block movement data.  It was then transformed into a DOT file that could be transformed with the GraphViz \cite{ellson2002graphviz} application.  The nodes are identified by their unique BitTorrent assigned identifiers, except the origin, which is signified by \textit{Cache Origin}.  The \textit{Cache Origin} is the original server with the cache before the BitTorrent transfers begin.
+
+From the Figure \ref{fig:bittorrenttransfernodes}, you can notice several interesting points.  First, even though the cache must be transferred to all 5 nodes of the system, the \textit{Cache Origin} is shown as only transferring the cache approximately one time, and nearly equally to two different nodes.  Once the cache is in the system, the \textit{Cache Origin} does not transfer the data to any of the other nodes.  
+
+Once the cache is fully inside the system, the CacheDs transfer data only between each other inside the cluster.  The libtorrent library detects ``fast'' nodes and preferentially transfers with them.  Since nodes inside the cluster are near each other on the network are on a HPC system and can use the high performance network interconnect, the library highly prefers transferring from only the cluster nodes.  You can see that the two original nodes transfer the cache to the other nodes in the system, including each other.
 
 %it begins with less overhead than the direct or the BitTorrent methods at low job counts.  But as the number of jobs increase, so to does the total stage-in time.  Since the condor file transfer method does not cache the data, it continues to linearly increase in stage-in time as the number of jobs increase.
 
@@ -425,7 +461,7 @@ MIT & 26.4 Mbps \\ \hline
 	\label{tbl:transferspeedsites}
 \end{table}
 
-In Table \ref{tbl:transferspeedsites}, you can see the disparity in transfer speeds between sites.  UCSD is twice as fast downloading input HTTP data than the next highest, Nebraska.
+In Table \ref{tbl:transferspeedsites}, you can see the disparity in transfer speeds between sites.  University of California, Sand Diego (UCSD) is twice as fast downloading input HTTP data than the next highest, Nebraska.  But MIT was 10 times as slow as UCSD.  This can be attributed to the speed and configuration of the HTTP caching servers at the different sites.  UCSD has a HTTP caching server with a 10 Gigabit connection and a solid state disk.  This enables very fast transfers from the caching server to the worker nodes.
 
 
 The long tail of the BitTorrent method is very slow transfers, and can be attributed to a failed transfer that must be restarted.

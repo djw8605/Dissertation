@@ -4,12 +4,18 @@
 
 In the previous chapter, Chapter \ref{chapter:coordinatingstorage}, I discussed the HTCondor CacheD.  In this section, I will discuss the policy framework that allows the CacheD to represent heterogeneous resources on campus or cyberinfrastructure resources.  The CacheD's policy framework inserts itself whenever it interacts with another CacheD.  This policy framework allows the CacheD to act as an independent agent within the distributed system.
 
+In a distributed computing system, independent agents are designed to act on behalf of entities such as users, hosts, or entire clusters.  The agents attempt to fulfill the goals of the entities that they represent, even in the chaotic environment of a distributed computing system.  This
+
+
+The CacheD has a few interaction points when it must interact with other agents, such as other CacheD's or users.  Those interaction points are:
 \begin{description}
 	\item[Choosing a Replication Target] - A CacheD that is the origin to a cache may choose to proactively replicate to other CacheDs.  Choosing a replication target requires matching the cache's requirements with that of the target CacheD's.
 	\item[Accepting Cache Replication] - A CacheD must decide if it can accept a cache when it receives a replication request.  This decision is based on it's own policy, as well as attributes of the incoming cache.
 	\item[Transfer Method] - The transfer method for a cache to be replicated is chosen after a cache has been accepted.  This is a prioritized list of acceptable transfer methods for the cache.
 
 \end{description}
+
+
 
 \section{Policy Language}
 The policy language used by the CacheD is the HTCondor ClassAds \cite{raman1998matchmaking}.  ClassAds offer the flexibility to both describe resources with attributes.  A ClassAd is a set of key value attributes.  The values can be numbers, strings, lists of strings, or boolean expressions.

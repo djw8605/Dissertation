@@ -30,6 +30,8 @@ Kangaroo \cite{thain2001kangaroo} is another storage scheduler multi-level file 
 
 \section{Data Management}
 
+There have been previous policy frameworks for distributed storage.  These frameworks have largely been designed to move data between few large filesystems.  Therefore, the interactions are rare, but could make significant changes to the system.  In contrast, the CacheD's have frequent interactions with other agents, but each one has a minimal impact on the entire system.
+
 Data management is different from data transfer and access in that it provides services on top of the file systems, such as meta-data storage and search capabilities.  An example of a Data management service is iRods \cite{rajasekar2010irods}.  It provides meta-data storage and querying, and rule based placements.  Further, it can handle transfers to storage resources.
 
 DQ2 \cite{branco2008managing} and Phedex \cite{rehn2006phedex} are production transfer services for the Atlas and CMS physics experiments, respectively.  They are used to manage distributed transfers to and from sites inside the collaborations.  Additionally, they have had databases built on top of them that provide features such as combining files into datasets for easier bulk transfer management.  Both were designed for their experiments, and therefore would be very difficult to generalize for outside users.
@@ -40,5 +42,10 @@ DQ2 \cite{branco2008managing} and Phedex \cite{rehn2006phedex} are production tr
 	\caption{Background on storage technologies}
 	\label{fig:backgroundstorage}
 \end{figure}
+
+
+\section{State of Practice in Campus Computing}
+%TODO: write state of practice in campus computing
+
 
 
