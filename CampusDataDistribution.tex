@@ -232,6 +232,14 @@ In Figure \ref{fig:cachebottleneck}, you can see a traditional configuration of 
 % Discuss the possiblity of jobs modifying the cache?
 %TODO: Discuss reporting of replica to origin
 
+\subsection{Reporting of Replicas}
+
+Once the cache has replicated to a CacheD, it will periodically report the replica to the origin CacheD.  The replica locations are stored in a double hash table keyed by the cache name, then the hostname.  Finally, the value is the time of the last report.  The updates are transferred in with ClassAds from the replica CacheDs.
+
+The design of the data structure is to make lookups of cache locations very fast.  In Chapter \ref{chapter:campusstoragepolicylanguage} I discuss possible uses of this data structure when determining where the replica should be placed.  
+
+
+
 \subsection{Parenting of CacheDs} \label{sec:cachedparenting}
 During testing of the CacheD, it was apparent that BitTorrent increases the IO queue on the host server significantly, degrading the IO performance for all jobs on the server.  This increased IO queue leads to competition between BitTorrent-enabled CacheD's on the same host.  In order to address the increased IO queue, each CacheD will designate a single daemon on the host that downloads the files through BitTorrent.  All other CacheD's will then download the cache from the parent using Direct file transfer mechanisms.  
 
@@ -462,6 +470,35 @@ MIT & 26.4 Mbps \\ \hline
 
 In Table \ref{tbl:transferspeedsites}, you can see the disparity in transfer speeds between sites.  University of California, Sand Diego (UCSD) is twice as fast downloading input HTTP data than the next highest, Nebraska.  But MIT was 10 times as slow as UCSD.  This can be attributed to the speed and configuration of the HTTP caching servers at the different sites.  UCSD has a HTTP caching server with a 10 Gigabit connection and a solid state disk.  This enables very fast transfers from the caching server to the worker nodes.
 
+
+\begin{table}[h!t]
+\centering
+\bgroup
+\def\arraystretch{1.5}
+\begin{tabular}{l|r|r}
+	\textbf{OSG Site} & \textbf{Average Transfer Speed} & \textbf{Percent Change} \\ \hline
+	UCSD & 169.6 Mbps & -28.14 \% \\ \hline
+	NU Crane & 134.4 Mbps & NA \\ \hline
+	Northwestern & 133.6 Mbps & NA \\ \hline
+	Nebraska & 129.6 Mbps & +10.96 \% \\ \hline
+	Purdue & 124 Mbps & NA \\ \hline
+	MIT & 113.6 Mbps & +330.3 \% \\ \hline
+	Michigan & 104.8 Mbps & +0.77 \% \\ \hline
+	Wisconsin & 94.4 Mbps & +3.5 \% \\ \hline
+	UChicago & 88 Mbps & -2.69 \% \\ \hline
+	Brookhaven & 67.2 Mbps & NA \\ \hline
+	Connecticut & 54.4 Mbps & NA \\ \hline
+	
+\end{tabular}
+\egroup
+\caption{BitTorrent Transfer Speeds by Site}
+\label{tbl:bittorrenttransferspeedsites}
+\end{table}
+
+Table \ref{tbl:bittorrenttransferspeedsites} shows the BitTorrent transfer speeds of from the same experiment shown in \ref{fig:aggregateosgbittorrent}.  As you can see, there are more sites involved downloading the cache than the HTTP transfer method.  But, you can see that the transfers are usually faster than the HTTP method.  In addition, there are more sites that faster than the the HTTP method.
+
+It is not unusual to run on very different sites in separate experiments on the OSG.  The BitTorrent and the HTTP experiments were run around 20 days apart.
+
 When comparing the campus and OSG transfer, you can notice long tails as the transfer speeds slowly decline.  This can happen for many reasons.  For example, for the OSG HTTP method, it occured because a single cluster had a very slow transfer speed, which slowed the download for all jobs running at that cluster.
 
 The long tail of the OSG BitTorrent method is very slow transfers.  After the initial very fast BitTorrent transfers,  then children CacheDs begin their download of the cache.  These downloads of the cache from the parent are slower than the BitTorrent downloads because they are coming from a single source, and multiple children may be downloading at the same time.  To further look at the OSG BitTorrent method, I graphed the download time by the mode (either Cached, Parent, or Child) in Figure \ref{fig:dowloadmodebittorrent}.
@@ -482,6 +519,8 @@ Figure \ref{fig:dowloadmodebittorrent} shows the download method time by mode.  
 We have presented the HTCondor CacheD, a technique to decrease the stage-in time for large shared input datasets.  Our experiments proved that the CacheD decreases stage-in time for these datasets.  Additionally, the transfer method that the CacheD used can significantly affect the stage-in time of the jobs.
 
 The BitTorrent transfer method proved to be a efficient method to transfer caches from the originator to the execution hosts.  In fact, the transfer time for jobs did not increase as the number of distinct nodes requesting the data increased.  Any bottlenecks that surround the cluster are therefore irrelevant using the BitTorrent transfer method.
+
+We investigated OSG transfers for both HTTP and BitTorrent.  We found that not all sites have equivalent HTTP caching setups.  For example, one site was 3 times faster than the second most 
 
 In addition, we found that the CacheD using BitTorrent transfer method out performed the popular HTTP transfer method on the OSG.  Further investigation of slow transfers must be completed in order further optimize the BitTorrent transfers on the OSG.  A possible solution could be to give up on the transfer after some timeout, or if the transfer speed is too slow.  Though, this timeout and transfer speed thresholds would be difficult to set accurately.
 

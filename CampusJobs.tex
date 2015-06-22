@@ -52,11 +52,12 @@ We have also created a native installer, a PKG, for the Mac version of Bosco.  I
 
 The image shown in Figure \ref{fig:archgraph1} shows the architecture of job submissions of a Bosco submit node.  Job submissions are done from the Bosco submit host, which in turn submit to the connected cluster login node.  
 
-\begin{sidewaysfigure}[ht!]
+\begin{sidewaysfigure}[h!t]
 \includegraphics[width=\textwidth]{images/ArchitectureGraph1}
 \caption{Bosco Architecture}
 \label{fig:archgraph1}
 \end{sidewaysfigure}
+\afterpage{\clearpage}
 
 First, the Bosco submit node connects to the login node over an SSH connection and creates the forwarded SSH tunnel back to the submit node which is used for file transfer.  SSH was chosen as the protocol since it is used nearly universally for cluster access.  It creates the forwarded SSH tunnel in order to minimize the number of connections between the Bosco submit host and the login node.  By reusing the same SSH connection, we reduce the number of SSH logins to 1.  Further, the number of connections is not dependent on the number of jobs, as Bosco will reuse the same connection for all jobs submitted to a cluster.  Minimizing the number of connections to a login node is important since many login nodes include firewall rules to slow down brute force SSH logins that block frequent successive SSH connections.  The Bosco submit host does not require any open ports in a firewall, only outgoing connections to remote login node's SSH port.
 
@@ -124,7 +125,7 @@ BoscoR is primarily made up of two components, Bosco and GridR.  Bosco provides 
 % Overview of parallel libraries
 Many parallel libraries are available for R.  Most focus on managing the R processing on a single server such as the \texttt{parallel} package \cite{rparallelpackage}.  The \texttt{parallel} package comes bundled with R and provides for single machine parallelism.  Parallelism is done by using variations of the R function \texttt{lapply}.  A simplified definition of \texttt{lapply} is shown in Figure \ref{lst:lapply}.  \texttt{lapply} is the basis for nearly all parallel libraries in R.  
 
-\begin{figure}[ht!]
+\begin{figure}[h!t]
 \begin{framed}
 \texttt{lapply}(\textbf{X}, \textbf{FUN}, \textbf{\ldots}):
 \begin{description}
@@ -171,7 +172,7 @@ Bosco is designed to run on resources that are not controlled by the submitting 
 
 GridR was modified to submit to Bosco.  The input generation of GridR is shown in Figure \ref{fig:gridrinput}.  When a user or script calls \texttt{grid.apply}, GridR compiles the input function and input data into a R data file, which can be read later by another R process.  GridR handles function dependencies by using R's dependency detection and compiles any functions that may be required into the input.  
 
-\begin{figure}[ht]
+\begin{figure}[h!t]
 \centering
 \includegraphics[width=\textwidth]{BoscoRImages/InputDiagram.pdf}
 \caption{GridR Input Generation}
@@ -232,7 +233,7 @@ For our testing, we submitted 1000 GridR jobs per test run. 1000 jobs was chosen
 \subsubsection{Direct submission}
 Direct submission is defined as submission using Bosco's direct submission method.  In GridR, the library is initialized with the argument \texttt{service="bosco.direct"}.  When this setting is used, GridR generates submission scripts that use Bosco's default routing mechanism to submit to a single cluster.  The GridR functions are submitted as jobs directly to Tusker's SLURM scheduler.
 
-\begin{figure}[ht!]
+\begin{figure}[h!t]
 \centering
 \includegraphics[width=\textwidth]{BoscoRImages/30minplot.pdf}
 
@@ -249,7 +250,7 @@ The OSG direct submission presents different failure modes than a traditional HP
 \subsubsection{Glidein}
 Glidein submissions use a pilot that is submitted directly to the SLURM scheduler.  Once the pilot starts, it calls back to the submission node to request work.  This method allows multiple jobs to run within the same SLURM job, independent of the cluster's scheduler.  
 
-\begin{figure}[ht!]
+\begin{figure}[h!t]
 \centering
 \includegraphics[width=\textwidth]{BoscoRImages/ComparisonPlot.pdf}
 \caption{Comparison of submission methods}
@@ -260,7 +261,7 @@ Comparing the Direct submission to the glidein submission is shown in Figure \re
 
 Bosco is built on top of HTCondor.  HTCondor is a very efficient high throughput scheduler that can quickly start the execution of jobs upon available resources.  Since many R workflows are designed to run a short function upon a large amount of data, HTCondor is a good fit.  By submitting HTCondor pilots to the remote scheduler, Bosco is able to utilize its strength of running many small jobs quickly, resulting in a shorter workflow completion time for shorter jobs.
 
-\begin{figure}[ht!]
+\begin{figure}[h!t]
 \centering
 \includegraphics[width=\textwidth]{BoscoRImages/NumberRunning.pdf}
 
