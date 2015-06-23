@@ -6,8 +6,21 @@ In the previous chapter, Chapter \ref{chapter:coordinatingstorage}, I discussed 
 
 In a distributed computing system, independent agents are designed to act on behalf of entities such as users, hosts, or entire clusters.  The agents attempt to fulfill the goals of the entities that they represent, even in the chaotic environment of a distributed computing system.  In order to fufill these goals, the agents must know and understand them.  Therefore, a policy language exist to express the goals of the entity.
 
+The policy language must be flexible enough in order to express and follow the goals and instructions of the users.  The goals of the policy language are:
 
+\begin{enumerate}
+	\item Express attributes of the entities such as the cache, CacheDs and the host.
+	\item Ability to write policies taking into account the attributes of the entities.
+	\item Easy to read and write the expressions.
+\end{enumerate}
 
+The policy language chosen for the CacheD is the HTCondor ClassAds \cite{raman1998matchmaking}.  They provide all of the attributes described above.
+
+\begin{enumerate}
+	\item The Key-Value structure of ClassAds allow for attributes of the entities to be expressed in strings, values, and strings.
+	\item Expressions can reference attributes in the current and the matching ClassAds.
+	\item Expressions are written as boolean expressions.  They are written in easy to read english, with familiar semantics.
+\end{enumerate}
 
 The CacheD has a few interaction points when it must interact with other agents, such as other CacheD's or users.  Those interaction points are:
 \begin{description}
@@ -81,7 +94,7 @@ CACHED_CRON_TEST_PERIOD = 15s
 
 Figure \ref{lst:cachedcronconfiguration} shows the configuration in order for the CacheD to periodically run a program named 'test'.  The executable is \texttt{test.sh}, which will run tests and output a ClassAd that will be merged into the CacheD's ClassAd.  It will be run periodically at periods of every 15 seconds.
 
-%TODO: Better example for CacheD Cron output!
+
 \begin{figure}
 \begin{lstlisting}
 TestResult = 100
@@ -198,9 +211,9 @@ As an independent agent, the CacheD prefers it's own transfer priority list than
 	
 	
 
+\section{Inserting Attributes into Policy}
 
-
-\section{Measuring Storage}
+\subsection{Measuring Storage}
 In order to provide matchmaking for resources, the resources need to be accurately described and advertised.  This will require measuring the storage capabilities and capacity of the resources and advertising those attributes to the matchmaking service.
 
 The measurements must be performed on the execution target as well as against the storage targets.  The execution targets will measure the storage capabilities in order to determine if the jobs can run.  The storage targets will be measured in order to determine the number of jobs that can be run against the target.
