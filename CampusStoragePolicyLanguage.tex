@@ -257,7 +257,7 @@ We define private data as data which the user wants to prevent others from viewi
 
 Private versions of shared and unique data cannot use the same optimization as public data.  For example, the data could not be transferred using a caching daemon if authenticated access is required.   Transferring data unauthenticated, even encrypted, is dangerous due to susceptibility to brute force.
 
-Unique data cannot benefit from caching.  But it can benefit from faster transfers.  As we have seen in Chapter \ref{chapter:campusdatadistribution}, even when caching is not turned on, the unique transfer methods that the CacheD uses can benefit the stage-in time for this unique data.  It is possible to even package many jobs worth of unique data and transfer the package for each job.  Then, on subsequent execution that require unique data from the package, it will be immediately available from the CacheD's cache.
+
 
 An example policy for a cache that is composed of public shared data could be:
 
@@ -266,13 +266,22 @@ Requirements = MY.DiskUsage < TARGET.TotalDisk
 ReplicationMethods = "BITTORRENT, DIRECT"
 \end{lstlisting}
 
-This policy will allow the CacheD to proactively replicate the caches to available CacheDs.  Further, it will allow the CacheD to replicate using the BitTorrent method, or the Direct method if the remote CacheD does not support or prefer BitTorrent.
+This policy will allow the CacheD to proactively replicate the caches to available CacheDs.  Further, it will allow the CacheD to replicate using the BitTorrent method, or the Direct method if the remote CacheD does not support or prefer BitTorrent.  
 
+For a private shared data, an example policy would look like:
 
+\begin{lstlisting}
+Requirements = (MY.DiskUsage < TARGET.TotalDisk) && (TARGET.CacheRequested =?= true)
+ReplicationMethods = "DIRECT"
+\end{lstlisting}
 
+In this method, the cache would only be replicated to nodes where it is requested.  This will minimize the number of nodes that have this private data stored.  Second, it will use the \texttt{DIRECT} method of distribution, which uses an authenticated and optionally encrypted method of transfer.  
 
+Unique data cannot benefit from caching.  But it can benefit from faster transfers.  As we have seen in Chapter \ref{chapter:campusdatadistribution}, even when caching is not turned on, the unique transfer methods that the CacheD uses can benefit the stage-in time for this unique data.  
 
+Though unique data, by definition, cannot benefit from caching, it is possible to package many jobs worth of unique data into a cache and transfer the cache for each job.  Then, on subsequent execution that require unique data from the package, it will be immediately available from the CacheD's cache.
 
+Packaged unique private data can be transferred with the same policies as the shared private.  Unique public data can be transferred with shared public policies.
 
 %\subsection{Ranking Storage}
 %In order to find the most ideal resource for a job, the resources need to be ranked.  The simplest is a greedy approach where the resources are simply ranked by their benchmark speeds.  Additionally, they should only be ranked on the attributes requested by the job, i.e. if the job is only requesting X iops, then only rank resources on the IOPS available.
@@ -302,36 +311,36 @@ This policy will allow the CacheD to proactively replicate the caches to availab
  
 
 % May go into introduction
-Many optimizations may be done to transfer shared data.  For example, people have used caching \cite{blumenfeld2008cms} the shared data per site.  Others have experimented using group transfer protocols such as Bittorrent \cite{cohen2008bittorrent} to distribute the shared data \cite{wei2005collaborative}.
+%Many optimizations may be done to transfer shared data.  For example, people have used caching \cite{blumenfeld2008cms} the shared data per site.  Others have experimented using group transfer protocols such as Bittorrent \cite{cohen2008bittorrent} to distribute the shared data \cite{wei2005collaborative}.
 
 % unique data
 
 
 
-After finding a resource to run on, the job sandbox and input data must be transferred to the remote host.  In order to do this, the remote execution host and the submitter must negotiate how to get the data there.  For example, does the remote host have access to the same NFS server?  Can it mount it?
+%After finding a resource to run on, the job sandbox and input data must be transferred to the remote host.  In order to do this, the remote execution host and the submitter must negotiate how to get the data there.  For example, does the remote host have access to the same NFS server?  Can it mount it?
 
-\section{Description for these items}
-Logically, we can separate these items into 2 categories
-\begin{itemize}
-\item Requirements for the application
-\item Acceptable methods of data movement
-\end{itemize}
+%\section{Description for these items}
+%Logically, we can separate these items into 2 categories
+%\begin{itemize}
+%\item Requirements for the application
+%\item Acceptable methods of data movement
+%\end{itemize}
 
-The users must specify these items in the description of their jobs.  No consensus language for these specifications currently exists.  
+%The users must specify these items in the description of their jobs.  No consensus language for these specifications currently exists.  
 
-The language for the requirements will be similar to the current specifications for memory and cpu.  The user will request certain storage parameters, and machines will need to provide these metrics just as they do now with cpu and memory.
+%The language for the requirements will be similar to the current specifications for memory and cpu.  The user will request certain storage parameters, and machines will need to provide these metrics just as they do now with cpu and memory.
 
-The acceptable methods for data movement can either be specified by the user, or by the submitting system.  The system can stage the data to a third party, which will then be used for the transfer to the execution target.  This can be especially useful if multiple jobs use the same input data, a useful example of this is HCCÕs use of LVS \cite{zhang2000linux} to serve common files on the OSG.  The server could automatically choose to use HTTP to transfer the files, especially since there are many common files, and the files would be cached on the remote sites using normal HTTP proxy caches.
+%The acceptable methods for data movement can either be specified by the user, or by the submitting system.  The system can stage the data to a third party, which will then be used for the transfer to the execution target.  This can be especially useful if multiple jobs use the same input data, a useful example of this is HCCÕs use of LVS \cite{zhang2000linux} to serve common files on the OSG.  The server could automatically choose to use HTTP to transfer the files, especially since there are many common files, and the files would be cached on the remote sites using normal HTTP proxy caches.
 
 %Another possible scenario is when starting a job on Amazon EC2.  If it is a virtual machine job, then input data could be created as a CD drive, or a block device, and input into the machine using the block device as input storage.
 
-\section{Policy language for matchmaking storage}
-The goal is to enable the user to describe their application to the scheduler in such a way that the scheduler can make intelligent decisions on:
-\begin{itemize}
-\item If the application can run on the pool
-\item Where is the ideal location for the job to run
-\item How to get the data to and from the application
-\end{itemize}
+%\section{Policy language for matchmaking storage}
+%The goal is to enable the user to describe their application to the scheduler in such a way that the scheduler can make intelligent decisions on:
+%\begin{itemize}
+%\item If the application can run on the pool
+%\item Where is the ideal location for the job to run
+%\item How to get the data to and from the application
+%\end{itemize}
 
 % An example policy language for a job is:
 
