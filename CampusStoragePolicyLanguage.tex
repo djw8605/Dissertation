@@ -14,7 +14,9 @@ The policy language must be flexible enough in order to express and follow the g
 	\item Easy to read and write the expressions.
 \end{enumerate}
 
-The policy language chosen for the CacheD is the HTCondor ClassAds \cite{raman1998matchmaking}.  They provide all of the attributes described above.
+
+
+We implement this policy language in the CacheD.  The policy language chosen for the CacheD is the HTCondor ClassAds \cite{raman1998matchmaking}.  ClassAds are an independent library developed by the HTCondor group that are used for communication between HTCondor components.  They provide all of the attributes described above.
 
 \begin{enumerate}
 	\item The Key-Value structure of ClassAds allow for attributes of the entities to be expressed in strings, values, and strings.
@@ -214,47 +216,31 @@ As an independent agent, the CacheD prefers it's own transfer priority list than
 \section{Inserting Attributes into Policy}
 
 \subsection{Measuring Storage}
-In order to provide matchmaking for resources, the resources need to be accurately described and advertised.  This will require measuring the storage capabilities and capacity of the resources and advertising those attributes to the matchmaking service.
+In order to provide matchmaking for resources, the resources need to be accurately described and advertised.  This requires measuring the storage capabilities and capacity of the resources and advertising those attributes to the catalog of resources.
 
-The measurements must be performed on the execution target as well as against the storage targets.  The execution targets will measure the storage capabilities in order to determine if the jobs can run.  The storage targets will be measured in order to determine the number of jobs that can be run against the target.
+The measurements must be performed on the execution targets as they are the temporary storage targets.  The execution targets will measure the storage capabilities in order to determine if the jobs can run.
 
+%TODO: Talk about measuring storage values
 
-\subsection{Ranking Storage}
-In order to find the most ideal resource for a job, the resources need to be ranked.  The simplest is a greedy approach where the resources are simply ranked by their benchmark speeds.  Additionally, they should only be ranked on the attributes requested by the job, i.e. if the job is only requesting X iops, then only rank resources on the IOPS available.
+\section{Example Policies}
 
-It is not immediately clear how the ranking should work.  If we assume that the user accurately describes their application needs, then we can pack the jobs onto resources by placing the job on the resource that meets the IOPS requirements, but has the least amount of IOPS remaining.  This will be an area of research to compare scheduling techniques on execution resources when considering their storage capabilities.
+In order to better describe how data should be moved, we must categorize the data as shared or unique, private or non-private.  This creates a 2x2 matrix of possibilities of data.  Below, we define each of these categorizations.  Each of these categories comes with its own restrictions on how the data may be moved, and how it is presented to the user.
 
-
-\section{Data Movement}
-We will consider three different types of data.  The input data, output data, and the job sandbox.  The job sandbox is the environment from which the job will run.  The sandbox is important since the user designs their job to run in this sandbox, and it must be maintained in order for the job to run.  Also, the sandbox is shared input data that multiple executions of the job can utilize.
-
-The sandbox is a set of files that must be present when the job begins execution.  For example, a sandbox may contain:
-\begin{itemize}
-\item The executable that the job will run.
-\item Libraries necessary for the executable to properly function.
-\item Shared input files such as parameter files or calibration data.
-\end{itemize}
-
-Some input data could be unique per job, therefore will be considered separately from the job sandbox.  Shared data between many executions can benefit from caching, where unique input data cannot benefit from caching.
-
-Data for each job can be categorized as either shared, unique, private shared, or private unique.
-
-\subsection{Categorizing Data}
-% Describe shared data
-
-\begin{table}
+\begin{table}[h!t]
+	\bgroup
+	\def\arraystretch{1.5}
 \begin{tabular}{l | l | l }
-& Public & Private \\ 
+& \textbf{Public} & \textbf{Private} \\ 
 \hline
 Shared & Executables and Libraries & Personal identifying information \\ 
 \hline
 Unique & Input parameters & BLAST Query files \\
 \hline
 \end{tabular}
-
+\egroup
+\caption{Example Data Types}
+\label{tbl:exampledatatypes}
 \end{table}
-
-In order to better describe how data should be moved, we must categorize the data as shared or unique, private or non-private.  This creates a 2x2 matrix of possibilities of data.  Below, we define each of these categorizations.  Each of these categories comes with its own restrictions on how the data may be moved, and how it is presented to the user.
 
 Shared data is data that is the same for multiple jobs in a job set.   In many cases, the majority of the files in the job sandbox can be considered shared data.  Examples of shared data are job executables and libraries.  
 
@@ -262,10 +248,6 @@ Frequently the job executables are the same for a large number of jobs.  Since t
 
 Experimental data could also be shared between multiple jobs in a job set.  This can include common input data such as databases or condition data.  For example, BLAST \cite{altschul1990basic} jobs require a database of sequences of proteins which are then matched with specific queries.  The database is typically the same for a large number of queries.  
 
-% May go into introduction
-Many optimizations may be done to transfer shared data.  For example, people have used caching \cite{blumenfeld2008cms} the shared data per site.  Others have experimented using group transfer protocols such as Bittorrent \cite{cohen2008bittorrent} to distribute the shared data \cite{wei2005collaborative}.
-
-% unique data
 Data which is different for each job we define as unique data.  The unique data may be small things such as parameter files.  Or they may be large, such as sections of a database to search.  Unique data is defined as data which would not benefit from shared transfer, i.e., no other job needs the same data.
 
 For our consideration, data which is not the same for every job in a job set, but is shared between jobs in a subset of the jobs will be considered shared data.
@@ -274,6 +256,56 @@ For our consideration, data which is not the same for every job in a job set, bu
 We define private data as data which the user wants to prevent others from viewing.  The level of privacy requested by a user could determine how it can be enforced.  It could be enforced through authenticated access, encrypted data transfers, or both.  In most cases, authenticated data access is sufficient.
 
 Private versions of shared and unique data cannot use the same optimization as public data.  For example, the data could not be transferred using a caching daemon if authenticated access is required.   Transferring data unauthenticated, even encrypted, is dangerous due to susceptibility to brute force.
+
+Unique data cannot benefit from caching.  But it can benefit from faster transfers.  As we have seen in Chapter \ref{chapter:campusdatadistribution}, even when caching is not turned on, the unique transfer methods that the CacheD uses can benefit the stage-in time for this unique data.  It is possible to even package many jobs worth of unique data and transfer the package for each job.  Then, on subsequent execution that require unique data from the package, it will be immediately available from the CacheD's cache.
+
+An example policy for a cache that is composed of public shared data could be:
+
+\begin{lstlisting}
+Requirements = MY.DiskUsage < TARGET.TotalDisk
+ReplicationMethods = "BITTORRENT, DIRECT"
+\end{lstlisting}
+
+This policy will allow the CacheD to proactively replicate the caches to available CacheDs.  Further, it will allow the CacheD to replicate using the BitTorrent method, or the Direct method if the remote CacheD does not support or prefer BitTorrent.
+
+
+
+
+
+
+
+%\subsection{Ranking Storage}
+%In order to find the most ideal resource for a job, the resources need to be ranked.  The simplest is a greedy approach where the resources are simply ranked by their benchmark speeds.  Additionally, they should only be ranked on the attributes requested by the job, i.e. if the job is only requesting X iops, then only rank resources on the IOPS available.
+
+%It is not immediately clear how the ranking should work.  If we assume that the user accurately describes their application needs, then we can pack the jobs onto resources by placing the job on the resource that meets the IOPS requirements, but has the least amount of IOPS remaining.  This will be an area of research to compare scheduling techniques on execution resources when considering their storage capabilities.
+
+
+%\section{Data Movement}
+%We will consider three different types of data.  The input data, output data, and the job sandbox.  The job sandbox is the environment from which the job will run.  The sandbox is important since the user designs their job to run in this sandbox, and it must be maintained in order for the job to run.  Also, the sandbox is shared input data that multiple executions of the job can utilize.
+
+%The sandbox is a set of files that must be present when the job begins execution.  For example, a sandbox may contain:
+%\begin{itemize}
+%\item The executable that the job will run.
+%\item Libraries necessary for the executable to properly function.
+%\item Shared input files such as parameter files or calibration data.
+%\end{itemize}
+
+%Some input data could be unique per job, therefore will be considered separately from the job sandbox.  Shared data between many executions can benefit from caching, where unique input data cannot benefit from caching.
+
+%Data for each job can be categorized as either shared, unique, private shared, or private unique.
+
+%\subsection{Categorizing Data}
+% Describe shared data
+
+
+
+ 
+
+% May go into introduction
+Many optimizations may be done to transfer shared data.  For example, people have used caching \cite{blumenfeld2008cms} the shared data per site.  Others have experimented using group transfer protocols such as Bittorrent \cite{cohen2008bittorrent} to distribute the shared data \cite{wei2005collaborative}.
+
+% unique data
+
 
 
 After finding a resource to run on, the job sandbox and input data must be transferred to the remote host.  In order to do this, the remote execution host and the submitter must negotiate how to get the data there.  For example, does the remote host have access to the same NFS server?  Can it mount it?
@@ -340,6 +372,9 @@ In this section, we define storage based on itÕs capabilities:
 \end{itemize}
 
 Therefore, when mentioning storage, we must specify or estimate or discover all of these attributes.
+
+
+\section{Conclusion}
 
 
 
