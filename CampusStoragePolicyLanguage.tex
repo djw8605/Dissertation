@@ -4,7 +4,7 @@
 
 In the previous chapter, Chapter \ref{chapter:coordinatingstorage}, I discussed the HTCondor CacheD.  In this section, I will discuss the policy framework that allows the CacheD to represent heterogeneous resources on campus or cyberinfrastructure resources.  The CacheD's policy framework inserts itself whenever it interacts with another CacheD.  This policy framework allows the CacheD to act as an independent agent within the distributed system.
 
-In a distributed computing system, independent agents are designed to act on behalf of entities such as users, hosts, or entire clusters.  The agents attempt to fulfill the goals of the entities that they represent, even in the chaotic environment of a distributed computing system.  In order to fufill these goals, the agents must know and understand them.  Therefore, a policy language exist to express the goals of the entity.
+In a distributed computing system, independent agents are designed to act on behalf of entities such as users, hosts, or entire clusters.  The agents attempt to fulfill the goals of the entities that they represent, even in the chaotic environment of a distributed computing system.  In order to fulfill these goals, the agents must know and understand them.  Therefore, a policy language exist to express the goals of the entity.
 
 The policy language must be flexible enough in order to express and follow the goals and instructions of the users.  The goals of the policy language are:
 
@@ -347,44 +347,81 @@ Packaged unique private data can be transferred with the same policies as the sh
 \section{User Scenario}
 %TODO: work on user scenario
 
-A user creates their submit file and specifies their data.  The above policies will be matched to syntax in the submit file.  The syntax is shown in Listing \ref{lst:inputsyntax}.  We illustrate a shared, non-private case using a BLAST database, and a unique private file with the BLAST queries in Listing \ref{lst:blastsyntax}.  
+In order to illustrate a user's experience with the policy language, I will use the BLAST example that is used in the previous chapter's experiments.  In this example, we have two types of data:
 
-\begin{figure}[h!]
-\centering
-\begin{lstlisting}[frame=single,caption={Input Syntax},captionpos=b,label={lst:inputsyntax}] 
-{shared|unique}_{public|private}_input = <file1>,<file2>,...
+\begin{description}
+	\item[BLAST Database:] A shared public database which will be used by ever execution of the job.  The database is widely distributed, therefore there is no private data to hide.
+	\item[BLAST Executables:] Public executables that are originally from the NIH website.  They will be used by every job in the workflow.
+	\item[Query Files:] Multiple small files that may not be public.  Each query file is used only by one job.
+\end{description}
+
+The BLAST database was shown to be optimally distributed in Chapter \ref{chapter:campusdatadistribution} with the CacheD and BitTorrent.  Therefore, the user would first create the cache, then give it the policy to be proactively replicated to caches with BitTorrent.
+
+\begin{lstlisting}
+$ importCache nrdb <path/to/db>/nrdb*
+$ setReplicationPolicy "MY.DiskUsage < TARGET.TotalDisk" "BITTORRENT,DIRECT"
 \end{lstlisting}
-\end{figure}
 
+Next, the BLAST executables are much smaller than the BLAST database, but they are used by every execution.  Therefore, they would benefit from caching and we will use the CacheD.  Since the replication shouldn't take long, there is no need to proactively replicate the executables.  But, there is nothing private in the BLAST executables, therefore they will be distributed over BitTorrent or Direct method.
 
-
-\begin{figure}[h!]
-\centering
-\begin{lstlisting}[frame=single,caption={Blast input syntax},captionpos=b,label={lst:blastsyntax}]
-shared_public_input = blast_database.fasta
-unique_private_input = queries
+\begin{lstlisting}
+$ importCache blast_executables <path/to/exes>/blast*
+$ setReplicationPolicy "(MY.DiskUsage < TARGET.TotalDisk) && (TARGET.CacheRequested =?= true)" "BITTORRENT,DIRECT"
 \end{lstlisting}
-\end{figure}
+
+Finally, the BLAST queries may be private.  The queries are stored in many very small files.  The queries may or may not be optimally transfered and managed by the CacheD.  If the BLAST jobs are short, then the submission node could constantly be transferring the query files to resources that need them.  If the number of running jobs is significant, then this could become a bottleneck.  Using the CacheD, the researcher could mitigate a lot of this transferring.  By grouping all the queries into a single cache, then transferring that cache for each job, any other jobs on that same node would request the file from the cache rather than the submission node.  If the jobs are short, then this cache would be used very often, at the cost of transferring all of the queries the first time.
+
+Since the queries are private, we must transfer them with the Direct method so that the transfers are authenticated and encrypted.  Further, we must only replicate them to the nodes that actually request them, so as to not expose the queries on more nodes than necessary.
+
+\begin{lstlisting}
+$ importCache blast_executables <path/to/exes>/blast*
+$ setReplicationPolicy "(MY.DiskUsage < TARGET.TotalDisk) && (TARGET.CacheRequested =?= true)" "DIRECT"
+\end{lstlisting}
 
 
-The blast database is public, so there is no need to encrypt or authenticate access to the database.  Further, the database is shared between all executions of the job. The \texttt{queries} may contain personal identifiable information, and are therefore private and need authenticated access control in order to access the data.  
+%A user creates their submit file and specifies their data.  The above policies will be matched to syntax in the submit file.  The syntax is shown in Listing \ref{lst:inputsyntax}.  We illustrate a shared, non-private case using a BLAST database, and a unique private file with the BLAST queries in Listing \ref{lst:blastsyntax}.  
 
-When the job begins, it will be guaranteed to have the files \texttt{blast\_database.fasta} and \texttt{queries} available to it.  The job framework will decide on the method of transfer and transient storage based on negotiation between the user specified syntax, the worker node, and the submit node.
-
-
-\section{Defining Storage Target}
-In this section, we define storage based on it’s capabilities:
-\begin{itemize}
-\item The total space available for an application or set of applications to store data.
-\item The bandwidth available to the storage target.
-\item The IOPS available to read / write to the storage (more applicable to local storage).
-\item Access Protocol
-\end{itemize}
-
-Therefore, when mentioning storage, we must specify or estimate or discover all of these attributes.
+%\begin{figure}[h!]
+%\centering
+%\begin{lstlisting}[frame=single,caption={Input Syntax},captionpos=b,label={lst:inputsyntax}] 
+%{shared|unique}_{public|private}_input = <file1>,<file2>,...
+%\end{lstlisting}
+%\end{figure}
 
 
-\section{Conclusion}
+
+%\begin{figure}[h!]
+%\centering
+%\begin{lstlisting}[frame=single,caption={Blast input syntax},captionpos=b,label={lst:blastsyntax}]
+%shared_public_input = blast_database.fasta
+%unique_private_input = queries
+%\end{lstlisting}
+%\end{figure}
+
+
+%The blast database is public, so there is no need to encrypt or authenticate access to the database.  Further, the database is shared between all executions of the job. The \texttt{queries} may contain personal identifiable information, and are therefore private and need authenticated access control in order to access the data.  
+
+%When the job begins, it will be guaranteed to have the files \texttt{blast\_database.fasta} and \texttt{queries} available to it.  The job framework will decide on the method of transfer and transient storage based on negotiation between the user specified syntax, the worker node, and the submit node.
+
+
+%\section{Defining Storage Target}
+%In this section, we define storage based on it’s capabilities:
+%\begin{itemize}
+%\item The total space available for an application or set of applications to store data.
+%\item The bandwidth available to the storage target.
+%\item The IOPS available to read / write to the storage (more applicable to local storage).
+%\item Access Protocol
+%\end{itemize}
+
+%Therefore, when mentioning storage, we must specify or estimate or discover all of these attributes.
+
+
+\section{Conclusions}
+
+In a distributed computing system, independent agents are designed to act on behalf of entities such as users, hosts, or entire clusters.  A policy language must exist so that the entities can express their goals to the agents.  
+
+In this chapter, I have designed a policy language based on the HTCondor ClassAds that can be used for expressing policy in data distribution and 
+
 
 
 
