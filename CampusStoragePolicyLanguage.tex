@@ -420,7 +420,11 @@ $ setReplicationPolicy "(MY.DiskUsage < TARGET.TotalDisk) && (TARGET.CacheReques
 
 In a distributed computing system, independent agents are designed to act on behalf of entities such as users, hosts, or entire clusters.  A policy language must exist so that the entities can express their goals to the agents.  
 
-In this chapter, I have designed a policy language based on the HTCondor ClassAds that can be used for expressing policy in data distribution and 
+In this chapter, I have designed a policy language based on the HTCondor ClassAds that can be used for expressing policy in data distribution.  I have identified three interaction points for caching agents and designed the semantics for their interaction.
+
+Additionally, I described different input data scenarios and possible replication policies for them.  I gave a recommended policy configuration for the popular BLAST application, including explanations on the policy configuration.  I also included the commands to create and set the policy configuration.
+
+The policy language has been implemented in the CacheD, where it has been tested in Chapter \ref{chapter:campusdatadistribution}.  Further, we show the user experience of setting this policy language.
 
 
 
