@@ -68,6 +68,16 @@ Next, Bosco checks for the necessary installed software on the login node, and s
 
 After the files have been transferred, Bosco sends the job's submission ClassAd \cite{raman1998matchmaking} to the BLAHP daemon to translate to the local site's scheduler language.  The BLAHP supports PBS \cite{computing2013torque}, LSF \cite{computinglsf}, SGE \cite{gentzsch2001sun}, SLURM \cite{yoo2003slurm}, and HTCondor schedulers.  The BLAHP creates the submission file, and submits to the cluster's scheduler.  Bosco periodically polls the BLAHP over the SSH connection for the status of the job.  Once the job is detected to have been completed, the BLAHP starts HTCondor's transfer daemon to transfer the output sandbox back to the submitter machine.
 
+\begin{figure}[h!t]
+	\centering
+	\includegraphics[width=0.3\textwidth]{images/JobSubmitFlow.pdf}
+	\caption{Bosco Job Submission Flow From Submission Host to Remote Cluster}
+	\label{fig:boscojobsubmitflow}
+\end{figure}
+
+Figure \ref{fig:boscojobsubmitflow} shows the job flow from the user to the Slurm scheduler on the remote cluster.  As you can see it goes through 6 daemons before reaching the cluster scheduler.  The SchedD accepts the user's jobs, acting as an agent which will attempt to execute the job.  The GridManager is spawned by the SchedD in order to service the Bosco Job.  The RemoteGahp (Grid Ascii Helper Protocol) starts the SSH tunnel between the user submit host and the cluster.  The Blahp (C portion) interprets the job requirements, and executes the Blahp (shell portion) which translates the requirements into the local scheduler language.  Finally, the Blahp submits the jobs to the Slurm Scheduler.
+
+
 Bosco has two modes of job submission:
 \begin{enumerate}
 	\item \textbf{Direct} -- A single job on the Bosco submit host corresponds to a single job on the remote cluster.  Each job is submitted individually to the remote cluster's scheduling system.  This method is the simplest to run, and imposes no special requirements on the submit machine.

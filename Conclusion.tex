@@ -29,19 +29,40 @@ I have designed a policy language based on the HTCondor ClassAds that can be use
 % Improved debugging for Bosco
 Debugging in distributed computing has always been a challenge.  Many different systems working together can create barriers for message and error propagation.
 
-Debugging in Bosco has always been difficult.  To alleviate some of the debugging burden, we created the \texttt{tracroute} utility described in Section \ref{sec:boscotraceroute}.
+Debugging in Bosco has always been difficult.  To alleviate some of the debugging burden, we created the \texttt{traceroute} utility described in Section \ref{sec:boscotraceroute}.  But that is not enough to solve every issue.  See Figure \ref{fig:boscojobsubmitflowconclusion} for the flow of job submission in Bosco.
+
+\begin{figure}[h!t]
+	\centering
+	\includegraphics[width=0.3\textwidth]{images/JobSubmitFlow.pdf}
+	\caption{Bosco Job Submission Flow From Submission Host to Remote Cluster}
+	\label{fig:boscojobsubmitflowconclusion}
+\end{figure}
+
+In Figure \ref{fig:boscojobsubmitflowconclusion}, the Bosco job submission starts at the user, and goes through 6 daemons before the submission reaches the Slurm Scheduler on the remote cluster.  An error can occur at each step in this process.  The error propagation must propagate back to the user if there is an error.  But, propagating the error is very difficult, since each daemon has different methods of internal error propagation.  For example, the GridManager can propagate an error back to the SchedD through HTCondor ClassAds.  But, the Blahp's shell portion cannot propagate an error back except through the linux standard error.
+
+Further work need to be done, and parts of the Bosco submission chain need to be modified or refined in order to enable improved error propagation
 
 \subsection{Flexible Transfer Types}
 % Addition of transfer types, and flexible system for defining transfer methods
 
-\subsection{Co-Scheduling}
+The CacheD currently has support for two transfer methods, the Direct and the BitTorrent methods.  The BitTorrent method uses the libtorrent library directly for transfers.
+
+The Direct method uses HTCondor's file transfer service.  The file transfer service is expandable through file transfer plugins.  The CacheD would benefit from enabling similar file transfer plugins in order to allow proper negotiation of file transfer methods.
+
+A possible solution is to build off of the file transfer plugins method.  An executable advertises it's transfer capabilities to the CacheD, which in turn uses those capabilities to negotiate with other CacheDs for transferring caches.
+
+
+\subsection{Co-Scheduling of Data and Computation}
 
 % Scheduling jobs with CacheD
+Scheduling of jobs with the cacheing data could optimize the job placement.  Currently, there is no knowledge of the cache placement when scheduling a job.
+
+
 
 % Not only where the cache is, but with the policy language, we can guess where the job will be.
 
 
 
 % optimize black holes for bittorrent
-Further investigation of slow transfers must be completed in order further optimize the BitTorrent transfers on the OSG.  A possible solution could be to give up on the transfer after some timeout, or if the transfer speed is too slow.  Though, this timeout and transfer speed thresholds would be difficult to set accurately.
+
 
