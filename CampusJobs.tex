@@ -80,7 +80,10 @@ Bosco's fault tolerance is in it's handling of the remote cluster.  For example,
 
 \subsection{Improving User Experience}
 
+
 In order to improve the user experience, at each step of the job process, extra effort has been given to provide useful error messages in case of failures.  For example, HTCondor was modified to relay the standard error for any commands sent to the BLAHP daemon, as useful debugging information is available there.  
+
+\label{sec:boscotraceroute}
 
 Also, an additional \emph{traceroute} was created to test each step of the job submission process, including:
 
