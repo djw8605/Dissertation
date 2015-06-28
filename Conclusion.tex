@@ -55,8 +55,11 @@ A possible solution is to build off of the file transfer plugins method.  An exe
 \subsection{Co-Scheduling of Data and Computation}
 
 % Scheduling jobs with CacheD
-Scheduling of jobs with the cacheing data could optimize the job placement.  Currently, there is no knowledge of the cache placement when scheduling a job.
+Scheduling of jobs with the caching data could optimize job placement.  Currently, there is no knowledge of the cache placement when scheduling a job.  If the scheduler knew where replicas of the cache were located, it could schedule the jobs run where the replicas are located.  Running the job near the cache will eliminate stage-in time.
 
+Currently, the CacheD reports each cache stored locally to the cache's origin. The origin CacheD keeps a data structure of the locations of the cache replicas.
+
+The job needs to specify the caches are required for the job to run.  The scheduler would then call out to the origin CacheD to see if the cache is located at the target node.  This could be done using the HTCondor ClassAd library plugins.
 
 
 % Not only where the cache is, but with the policy language, we can guess where the job will be.
