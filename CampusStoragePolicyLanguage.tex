@@ -19,7 +19,7 @@ The policy language must be flexible enough in order to express and follow the g
 We implement this policy language in the CacheD.  The policy language chosen for the CacheD is the HTCondor ClassAds \cite{raman1998matchmaking}.  ClassAds are an independent library developed by the HTCondor group that are used for communication between HTCondor components.  They provide all of the attributes described above.
 
 \begin{enumerate}
-	\item The Key-Value structure of ClassAds allow for attributes of the entities to be expressed in strings, values, and strings.
+	\item The Key-Value structure of ClassAds allow for attributes of the entities to be expressed in strings, values, and boolean expressions.
 	\item Expressions can reference attributes in the current and the matching ClassAds.
 	\item Expressions are written as boolean expressions.  They are written in easy to read english, with familiar semantics.
 \end{enumerate}
