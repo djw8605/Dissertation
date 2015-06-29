@@ -2,32 +2,32 @@
 
 \section{Introduction}
 
-In the previous chapter, Chapter \ref{chapter:coordinatingstorage}, I discussed the HTCondor CacheD.  In this section, I will discuss the policy framework that allows the CacheD to represent heterogeneous resources on campus or cyberinfrastructure resources.  The CacheD's policy framework inserts itself whenever it interacts with another CacheD.  This policy framework allows the CacheD to act as an independent agent within the distributed system.
+In the previous chapter, Chapter \ref{chapter:campusdatadistribution}, I discussed the HTCondor CacheD.  In this section, I will discuss the policy framework that allows the CacheD to represent heterogeneous resources on campus or cyberinfrastructure resources.  The CacheD's policy framework inserts itself whenever it interacts with another CacheD.  This policy framework allows the CacheD to act as an independent agent within the distributed system.
 
-In a distributed computing system, independent agents are designed to act on behalf of entities such as users, hosts, or entire clusters.  The agents attempt to fulfill the goals of the entities that they represent, even in the chaotic environment of a distributed computing system.  In order to fulfill these goals, the agents must know and understand them.  Therefore, a policy language exist to express the goals of the entity.
+In a distributed computing system, independent agents are designed to act on behalf of entities such as users, hosts, or entire clusters.  The agents attempt to fulfill the goals of the entities that they represent, even in the chaotic environment of a distributed computing system.  In order to fulfill these goals, the agents must know and understand them.  Therefore, a policy language exists to express the goals of the entity.
 
 The policy language must be flexible enough in order to express and follow the goals and instructions of the users.  The goals of the policy language are:
 
 \begin{enumerate}
-	\item Express attributes of the entities such as the cache, CacheDs and the host.
-	\item Ability to write policies taking into account the attributes of the entities.
-	\item Easy to read and write the expressions.
+	\item To express attributes of the entities such as the cache, CacheDs, and the host.
+	\item The ability to write policies, taking into account the attributes of the entities.
+	\item To be easy to read and write the expressions.
 \end{enumerate}
 
 
 
-We implement this policy language in the CacheD.  The policy language chosen for the CacheD is the HTCondor ClassAds \cite{raman1998matchmaking}.  ClassAds are an independent library developed by the HTCondor group that are used for communication between HTCondor components.  They provide all of the attributes described above.
+I implement this policy language in the CacheD.  The policy language chosen for the CacheD is the HTCondor ClassAds \cite{raman1998matchmaking}.  ClassAds are an independent library developed by the HTCondor group that are used for communication between HTCondor components.  They provide all of the attributes described above.
 
 \begin{enumerate}
-	\item The Key-Value structure of ClassAds allow for attributes of the entities to be expressed in strings, values, and boolean expressions.
+	\item The Key-Value structure of ClassAds allow for attributes of the entities to be expressed in strings, values, lists of string, or boolean expressions.
 	\item Expressions can reference attributes in the current and the matching ClassAds.
-	\item Expressions are written as boolean expressions.  They are written in easy to read english, with familiar semantics.
+	\item Expressions are written as boolean expressions.  They are written in easy-to-read English, with familiar semantics.
 \end{enumerate}
 
-The CacheD has a few interaction points when it must interact with other agents, such as other CacheD's or users.  Those interaction points are:
+The CacheD has a few interaction points when it must interact with other agents, such as other CacheDs or users.  Those interaction points are:
 \begin{description}
 	\item[Choosing a Replication Target] - A CacheD that is the origin to a cache may choose to proactively replicate to other CacheDs.  Choosing a replication target requires matching the cache's requirements with that of the target CacheD's.
-	\item[Accepting Cache Replication] - A CacheD must decide if it can accept a cache when it receives a replication request.  This decision is based on it's own policy, as well as attributes of the incoming cache.
+	\item[Accepting Cache Replication] - A CacheD must decide if it can accept a cache when it receives a replication request.  This decision is based on its own policy, as well as attributes of the incoming cache.
 	\item[Transfer Method] - The transfer method for a cache to be replicated is chosen after a cache has been accepted.  This is a prioritized list of acceptable transfer methods for the cache.
 
 \end{description}
@@ -68,8 +68,8 @@ MyCurrentTime = 1433790880
 Figure \ref{lst:cachedclassad} shows an example of a CacheD's ClassAd.  The attributes describe the CacheD daemon and the host it runs on.  For example, the \texttt{DaemonStartTime} is a representation of when the daemon started.  \texttt{TotalDisk} describes how much disk is available on the host that the CacheD is running.
 
 % How matching works
-Matching of ClassAds is done by comparing attributes between 2 sets of ClassAds.  The attribute \texttt{Requirements} takes a special meaning when matching two ClassAds.  The 
-texttt{Requirements} attribute is a boolean expression that is evaluated in the context of both the current ClassAd and the matching ClassAd.  In the example in Figure \ref{lst:cachedclassad}, the CacheD's ClassAd would only match another ClassAd if the expression \texttt{MY.TotalDisk > TARGET.DiskUsage}.  This means that the CacheD will only accept caches that are smaller in size than the available disk on the host.  \texttt{MY} and \texttt{TARGET} refer to the current ClassAd and the matching ClassAd, respectively.
+Matching of ClassAds is done by comparing attributes between two sets of ClassAds.  The attribute \texttt{Requirements} takes a special meaning when matching two ClassAds.  The 
+\texttt{Requirements} attribute is a boolean expression that is evaluated in the context of both the current ClassAd and the matching ClassAd.  In the example in Figure \ref{lst:cachedclassad}, the CacheD's ClassAd would only match another ClassAd if the expression is \texttt{MY.TotalDisk > TARGET.DiskUsage}.  This means that the CacheD will only accept caches that are smaller in size than the available disk on the host.  \texttt{MY} and \texttt{TARGET} refer to the current ClassAd and the matching ClassAd, respectively.
 
 
 The \texttt{Requirements} attribute in Figure \ref{lst:cachedclassad} references other attributes in both the current ClassAd and the matching ClassAd.  Attributes can reference other attributes in order to form strings, lists, or boolean expressions.  In this example, the \texttt{Requirements} attribute references other attributes in order to create a boolean expression.
@@ -77,7 +77,7 @@ The \texttt{Requirements} attribute in Figure \ref{lst:cachedclassad} references
 \subsection{Extending CacheD Attributes}
 
 % Extending policy language
-The ClassAd describing the CacheD can be extended by using the CacheD Cron mechanism.  The CacheD Cron executes an external program in order to collect statistics and reports the results in the CacheD's ClassAd.  These statistics can then be used to better describe either the daemon or the host machine.  
+The ClassAd describing the CacheD can be extended by using the CacheD Cron mechanism.  The CacheD Cron executes an external program in order to collect statistics and report the results in the CacheD's ClassAd.  These statistics can then be used to better describe either the daemon or the host machine.  
 
 % How it is configured
 The CacheD Cron is configured by specifying the job's attributes in the HTCondor configuration.
@@ -94,7 +94,7 @@ CACHED_CRON_TEST_PERIOD = 15s
 \label{lst:cachedcronconfiguration}
 \end{figure}
 
-Figure \ref{lst:cachedcronconfiguration} shows the configuration in order for the CacheD to periodically run a program named 'test'.  The executable is \texttt{test.sh}, which will run tests and output a ClassAd that will be merged into the CacheD's ClassAd.  It will be run periodically at periods of every 15 seconds.
+Figure \ref{lst:cachedcronconfiguration} shows the configuration in order for the CacheD to periodically run a program named ``test.''  The executable is \texttt{test.sh}, which will run tests and output a ClassAd that will be merged into the CacheD's ClassAd.  It will be run periodically at periods of every 15 seconds.
 
 
 \begin{figure}
@@ -107,22 +107,22 @@ TestHost = "hostname.unl.edu"
 \label{lst:cachedcronoutput}
 \end{figure}
 
-The output of the test executable is ClassAds that will be injected into the daemon.  Figure \ref{lst:cachedcronoutput} shows the example output from running the test program.  In this output, it sets 3 attributes, an integer, a boolean value, and a string.  
+The output of the test executable is ClassAds that will be injected into the daemon.  Figure \ref{lst:cachedcronoutput} shows the example output from running the test program.  In this output, it sets three attributes, an integer, a boolean value, and a string.  
 
-A example of using the CacheD Cron is to collect the IO operations per second that a host is able to complete.  This information can be used to better match caches with machine which can run the applications, which is described in the sections below.  The period of testing the IO capabilities of a node should be longer than the 15 seconds shown in Figure \ref{lst:cachedcronconfiguration}.
+A example of using the CacheD Cron is to measure the IO operations per second that a host is able to complete.  This information can be used to better match caches with machines which can run the applications.  The period of testing the IO capabilities of a node should be longer than the 15 seconds shown in Figure \ref{lst:cachedcronconfiguration}.
 
 
 \section{Uses of the Policy Language in the CacheD}
 
-The CacheD uses the ClassAd policy language when communicating with other daemons.  Each interaction, the CacheD must make a decision, and therefore relies on the ClassAd policies in order to decide whether to perform an action.  Each of these actions are described briefly above in the Introduction.  I will now discuss the details of those interactions and choices the CacheD may make in the next few sections.
+The CacheD uses the ClassAd policy language when communicating with other daemons.  For each interaction, the CacheD must make a decision, and therefore relies on the ClassAd policies in order to decide whether to perform an action.  Each of these actions are described briefly in the introduction to this chapter.  I will now discuss the details of those interactions and choices the CacheD may make in the next few sections.
 
 
 \subsection{Choosing a Replication Target}
 % when it is used, and by who
-Each cache has a single origin CacheD.  This CacheD is usually the same CacheD which the user initially uploaded the cache.  This origin CacheD has the option to proactively replicate the cache without it being requested by jobs.  The data transfer can occur while another job is currently being run.
+Each cache has a single origin CacheD.  This CacheD is usually the same CacheD for which the user initially uploaded the cache.  This origin CacheD has the option to proactively replicate the cache without it being requested by jobs.  The data transfer can occur while another job is currently being run.
 
 % What is it matching against
-The origin CacheD will periodically query the HTCondor Collector to receive a list of CacheD ClassAds.  Then, the origin will iterate through each of the ClassAds, attempting to match the cache with a CacheD.
+The origin CacheD will periodically query the HTCondor Collector to receive a list of CacheD ClassAds.  Then, the origin will iterate through each of these ClassAds, attempting to match the cache with a CacheD.
 
 For each ClassAd from the cache and a remote CacheD, the origin will attempt a mutual match.  Therefore, the cache's preferences must accept the CacheD, and the CacheD must accept the cache.  The \texttt{Requirements} expression is evaluated for both of the ClassAds.  The default basic \texttt{Requirements} expression is to require that the CacheD has enough disk space for the cache.
 
@@ -155,7 +155,7 @@ Further special attributes are planned, such as an attribute whose value is the 
 
 \subsection{Accepting Cache Replication}
 % When it is used, and by who
-A CacheD can receive cache replication request from three sources:
+A CacheD can receive cache replication requests from three sources:
 
 \begin{enumerate}
 	\item An origin CacheD sending out proactive replication requests.
@@ -163,7 +163,7 @@ A CacheD can receive cache replication request from three sources:
 	\item A child CacheD when it is the parent (as described in section \ref{sec:cachedparenting}).
 \end{enumerate}
 
-In each of these requests, the receiving CacheD has the choice to accept the replication or deny it.  When it receives a cache replication request, it looks up the cache's ClassAd and does mutual matching with it's own ClassAd.  This is similar to the mutual matching done when an origin CacheD is issuing proactive replication requests.  It is important to re-run this mutual matching in case the CacheD's state has changed, such as it has downloaded a large cache altering the available disk.
+In each of these requests, the receiving CacheD has the choice to accept the replication or deny it.  When it receives a cache replication request, it looks up the cache's ClassAd and does mutual matching with its own ClassAd.  This is similar to the mutual matching done when an origin CacheD is issuing proactive replication requests.  It is important to re-run this mutual matching in case the CacheD's state has changed.  The CacheD's state could change if it has downloaded a large cache, therefore, altering the available disk for additional caches.
 
 If the CacheD's mutual matching with the cache's ClassAd is successful, then CacheD will accept the cache and begin negotiating transfer methods.  If the CacheD and the cache's ClassAd do not match, then the CacheD will reject the cache.
 
@@ -173,7 +173,7 @@ The approval or rejection of the cache is done asynchronously from the request f
 \subsection{Transfer Method}
 
 % Who uses it
-Each cache has a list of acceptable transfer methods.  A user may set this list of acceptable transfer methods when uploading the cache.  This list is a priority ordered, with the preferred transfer method listed first.  An example transfer method list is show in Figure \ref{lst:cachetransferlist}
+Each cache has a list of acceptable transfer methods.  A user may set this list of acceptable transfer methods when uploading the cache.  This list is a priority ordered, with the preferred transfer method listed first.
 
 % List formation
 \begin{figure}
@@ -184,12 +184,12 @@ ReplicationMethods = "BITTORRENT, DIRECT"
 \label{lst:cachetransferlist}
 \end{figure}
 
-In the example show in Figure \ref{lst:cachetransferlist}, the cache has a preference for transferring the files over BitTorrent, but will accept the Direct transfer method if needed.  Transfer methods are described in full in section \ref{sec:cachedtransfermethods}.
+In the example shown in Figure \ref{lst:cachetransferlist}, the cache has a preference for transferring the files over BitTorrent, but will accept the Direct transfer method if needed.  Transfer methods are described in full in section \ref{sec:cachedtransfermethods}.
 
 % Negotiating preferences
-After accepting a cache to be downloaded, the CacheD will negotiate the transfer method with the cache's ClassAd that was downloaded during the acceptance testing stage. The cache's ClassAd includes the \texttt{ReplicationMethods} attribute, which is a priority list of acceptable transfer methods.  The CacheD has it's own \texttt{ReplicationMethods} that is set in it's configuration.  The CacheD iterates through it's own methods until it finds a matching transfer method in the cache's methods.
+After accepting a cache to be downloaded, the CacheD will negotiate the transfer method with the cache's ClassAd that was downloaded during the acceptance testing stage. The cache's ClassAd includes the \texttt{ReplicationMethods} attribute, which is a priority list of acceptable transfer methods.  The CacheD has its own \texttt{ReplicationMethods} that is set in its configuration.  The CacheD iterates through its own methods until it finds a matching transfer method in the cache's methods.
 
-As an independent agent, the CacheD prefers it's own transfer priority list than the cache's priority list.  Psuedo code for the transfer negotiation is shown in Algorithm \ref{alg:negotiatetransfer}.
+As an independent agent, the CacheD prefers its own transfer priority list rather than the cache's priority list.  Psuedo code for the transfer negotiation is shown in Algorithm \ref{alg:negotiatetransfer}.
 
 \begin{algorithm}
 \caption{Negotiating Transfer Method Function}
@@ -213,18 +213,18 @@ As an independent agent, the CacheD prefers it's own transfer priority list than
 	
 	
 
-\section{Inserting Attributes into Policy}
+%\section{Inserting Attributes into Policy}
 
-\subsection{Measuring Storage}
-In order to provide matchmaking for resources, the resources need to be accurately described and advertised.  This requires measuring the storage capabilities and capacity of the resources and advertising those attributes to the catalog of resources.
+%\subsection{Measuring Storage}
+%In order to provide matchmaking for resources, the resources need to be accurately described and advertised.  This requires measuring the storage capabilities and capacity of the resources and advertising those attributes to the catalog of resources.
 
-The measurements must be performed on the execution targets as they are the temporary storage targets.  The execution targets will measure the storage capabilities in order to determine if the jobs can run.
+%The measurements must be performed on the execution targets as they are the temporary storage targets.  The execution targets will measure the storage capabilities in order to determine if the jobs can run.
 
 %TODO: Talk about measuring storage values
 
 \section{Example Policies}
 
-In order to better describe how data should be moved, we must categorize the data as shared or unique, private or non-private.  This creates a 2x2 matrix of possibilities of data.  Below, we define each of these categorizations.  Each of these categories comes with its own restrictions on how the data may be moved, and how it is presented to the user.
+In order to better describe how data should be moved, I must categorize the data as shared or unique, private or non-private.  This creates a 2x2 matrix of possibilities of data.  Below, I define each of these categorizations.  Each of these categories comes with its own restrictions on how the data may be moved and how it is presented to the user.
 
 \begin{table}[h!t]
 	\bgroup
@@ -232,9 +232,9 @@ In order to better describe how data should be moved, we must categorize the dat
 \begin{tabular}{l | l | l }
 & \textbf{Public} & \textbf{Private} \\ 
 \hline
-Shared & Executables and Libraries & Personal identifying information \\ 
+\textbf{Shared} & Executables and Libraries & Personal Identifying Information \\ 
 \hline
-Unique & Input parameters & BLAST Query files \\
+\textbf{Unique} & Input Parameters & BLAST Query Files \\
 \hline
 \end{tabular}
 \egroup
@@ -244,16 +244,16 @@ Unique & Input parameters & BLAST Query files \\
 
 Shared data is data that is the same for multiple jobs in a job set.   In many cases, the majority of the files in the job sandbox can be considered shared data.  Examples of shared data are job executables and libraries.  
 
-Frequently the job executables are the same for a large number of jobs.  Since the executables are the same, contextualization of the job is done through other methods, such as arguments or parameter files.  An example application that would use the same executables and libraries are Monte Carlo \cite{binder2010monte} simulations.  In these applications, the executables are the same for every job, each job is given a unique identifier which is used for the starting condition for the random generation.
+Frequently the job executables are the same for a large number of jobs.  Since the executables are the same, contextualization of the job is done through other methods, such as arguments or parameter files.  An example application that would use the same executables and libraries are Monte Carlo \cite{binder2010monte} simulations.  In these applications, the executables are the same for every job.  Each job is given a unique identifier which is used for the starting condition for the random generation.
 
-Experimental data could also be shared between multiple jobs in a job set.  This can include common input data such as databases or condition data.  For example, BLAST \cite{altschul1990basic} jobs require a database of sequences of proteins which are then matched with specific queries.  The database is typically the same for a large number of queries.  
+Experimental data could also be shared between multiple jobs in a job set.  This can include common input data such as databases.  For example, BLAST \cite{altschul1990basic} jobs require a database of sequences of proteins which are then matched with specific queries.  The database is typically the same for a large number of queries.  
 
-Data which is different for each job we define as unique data.  The unique data may be small things such as parameter files.  Or they may be large, such as sections of a database to search.  Unique data is defined as data which would not benefit from shared transfer, i.e., no other job needs the same data.
+Data which is different for each job I define as unique data.  The unique data may be small things such as parameter files.  Or they may be large, such as sections of a database to search.  Unique data is defined as data which would not benefit from shared transfer, i.e., no other job needs the same data.
 
-For our consideration, data which is not the same for every job in a job set, but is shared between jobs in a subset of the jobs will be considered shared data.
+For my consideration, data which is not the same for every job in a job set but is shared between jobs, in a subset of the jobs will be considered shared data.
 
 % private versions of shared and unique
-We define private data as data which the user wants to prevent others from viewing.  The level of privacy requested by a user could determine how it can be enforced.  It could be enforced through authenticated access, encrypted data transfers, or both.  In most cases, authenticated data access is sufficient.
+I define private data as data which the user wants to prevent others from viewing.  The level of privacy requested by a user could determine how it can be enforced.  It could be enforced through authenticated access, encrypted data transfers, or both.  In most cases, authenticated data access is sufficient.
 
 Private versions of shared and unique data cannot use the same optimization as public data.  For example, the data could not be transferred using a caching daemon if authenticated access is required.   Transferring data unauthenticated, even encrypted, is dangerous due to susceptibility to brute force.
 
@@ -268,7 +268,7 @@ ReplicationMethods = "BITTORRENT, DIRECT"
 
 This policy will allow the CacheD to proactively replicate the caches to available CacheDs.  Further, it will allow the CacheD to replicate using the BitTorrent method, or the Direct method if the remote CacheD does not support or prefer BitTorrent.  
 
-For a private shared data, an example policy would look like:
+For private shared data, an example policy would look like:
 
 \begin{lstlisting}
 Requirements = (MY.DiskUsage < TARGET.TotalDisk) && (TARGET.CacheRequested =?= true)
@@ -347,10 +347,10 @@ Packaged unique private data can be transferred with the same policies as the sh
 \section{User Scenario}
 %TODO: work on user scenario
 
-In order to illustrate a user's experience with the policy language, I will use the BLAST example that is used in the previous chapter's experiments.  In this example, we have two types of data:
+In order to illustrate a user's experience with the policy language, I will use the BLAST example that is used in the previous chapter's experiments.  In this example, we have three types of data:
 
 \begin{description}
-	\item[BLAST Database:] A shared public database which will be used by ever execution of the job.  The database is widely distributed, therefore there is no private data to hide.
+	\item[BLAST Database:] A shared public database which will be used by every execution of the job.  The database is widely distributed; therefore, there is no private data to hide.
 	\item[BLAST Executables:] Public executables that are originally from the NIH website.  They will be used by every job in the workflow.
 	\item[Query Files:] Multiple small files that may not be public.  Each query file is used only by one job.
 \end{description}
@@ -362,16 +362,16 @@ $ importCache nrdb <path/to/db>/nrdb*
 $ setReplicationPolicy "MY.DiskUsage < TARGET.TotalDisk" "BITTORRENT,DIRECT"
 \end{lstlisting}
 
-Next, the BLAST executables are much smaller than the BLAST database, but they are used by every execution.  Therefore, they would benefit from caching and we will use the CacheD.  Since the replication shouldn't take long, there is no need to proactively replicate the executables.  But, there is nothing private in the BLAST executables, therefore they will be distributed over BitTorrent or Direct method.
+Next, the BLAST executables are much smaller than the BLAST database, but they are used by every execution.  Therefore, they would benefit from caching and I will use the CacheD.  Since the replication shouldn't take long, there is no need to proactively replicate the executables.  But, there is nothing private in the BLAST executables, therefore they will be distributed over BitTorrent or Direct method.
 
 \begin{lstlisting}
 $ importCache blast_executables <path/to/exes>/blast*
 $ setReplicationPolicy "(MY.DiskUsage < TARGET.TotalDisk) && (TARGET.CacheRequested =?= true)" "BITTORRENT,DIRECT"
 \end{lstlisting}
 
-Finally, the BLAST queries may be private.  The queries are stored in many very small files.  The queries may or may not be optimally transfered and managed by the CacheD.  If the BLAST jobs are short, then the submission node could constantly be transferring the query files to resources that need them.  If the number of running jobs is significant, then this could become a bottleneck.  Using the CacheD, the researcher could mitigate a lot of this transferring.  By grouping all the queries into a single cache, then transferring that cache for each job, any other jobs on that same node would request the file from the cache rather than the submission node.  If the jobs are short, then this cache would be used very often, at the cost of transferring all of the queries the first time.
+Finally, the BLAST queries may be private.  The queries are stored in many small files.  The queries may or may not be optimally transfered and managed by the CacheD.  If the BLAST jobs are short, then the submission node could constantly be transferring the query files to resources that need them.  If the number of running jobs is significant, then this could become a bottleneck.  Using the CacheD, the researcher could mitigate a lot of this transferring.  By grouping all the queries into a single cache, then transferring that cache for each job, any other jobs on that same node would request the file from the cache rather than the submission node.  If the jobs are short, then this cache would be used often, at the cost of transferring all of the queries the first time.
 
-Since the queries are private, we must transfer them with the Direct method so that the transfers are authenticated and encrypted.  Further, we must only replicate them to the nodes that actually request them, so as to not expose the queries on more nodes than necessary.
+Since the queries are private, the CacheD must transfer them with the Direct method so that the transfers are authenticated and encrypted.  Further, the CacheD must only replicate them to the nodes that actually request them, so as to not expose the queries on more nodes than necessary.
 
 \begin{lstlisting}
 $ importCache blast_executables <path/to/exes>/blast*
@@ -420,11 +420,11 @@ $ setReplicationPolicy "(MY.DiskUsage < TARGET.TotalDisk) && (TARGET.CacheReques
 
 In a distributed computing system, independent agents are designed to act on behalf of entities such as users, hosts, or entire clusters.  A policy language must exist so that the entities can express their goals to the agents.  
 
-In this chapter, I have designed a policy language based on the HTCondor ClassAds that can be used for expressing policy in data distribution.  I have identified three interaction points for caching agents and designed the semantics for their interaction.
+In this chapter, I have designed a policy language based on the HTCondor \mbox{ClassAds} that can be used for expressing policy in data distribution.  I have identified three interaction points for caching agents and designed the semantics for their interaction.
 
 Additionally, I described different input data scenarios and possible replication policies for them.  I gave a recommended policy configuration for the popular BLAST application, including explanations on the policy configuration.  I also included the commands to create and set the policy configuration.
 
-The policy language has been implemented in the CacheD, where it has been tested in Chapter \ref{chapter:campusdatadistribution}.  Further, we show the user experience of setting this policy language.
+The policy language has been implemented in the CacheD, where it has been tested in Chapter \ref{chapter:campusdatadistribution}.  Further, I show the user experience of setting this policy language.
 
 
 
