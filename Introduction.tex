@@ -1,6 +1,6 @@
 \chapter{Introduction}
 
-In this dissertation we optimize distributed computing workflows on a campus grid.  We are interested in optimizing a researcher's use of the computational and storage resources on the campus to increase the reliability and decrease the time to solution for scientific results.  We first extend prior work to enhance the computational capabilities of researchers on a campus.  We then expand our work to the data needs of modern workflows.
+In this dissertation I optimize distributed computing workflows on a campus grid.  I am interested in optimizing a researcher's use of the computational and storage resources on the campus to increase the reliability and decrease the time to solution for scientific results.  We first extend prior work to enhance the computational capabilities of researchers on a campus.  We then expand our work to the data needs of modern workflows.
 
 \section{Campus Grid Computing}
 
@@ -12,9 +12,9 @@ A computational grid is a hardware and software infrastructure that provides dep
 
 A campus grid has become necessary to spread demand across multiple clusters.  This is important when demand for a single cluster is large, due to improved performance or increased storage, and demand is low on other available clusters.  The campus grid can move computation from the in-demand cluster to other clusters, which can result in a shorter time to completion for the users' jobs.
 
-A campus grid requires a framework to distribute jobs to multiple clusters in a campus.  My masters thesis \cite{weitzel2011campus} proposed a solution based on HTCondor \cite{litzkow1988condor}.  The solution required installation of a campus factory \cite{website:campusfactory} on each cluster's login node.  Although this solution was efficient and fault tolerant, it proved difficult since the installation was manual.  Users had to install HTCondor on both the cluster's login node and the users' submit node.  Also, the security setup was based on IP whitelists, which can be defeated with IP spoofing.  Therefore, I set out to correct these deficiencies.
+A campus grid requires a framework to distribute jobs to multiple clusters in a campus.  My Masters thesis \cite{weitzel2011campus} proposed a solution based on HTCondor \cite{litzkow1988condor}.  The solution required installation of a campus factory \cite{website:campusfactory} on each cluster's login node.  Although this solution was efficient and fault tolerant, it proved difficult since the installation was manual.  Users had to install HTCondor on both the cluster's login node and the user's submit node.  Also, the security setup was based on IP whitelists, which can be defeated with IP spoofing.  Therefore, I set out to correct these deficiencies.
 
-I have enhanced my masters thesis' solution to include:
+I have enhanced my Masters thesis' solution to include:
 \begin{itemize}
 \item Easier installation through automation
 \item Increased security through secured protocols
@@ -22,7 +22,7 @@ I have enhanced my masters thesis' solution to include:
 \item Improved access to computing through language frameworks such as R \cite{team2005r}
 \end{itemize}
 
-I created a framework for job submission to remote resources that the user does not control.  Typical grid submission is done to custom interfaces such as the Globus Resource Allocation Manager \cite{foster1999globus} (GRAM), which are previously installed by an administrator.  Opportunistic resources, which are abundant, typically do not have specialized grid software installed.  Further, grid submission software adds administrator overhead for maintenance.  This framework does not require administrator intervention for remote submission to opportunistic resources.  The framework uses interfaces that are installed on nearly all clusters that are typically used for interactive access.  It automates the submission and error handling of jobs submitted to remote resources, while providing the user a consistent interface over multiple, load-balanced clusters.
+I created a framework for job submission to remote resources that the user does not control.  Typical grid submission uses custom interfaces such as the Globus Resource Allocation Manager \cite{foster1999globus} (GRAM), which is previously installed by an administrator.  Opportunistic resources, which are abundant, typically do not have specialized grid software installed.  Further, grid submission software adds administrator overhead for maintenance.  This framework does not require administrator intervention for remote submission to opportunistic resources.  The framework uses interfaces that are installed on nearly all clusters that are typically used for interactive access.  It automates the submission and error handling of jobs submitted to remote resources, while providing the user a consistent interface over multiple, load-balanced clusters.
 
 The new framework is named Bosco \cite{chep2013weitzel}.  It uses secure protocols to connect to remote clusters in order to transfer files and submit/monitor jobs.  Installation of Bosco on remote clusters and the submit host has been automated with simple tools.  Clusters with restrictive firewalls are supported by multiplexing operations through a single secure connection.  Furthermore, many cluster schedulers are supported by the underlying technology.  A diagram of the architecture of Bosco is shown in Figure \ref{fig:introboscoarch}.
 
@@ -79,11 +79,11 @@ Continuing upon the work with Bosco, the CacheD does not require administrative 
 
 \section{Data Distribution Policy Language}
 
-A modern flexible policy language for describing data distribution for campus users is needed.  Users of grid submission software currently have to describe how their files will be transferred from their submission host to the remote execution resource where the data will be processed.  They have to coordinate the storage and computational resources without help.  I propose a policy language that allows an agent to decide an appropriate method for data transfer.  It determines the transfer method by negotiating between the following three sources: a user-given policy language for the data, the remote execution resource's capabilities and preferences, and the submitting resource's capabilities and preferences.  In addition, the policy language should determine if the cache should be replicated to multiple sources.
+A modern flexible policy language for describing data distribution for campus users is needed.  Users of grid submission software currently have to describe how their files will be transferred from their submission host to the remote execution resource where the data will be processed.  They have to coordinate the storage and computational resources without help.  I propose a policy language that allows an agent to decide an appropriate method for data transfer.  It determines the transfer method by negotiating between the following three sources: a user-given policy language for the data, the remote execution resource's capabilities and preferences, and the submitting resource's capabilities and preferences.  In addition, the policy language should determine if the cache should be replicated to multiple resources.
 
-In addition to the CacheD described above, a policy language must be made in order to help the CacheD make decisions when interacting with other agents, such as other CacheD's or the local node.  I created a policy language and will discuss the  interactions where this policy language is used.  Further, I discuss extending the policy language to include custom attributes that users can include to make better choices on data distribution.
+In addition to the CacheD described above, a policy language must be made in order to help the CacheD make decisions when interacting with other agents, such as other CacheDs or the local node.  I created a policy language and will discuss the  interactions where this policy language is used.  Further, I discuss extending the policy language to include custom attributes that users can include to make better choices on data distribution.
 
-The policy language is modeled after the HTCondor \mbox{ClassAds} \cite{raman1998matchmaking}.  These \mbox{ClassAds} were originally developed for matchmaking between computational resources and potential jobs.  We extended the ClassAds with new attributes that pertain to storage and expressions that can be evaluated to make decisions.
+The policy language is modeled after the HTCondor \mbox{ClassAds} \cite{raman1998matchmaking}.  These \mbox{ClassAds} were originally developed for matchmaking between computational resources and potential jobs.  I extended the ClassAds with new attributes that pertain to storage and expressions that can be evaluated to make decisions.
 
 The user must specify preferences for the cache to consider.  Such as, where should this cache be distributed, how should the cache be distributed, and how long should the cache be stored.  Each of these preferences must be negotiated with the preferences of the CacheD that may store or is storing the cache.  The user's preferences will affect how fast the cache is transferred (different transfer methods are more efficient than others) and also, on which and how many nodes that cache should be replicated.
 
@@ -96,14 +96,14 @@ Further, each CacheD must coordinate with one another in order to distribute the
 This dissertation describes how data intensive applications can be run in a distributed campus environment.
 
 \begin{description}
-	\item[Chapter \ref{chapter:relatedwork}:]  There are many distributed computing schedulers available on the market.  In this chapter, I will discuss these schedulers and differentiate them with Bosco.  Further, I will discuss distributed storage and caching systems that are available.
+	\item[Chapter \ref{chapter:relatedwork}:]  There are many distributed computing schedulers available on the market.  In this chapter, I will discuss these schedulers and differentiate them with Bosco.  Also, I will discuss distributed storage and caching systems that are available.
 	
-	\item[Chapter \ref{chapter:campusjobs}:] I will discuss how computing can be managed on the campus using the Bosco manager.  I will also discuss a case study of integrating Bosco with the programming language, R, in order to provide an easy-to-use interface to campus distributed computing.
+	\item[Chapter \ref{chapter:campusjobs}:] I will discuss how computing can be managed on the campus using the Bosco framework.  I will also discuss a case study of integrating Bosco with the programming language, R, in order to provide an easy-to-use interface to campus distributed computing.
 	
-	\item[Chapter \ref{chapter:campusdatadistribution}:] Distribution of data on a campus grid has not been adaquately studied.  In this chapter, I will discuss the CacheD, a campus data distribution service.  The CacheD is able to combine novel transfer methods with data caching to improve the stage-in time for large data sets.  Through evaluation, I show that the CacheD demonstrates a significantly shorter stage-in time for large data sets over existing solutions that have been deployed.
+	\item[Chapter \ref{chapter:campusdatadistribution}:] Distribution of data on a campus grid has not been adequately studied.  In this chapter, I will discuss the CacheD, a campus data distribution service.  The CacheD is able to combine novel transfer methods with data caching to improve the stage-in time for large data sets.  Through evaluation, I show that the CacheD demonstrates a significantly shorter stage-in time for large data sets over existing solutions that have been deployed.
 	
 	\item[Chapter \ref{chapter:campusstoragepolicylanguage}:]  
-	Simple caching and transfering data does not provide the flexibility that the CacheD requires to operate in a distributed environment.  In this chapter, I will discuss the policy framework and language that enable the CacheD to interact with the user and other daemons in order to make decisions.
+	Simply caching and transferring data does not provide the flexibility that the CacheD requires to operate in a distributed environment.  In this chapter, I will discuss the policy framework and language that enable the CacheD to interact with the user and other daemons in order to make decisions.
 \end{description}
 
 
