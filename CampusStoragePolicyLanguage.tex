@@ -2,7 +2,7 @@
 
 \section{Introduction}
 
-In the previous chapter I discussed the HTCondor CacheD.  In this section, I will discuss the policy framework that allows the CacheD to represent heterogeneous resources on campus or cyberinfrastructure resources.  The CacheD's policy framework inserts itself whenever it interacts with another CacheD.  This policy framework allows the CacheD to act as an independent agent within the distributed system.
+In the previous chapter we discussed the HTCondor CacheD.  In this section, we will discuss the policy framework that allows the CacheD to represent heterogeneous resources on campus or cyberinfrastructure resources.  The CacheD's policy framework inserts itself whenever it interacts with another CacheD.  This policy framework allows the CacheD to act as an independent agent within the distributed system.
 
 In a distributed computing system, independent agents are designed to act on behalf of entities such as users, hosts, or entire clusters.  The agents attempt to fulfill the goals of the entities that they represent, even in the chaotic environment of a distributed computing system.  In order to fulfill these goals, the agents must know and understand them.  Therefore, a policy language exists to express the goals of the entity.
 
@@ -10,14 +10,14 @@ The policy language must be flexible enough in order to express and follow the g
 
 \begin{enumerate}
 	\item To express attributes of the entities such as the cache, CacheDs, and the host.
-	\item The ability to write policies, taking into account the attributes of the entities.
+	\item To write policies, taking into account the attributes of the entities.
 	\item To be easy to read and write the expressions.
 	\item Allow users to define their semantics and attributes in a schema-free manner.
 \end{enumerate}
 
 
 
-I implement this policy language in the CacheD using HTCondor ClassAds \cite{raman1998matchmaking}.  ClassAds are an independent library developed by the HTCondor project and are used for communication between HTCondor components.  They provide all of the attributes described above.
+We implement this policy language in the CacheD using HTCondor ClassAds \cite{raman1998matchmaking}.  ClassAds are an independent library developed by the HTCondor project and are used for communication between HTCondor components.  They provide all of the attributes described above.
 
 \begin{enumerate}
 	\item The Key-Value structure of ClassAds allow for attributes of the entities to be expressed in strings, values, lists of string, or expressions.
@@ -36,7 +36,7 @@ The CacheD has a few interaction points when it must interact with other agents,
 
 
 \section{Policy Language}
-The policy language used by the CacheD is the HTCondor ClassAds \cite{raman1998matchmaking}.  ClassAds offer the flexibility to both describe resources with attributes. 
+The policy language used by the CacheD is the HTCondor ClassAds \cite{raman1998matchmaking}.  ClassAds offer the flexibility to describe resources with attributes. 
 
 % example CacheD ClassAd
 \begin{figure}
@@ -78,10 +78,7 @@ The \texttt{Requirements} attribute in Figure \ref{lst:cachedclassad} references
 \subsection{Extending CacheD Attributes}
 
 % Extending policy language
-The ClassAd describing the CacheD can be extended by using the CacheD Cron mechanism.  The CacheD Cron executes an external program in order to collect statistics and report the results in the CacheD's ClassAd.  These statistics can then be used to better describe either the daemon or the host machine.  
-
-% How it is configured
-The CacheD Cron is configured by specifying the job's attributes in the HTCondor configuration.
+The ClassAd describing the CacheD can be extended by using the CacheD Cron mechanism.  The CacheD Cron executes an external program in order to collect statistics and report the results in the CacheD's ClassAd.  These statistics can then be used to better describe either the daemon or the host machine.  The CacheD Cron is configured by specifying the job's attributes in the HTCondor configuration.
 
 \begin{figure}[h!t]
 \begin{lstlisting}
@@ -116,7 +113,7 @@ A example of using the CacheD Cron is to measure the IO operations per second th
 
 \section{Uses of the Policy Language in the CacheD}
 
-The CacheD uses the ClassAd policy language when communicating with other daemons.  For each interaction, the CacheD must make a decision, and therefore relies on the ClassAd policies in order to decide whether to perform an action.  Each of these actions are described briefly in the introduction to this chapter.  I will now discuss the details of those interactions and choices the CacheD may make in the next few sections.
+The CacheD uses the ClassAd policy language when communicating with other daemons.  For each interaction, the CacheD must make a decision, and therefore relies on the ClassAd policies in order to decide whether to perform an action.  Each of these actions are described briefly in the introduction to this chapter.  We will now discuss the details of those interactions and choices the CacheD may make in the next few sections.
 
 
 \subsection{Choosing a Replication Target}
@@ -191,7 +188,7 @@ The approval or rejection of the cache is done asynchronously from the request f
 \subsection{Transfer Method}
 
 % Who uses it
-Each cache has a list of acceptable transfer methods.  A user may set this list of acceptable transfer methods when uploading the cache.  This list is a priority ordered, with the preferred transfer method listed first.
+Each cache has a list of acceptable transfer methods.  A user may set this list of acceptable transfer methods when uploading the cache.  This list is priority ordered, with the preferred transfer method listed first.
 
 % List formation
 \begin{figure}
@@ -242,7 +239,7 @@ As an independent agent, the CacheD prefers its own transfer priority list rathe
 
 \section{Example Policies}
 
-In order to better describe how data should be moved, I must categorize the data as shared or unique, private or non-private.  This creates a 2x2 matrix of possibilities of data.  Below, I define each of these categorizations.  Each of these categories comes with its own restrictions on how the data may be moved and how it is presented to the user.
+In order to better describe how data should be moved, we must categorize the data as shared or unique, private or non-private.  This creates a 2x2 matrix of possibilities of data.  Below, we define each of these categorizations.  Each of these categories comes with its own restrictions on how the data may be moved and how it is presented to the user.
 
 \begin{table}[h!t]
 	\bgroup
@@ -266,14 +263,14 @@ Frequently the job executables are the same for a large number of jobs.  Since t
 
 Experimental data could also be shared between multiple jobs in a job set.  This can include common input data such as databases.  For example, BLAST \cite{altschul1990basic} jobs require a database of sequences of proteins which are then matched with specific queries.  The database is typically the same for a large number of queries.  
 
-Data which is different for each job I define as unique data.  The unique data may be small things such as parameter files.  Or they may be large, such as sections of a database to search.  Unique data is defined as data which would not benefit from shared transfer, i.e., no other job needs the same data.
+Data which is different for each job we define as unique data.  The unique data may be small things such as parameter files.  Or they may be large, such as sections of a database to search.  Unique data is defined as data which would not benefit from shared transfer, i.e., no other job needs the same data.
 
-For my consideration, data which is not the same for every job in a job set but is shared between jobs, in a subset of the jobs will be considered shared data.
+For our consideration, data which is not the same for every job in a job set, but is shared between jobs in a subset of the jobs, will be considered shared data.
 
 % private versions of shared and unique
-I define private data as data which the user wants to prevent others from viewing.  The level of privacy requested by a user could determine how it can be enforced.  It could be enforced through authenticated access, encrypted data transfers, or both.  In most cases, authenticated data access is sufficient.
+We define private data as data which the user wants to prevent others from viewing.  The level of privacy requested by a user could determine how it can be enforced.  It could be enforced through authenticated access, encrypted data transfers, or both.  In most cases, authenticated data access is sufficient.
 
-Private versions of shared and unique data cannot use the same optimization as public data.  For example, the data could not be transferred using a caching daemon if authenticated access is required.   Transferring data unauthenticated, even encrypted, is dangerous due to susceptibility to brute force.
+Private versions of shared and unique data cannot use the same optimization as public data.  For example, the data could not be transferred using a caching daemon if authenticated access is required.   Transferring data unauthenticated, even encrypted, is dangerous due to susceptibility to brute force decryption.
 
 
 
@@ -299,7 +296,7 @@ Unique data cannot benefit from caching.  But it can benefit from faster transfe
 
 Though unique data, by definition, cannot benefit from caching, it is possible to package many jobs worth of unique data into a cache and transfer the cache for each job.  Then, on subsequent execution that require unique data from the package, it will be immediately available from the CacheD's cache.
 
-Packaged unique private data can be transferred with the same policies as the shared private.  Unique public data can be transferred with shared public policies.
+Packaged unique private data can be transferred with the same policies as shared private data.  Unique public data can be transferred with shared public policies.
 
 \subsection{Policies Utilizing Extended Attributes}
 
@@ -405,7 +402,7 @@ ReplicationMethods = "BITTORRENT,DIRECT"
 \section{User Scenario}
 %TODO: work on user scenario
 
-In order to illustrate a user's experience with the policy language, I will use the BLAST example that is used in the previous chapter's experiments.  In this example, we have three types of data:
+In order to illustrate a user's experience with the policy language, we will use the BLAST example that is used in the previous chapter's experiments.  In this example, we have three types of data:
 
 \begin{description}
 	\item[BLAST Database:] A shared public database which will be used by every execution of the job.  The database is widely distributed; therefore, there is no private data to hide.
@@ -420,14 +417,14 @@ $ importCache nrdb <path/to/db>/nrdb*
 $ setReplicationPolicy "MY.DiskUsage < TARGET.TotalDisk" "BITTORRENT,DIRECT"
 \end{lstlisting}
 
-Next, the BLAST executables are much smaller than the BLAST database, but they are used by every execution.  Therefore, they would benefit from caching and I will use the CacheD.  Since executables are small, the replication will not take long, therefore is no need to proactively replicate the executables.  But, there is nothing private in the BLAST executables, therefore they will be distributed over BitTorrent or Direct method.
+Next, the BLAST executables are much smaller than the BLAST database, but they are used by every execution.  Therefore, they would benefit from caching and we will use the CacheD.  Since executables are small, the replication will not take long, therefore is no need to proactively replicate the executables.  But, there is nothing private in the BLAST executables, therefore they will be distributed over BitTorrent or Direct method.
 
 \begin{lstlisting}
 $ importCache blast_executables <path/to/exes>/blast*
 $ setReplicationPolicy "(MY.DiskUsage < TARGET.TotalDisk) && (TARGET.CacheRequested =?= true)" "BITTORRENT,DIRECT"
 \end{lstlisting}
 
-Finally, the BLAST queries may be private.  The queries are stored in many small files.  The queries may or may not be optimally transfered and managed by the CacheD.  If the BLAST jobs are short, then the submission node could constantly be transferring the query files to resources that need them.  If the number of running jobs is significant, then this could become a bottleneck.  Using the CacheD, the researcher could mitigate a lot of this transferring.  By grouping all the queries into a single cache, then transferring that cache for each job, any other jobs on that same node would request the file from the cache rather than the submission node.  If the jobs are short, then this cache would be used often, at the cost of transferring all of the queries the first time.
+Finally, the BLAST queries may be private.  The queries are stored in many small files.  The queries may or may not be optimally transfered and managed by the CacheD.  If the BLAST jobs are short, then the submission node could constantly be transferring the query files to resources that need them.  If the number of running jobs is significant, then this could become a bottleneck.  Using the CacheD, the researcher could avoid significant transfers from the submit host.  By grouping all the queries into a single cache, then transferring that cache for each job, any other jobs on that same node would request the file from the cache rather than the submission node.  If the jobs are short, then this cache would be used often, at the cost of transferring all of the queries the first time.
 
 Since the queries are private, the CacheD must transfer them with the Direct method so that the transfers are authenticated and encrypted.  Further, the CacheD must only replicate them to the nodes that actually request them, so as to not expose the queries on more nodes than necessary.
 
@@ -478,11 +475,11 @@ $ setReplicationPolicy "(MY.DiskUsage < TARGET.TotalDisk) && (TARGET.CacheReques
 
 In a distributed computing system, independent agents are designed to act on behalf of entities such as users, hosts, or entire clusters.  A policy language must exist so that the entities can express their goals to the agents.  
 
-In this chapter, I have designed a policy language based on the HTCondor \mbox{ClassAds} that can be used for expressing policy in data distribution.  I have identified three interaction points for caching agents and designed the semantics for their interaction.
+In this chapter, we have designed a policy language based on the HTCondor \mbox{ClassAds} that can be used for expressing policy in data distribution.  We have identified three interaction points for caching agents and designed the semantics for their interaction.
 
-Additionally, I described different input data scenarios and possible replication policies for them.  I gave a recommended policy configuration for the popular BLAST application, including explanations on the policy configuration.  I also included the commands to create and set the policy configuration.
+Additionally, we described different input data scenarios and possible replication policies for them.  We gave a recommended policy configuration for the popular BLAST application, including explanations on the policy configuration.  We also included the commands to create and set the policy configuration.
 
-The policy language has been implemented in the CacheD, where it has been tested in Chapter \ref{chapter:campusdatadistribution}.  Further, I show the user experience of setting this policy language.
+The policy language has been implemented in the CacheD, where it has been tested in Chapter \ref{chapter:campusdatadistribution}.  Further, we illustrated a user scenario of setting this policy language.
 
 
 
