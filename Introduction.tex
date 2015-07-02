@@ -1,6 +1,6 @@
 \chapter{Introduction}
 
-In this dissertation we optimize distributed computing workflows on a campus grid.  We are interested in optimizing a researcher's use of the computational and storage resources on the campus to increase the reliability and decrease the time to solution for scientific results.  We first extend prior work to enhance the computational capabilities of researchers on a campus.  We then expand our work to the data needs of modern workflows.
+In this dissertation, we optimize distributed computing workflows on a campus grid.  We are interested in optimizing a researcher's use of the computational and storage resources on the campus to increase the reliability and decrease the time to solution for scientific results.  We first extend prior work to enhance the computational capabilities of researchers on a campus.  We then expand our work to the data needs of modern workflows.
 
 \section{Campus Grid Computing}
 
@@ -15,7 +15,7 @@ A computational grid is a hardware and software infrastructure that provides dep
 
 A campus grid has become necessary to spread demand across multiple clusters.  This is important when demand for a single cluster is large, due to improved performance or increased storage, and demand is low on other available clusters.  One aim for a campus grid is to move computation from the in-demand cluster to other clusters, which can result in a shorter time to completion for the users' jobs.
 
-To succeed, campus grid requires a framework to distribute jobs to multiple clusters in a campus.  In \cite{weitzel2011campus}, I proposed a solution based on HTCondor \cite{litzkow1988condor}.  The solution required installation of a campus factory \cite{website:campusfactory} on each cluster's login node.  An on-demand overlay was created that could efficiently run high throughput jobs on multiple campus resources.  
+To succeed, a campus grid requires a framework to distribute jobs to multiple clusters in a campus.  In \cite{weitzel2011campus}, I proposed a solution based on HTCondor \cite{litzkow1988condor}.  The solution required installation of a campus factory \cite{website:campusfactory} on each cluster's login node.  An on-demand overlay was created that could efficiently run high throughput jobs on multiple campus resources.  
 
 Although my solution was efficient and fault tolerant, it was deficient in several ways.  Installation and setup of the campus factory was difficult since it was not automated.  The communication inside the overlay was insecure.  We set out to correct these deficiencies.
 
@@ -69,20 +69,20 @@ But Bosco is not enough for researchers that have large data requirements.  Inpu
 
 \section{Data Management on Campus}
 
-There are many challenges in data management and distribution in scientific computing \cite{deelman2008data}.  For batch computing, one challenge is transferring the data from the user's computer to the execution resources.  Large data workflows can strain the network near the data's source, which can result in unreasonable amounts of time used solely for data transfer.
+There are many challenges in data management and distribution in scientific computing \cite{deelman2008data}.  For batch computing, one challenge is transferring the data from the user's computer to the execution resources.  Large data workflows can strain the network near the data's source, which can result in unreasonable amounts of batch time used solely for data transfer.
 
 Data management is the framework and policies controlling data through the research cycle.  In this dissertation, we are concerned with optimizing data management when using campus computational resources.
 
 As users spread their computation across multiple clusters either on the campus or across campuses, data distribution and collection becomes more difficult.  Before using the campus grid, a user would select a cluster to do their processing.  The user then could host all of their data on that cluster by copying the data onto that cluster's shared filesystem.  The jobs access the data from the shared filesystem just as it would on the user's desktop, available for all executions at the same directory.
 
-These assumptions do not hold for a campus grid.  A grid is made up of multiple computational clusters, with potentially many separate filesystems.  There is no single filesystem that a user can access from every computational resource.  Therefore, the data must be handled differently than when on a shared filesystem.  Further, the shared filesystem could become a bottleneck if many jobs are requesting the same data simultaneously.
+These assumptions do not hold for a campus grid.  A grid is made up of multiple computational clusters, with potentially many separate filesystems; no single filesystem is accessible access from every computational resource.  Further, the shared filesystem could become a bottleneck if many jobs are requesting the same data simultaneously.  Therefore, data management techniques must evolve along with computation.  
 
 
 Most distributed batch schedulers are able to transfer the input data for each job execution.  Each job starts with an empty execution area and the scheduler will transfer the files into it.  When the user is not using the scheduler to transfer data, the input data must still reach the execution host.  Data will be transferred from the source (usually the user's computer) to the execution resources for processing.  The network connection between the source and the execution resources may be a bottleneck for the computation.  Frequent re-transfers of the same input data will further congest the network between the source and the execution resources.
 
 In this dissertation, we optimized two attributes of distributed data management: efficient transfer methods and reduction of duplicate transfers.
 
-We introduce the CacheD, a caching and data transfer daemon for input data in distributed computing.  The CacheD uses novel data management methods based on technology developed for large data transfers on the internet, BitTorrent.  It also caches input data on the execution resources to enable quick transfers on subsequent requests for the same input data.
+We introduce the CacheD, a caching and data transfer daemon for input data in distributed computing.  The CacheD uses novel data management methods based on technology developed for large peer-to-peer data transfers on the Internet, BitTorrent.  It also caches input data on the execution resources to enable quick transfers on subsequent requests for the same input data.
 
 Similar to the work with Bosco, the CacheD does not require privileged access in order to provision storage resources.  It can use the storage on worker nodes spread across multiple clusters as a data input caching system.
 
@@ -105,7 +105,7 @@ Further, each CacheD must coordinate with one another in order to distribute the
 This dissertation describes how data intensive applications can be run in a distributed campus environment.
 
 \begin{description}
-	\item[Chapter \ref{chapter:relatedwork}:]  There are many distributed computing schedulers available publicly.  In this chapter, we will discuss these schedulers and differentiate them with Bosco.  Also, we will discuss other available data management, distributed storage, and caching systems.
+	\item[Chapter \ref{chapter:relatedwork}:]  There are many distributed computing platforms available publicly.  In this chapter, we will discuss these schedulers and differentiate them with Bosco.  Also, we will discuss other available data management, distributed storage, and caching systems.
 	
 	\item[Chapter \ref{chapter:campusjobs}:] We will discuss how computing can be managed on the campus using the Bosco framework.  We will also discuss a case study of integrating Bosco with the programming language, R, in order to provide an easy-to-use interface to campus distributed computing.
 	
@@ -123,8 +123,8 @@ High performance and distributed computing often use terms inconsistently.  Belo
 
 \begin{description}
 	\item[Job:] A packaged unit of work with input and output.  A job may consume computational, memory, network, and/or storage resources in a batch system.
-	\item[Workflow:] A sequence of jobs executed on resources.  The jobs may have some ordering.
-	\item[Campus:] An administrative domain where all resources have similar access policies.
+	\item[Workflow:] A logical grouping of jobs executed on resources.  The jobs may have some ordering.
+	\item[Campus:] An organization that may have multiple administrative domains which may vary access policies to resources.
 	\item[Execution Resource:] A resource which fulfills the requirements of a job and may also run it.  This may be a worker node in a cluster.
 	\item[Cluster:] A set of execution resources that have high interconnection bandwidth and are managed by a single scheduler.
 	\item[Batch System:] A scheduler for the resources of a cluster.
