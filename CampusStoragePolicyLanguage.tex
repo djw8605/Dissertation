@@ -2,7 +2,7 @@
 
 \section{Introduction}
 
-In the previous chapter we discussed the HTCondor CacheD.  In this section, we will discuss the policy framework that allows the CacheD to represent heterogeneous resources on campus or cyberinfrastructure resources.  The CacheD's policy framework inserts itself whenever it interacts with another CacheD.  This policy framework allows the CacheD to act as an independent agent within the distributed system.
+In the previous chapter, we discussed the HTCondor CacheD.  In this section, we will discuss the policy framework that allows the CacheD to represent heterogeneous resources on campus or cyberinfrastructure resources.  The CacheD's policy framework inserts itself whenever it interacts with another CacheD.  This policy framework allows the CacheD to act as an independent agent within the distributed system.
 
 In a distributed computing system, independent agents are designed to act on behalf of entities such as users, hosts, or entire clusters.  The agents attempt to fulfill the goals of the entities that they represent, even in the chaotic environment of a distributed computing system.  In order to fulfill these goals, the agents must know and understand them.  Therefore, a policy language exists to express the goals of the entity.
 
@@ -12,7 +12,7 @@ The policy language must be flexible enough in order to express and follow the g
 	\item To express attributes of the entities such as the cache, CacheDs, and the host.
 	\item To write policies, taking into account the attributes of the entities.
 	\item To be easy to read and write the expressions.
-	\item Allow users to define their semantics and attributes in a schema-free manner.
+	\item To Allow users to define their semantics and attributes in a schema-free manner.
 \end{enumerate}
 
 
@@ -118,7 +118,7 @@ The CacheD uses the ClassAd policy language when communicating with other daemon
 
 \subsection{Choosing a Replication Target}
 % when it is used, and by who
-Each cache has a single ``origin CacheD''.  This CacheD is the CacheD where the user initially uploaded the cache.  This origin CacheD has the option to proactively replicate the cache without it being requested by jobs.  The data transfer can occur while another job is currently being run.
+Each cache has a single ``origin CacheD.''  This CacheD is the CacheD where the user initially uploaded the cache.  This origin CacheD has the option to proactively replicate the cache without it being requested by jobs.  The data transfer can occur while another job is currently being run.
 
 % What is it matching against
 The origin CacheD will periodically query the HTCondor Collector to receive a list of CacheD ClassAds.  Then, the origin will iterate through each of these ClassAds, attempting to match the cache with a CacheD.
@@ -180,7 +180,7 @@ A CacheD can receive cache replication requests from three sources:
 
 In each of these requests, the receiving CacheD has the choice to accept the replication or deny it.  When it receives a cache replication request, it looks up the cache's ClassAd and does mutual matching with its own ClassAd.  This is similar to the mutual matching done when an origin CacheD is issuing proactive replication requests.  It is important to re-run this mutual matching in case the CacheD's state has changed.  The CacheD's state could change if it has downloaded a large cache, therefore, altering the available disk for additional caches.
 
-If the CacheD's mutual matching with the cache's ClassAd is successful, then CacheD will accept the cache and begin negotiating transfer methods.  If the CacheD and the cache's ClassAd do not match, then the CacheD will reject the cache.
+If the CacheD's mutual matching with the cache's ClassAd is successful, then the CacheD will accept the cache and begin negotiating transfer methods.  If the CacheD and the cache's ClassAd do not match, then the CacheD will reject the cache.
 
 The approval or rejection of the cache is done asynchronously from the request for replication.  Therefore, the CacheD keeps a data structure of rejected caches (accepted caches are kept in the normal cache database).  When the client next asks for the replication status of the cache, the CacheD will respond with the accept or reject status.  The cached rejection request expires after 15 minutes.
 
@@ -302,7 +302,7 @@ Packaged unique private data can be transferred with the same policies as shared
 
 Since ClassAds are schema-less and extendable, attributes can be added that can help in matching.
 
-One example policy that would be to ban BitTorrent at certain OSG sites.  This policy is useful if sites have policies against certain transfer methods.  While running our experiments from the previous chapter, we were contacted by the administrators of the clusters at Brookhaven National Lab (BNL).  They discovered that we were running BitTorrent on their clusters, contrary to their policy.  The following policy would only use the Direct transfer method at BNL.
+One example policy is to ban BitTorrent at certain OSG sites.  This policy is useful if sites have policies against certain transfer methods.  While running our experiments from the previous chapter, we were contacted by the administrators of the clusters at Brookhaven National Lab (BNL).  They discovered that we were running BitTorrent on their clusters, contrary to their policy.  The following policy would only use the Direct transfer method at BNL.
 
 \begin{lstlisting}
 Requirements = (MY.DiskUsage < TARGET.TotalDisk) && (TARGET.CacheRequested =?= true)
@@ -311,7 +311,7 @@ ReplicationMethods = ifThenElse(regexp(".*.bnl.edu$", TARGET.Name), "DIRECT", "B
 
 The \texttt{Requirements} are similar to previous policies.  The \texttt{ReplicationMethods} uses the \texttt{ifThenElse} ClassAd function in order determine which replication method to use.  It uses a regular expression to determine if the target CacheD is from BNL.  It tests if the \texttt{Name} ends with the domain name of the \texttt{bnl.edu}, the domain for BNL.  If it does match, then the Direct method is chosen.  If the \texttt{Name} does not match \texttt{bnl.edu}, then both BitTorrent and Direct methods are allowed.
 
-Administrators can add custom attributes using the CacheD Cron.  For example, administrators could add attributes that list the organizations that the own the storage resources.  When this attribute is available, both the CacheD and the caches can make policies that will use it.
+Administrators can add custom attributes using the CacheD Cron.  For example, administrators could add attributes that list the organizations that own the storage resources.  When this attribute is available, both the CacheD and the caches can make policies that will use it.
 
 An example CacheD policy:
 \begin{lstlisting}
@@ -320,7 +320,7 @@ Requirements = (MY.TotalDisk > TARGET.DiskUsage) && stringListIMember(TARGET.Cac
 ReplicationMethods = "BITTORRENT,DIRECT"
 \end{lstlisting}
 
-In this policy, the CacheD would only accept replications of caches which have the attribute \texttt{CacheDOwners} and it is set to either \texttt{CMS} or \texttt{HCC}.  There is no method that only members of the CMS or HCC organizations have this have this attribute, therefore you must create a trust relationship with CacheDs that are allowed to communicate.
+In this policy, the CacheD would only accept replications of caches which have the attribute \texttt{CacheDOwners} and it is set to either \texttt{CMS} or \texttt{HCC}.  There is no method of enforcing the requirement that only members of the CMS or HCC organizations have this have this attribute; therefore, you must create a trust relationship with CacheDs that are allowed to communicate.
 
 A cache policy that would match this policy is:
 \begin{lstlisting}
@@ -412,10 +412,13 @@ In order to illustrate a user's experience with the policy language, we will use
 
 The BLAST database was shown to be optimally distributed in Chapter \ref{chapter:campusdatadistribution} with the CacheD and BitTorrent.  Therefore, the user would first create the cache, then give it the policy to be proactively replicated to caches with BitTorrent.
 
+\pagebreak
+
 \begin{lstlisting}
 $ importCache nrdb <path/to/db>/nrdb*
 $ setReplicationPolicy "MY.DiskUsage < TARGET.TotalDisk" "BITTORRENT,DIRECT"
 \end{lstlisting}
+
 
 Next, the BLAST executables are much smaller than the BLAST database, but they are used by every execution.  Therefore, they would benefit from caching and we will use the CacheD.  Since executables are small, the replication will not take long, therefore is no need to proactively replicate the executables.  But, there is nothing private in the BLAST executables, therefore they will be distributed over BitTorrent or Direct method.
 

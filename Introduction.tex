@@ -29,7 +29,7 @@ We have enhanced my Masters thesis' solution to include:
 \item Improved access to computing through language frameworks such as R \cite{team2005r}
 \end{itemize}
 
-We created a framework for job submission to remote resources that the user does not control.  Typical grid submission uses custom interfaces such as the Globus Resource Allocation Manager \cite{foster1999globus} (GRAM), which is previously installed by an administrator.  We assume resources,  do not have such dedicated grid software installed.  This framework does not require administrator intervention for remote submission to opportunistic resources.  The framework uses interfaces that are installed on nearly all clusters that are typically used for interactive access.  It automates the submission and error handling of jobs submitted to remote resources, while providing the user a consistent interface over multiple, load-balanced clusters.
+We created a framework for job submission to remote resources that the user does not control.  Typical grid submission uses custom interfaces such as the Globus Resource Allocation Manager (GRAM) \cite{foster1999globus}, which is previously installed by an administrator.  We assume resources do not have such dedicated grid software installed.  This framework does not require administrator intervention for remote submission to opportunistic resources.  The framework uses interfaces that are installed on nearly all clusters that are typically used for interactive access.  It automates the submission and error handling of jobs submitted to remote resources, while providing the user a consistent interface over multiple, load-balanced clusters.
 
 The new framework is named Bosco \cite{weitzel2014accessing}.  It uses secure protocols to connect to remote clusters in order to transfer files and submit/monitor jobs.  Installation of Bosco on remote clusters and the submit host has been automated with simple tools.  Clusters with restrictive firewalls are supported by multiplexing operations through a single secure connection.  Furthermore, many cluster schedulers are supported by the underlying technology.  A diagram of the architecture of Bosco is shown in Figure \ref{fig:introboscoarch}.
 
@@ -92,7 +92,7 @@ Users of grid submission software currently have to describe how their files wil
 
 In addition to the CacheD described above, a policy language must be made in order to help the CacheD make decisions when interacting with other agents, such as other CacheDs or the local node.  We discuss extending this policy language to include custom attributes that users can include to improve choices on data distribution.
 
-The policy language utilizes the \mbox{ClassAds} \cite{raman1998matchmaking} language.  These \mbox{ClassAds} were originally developed in the context of matchmaking between computational resources and potential jobs.  ClassAds are a schema free language for describing heterogeneous resources.  We demonstrate usage with new attributes that pertain to storage and expressions that can be evaluated to make decisions.
+The policy language utilizes the \mbox{ClassAds} \cite{raman1998matchmaking} language.  These \mbox{ClassAds} were originally developed in the context of matchmaking between computational resources and potential jobs.  ClassAds are a schema-free language for describing heterogeneous resources.  We demonstrate usage with new attributes that pertain to storage and expressions that can be evaluated to make decisions.
 
 The user must specify preferences for the cache to consider.  Examples include: where should this cache be distributed, how should the cache be distributed, and how long the cache should be stored.  Each of these preferences must be negotiated with the preferences of the CacheD that may store or is storing the cache.  The user's preferences will affect how fast the cache is transferred (different transfer methods are more efficient than others) and also, on which and how many nodes that cache should be replicated.
 
@@ -105,14 +105,14 @@ Further, each CacheD must coordinate with one another in order to distribute the
 This dissertation describes how data intensive applications can be run in a distributed campus environment.
 
 \begin{description}
-	\item[Chapter \ref{chapter:relatedwork}:]  There are many distributed computing schedulers available publicly.  In this chapter, we will discuss these schedulers and differentiate them with Bosco.  Also, we will discuss other available data management, distributed storage and caching systems.
+	\item[Chapter \ref{chapter:relatedwork}:]  There are many distributed computing schedulers available publicly.  In this chapter, we will discuss these schedulers and differentiate them with Bosco.  Also, we will discuss other available data management, distributed storage, and caching systems.
 	
 	\item[Chapter \ref{chapter:campusjobs}:] We will discuss how computing can be managed on the campus using the Bosco framework.  We will also discuss a case study of integrating Bosco with the programming language, R, in order to provide an easy-to-use interface to campus distributed computing.
 	
-	\item[Chapter \ref{chapter:campusdatadistribution}:] In this chapter, We will discuss the CacheD, a campus data distribution service.  The CacheD is able to combine novel transfer methods with data caching to improve the stage-in time for large data sets.  Through evaluation, We show that the CacheD demonstrates a significantly shorter stage-in time for large data sets over existing solutions that have been deployed.
+	\item[Chapter \ref{chapter:campusdatadistribution}:] We will discuss the CacheD, a campus data distribution service.  The CacheD is able to combine novel transfer methods with data caching to improve the stage-in time for large data sets.  Through evaluation, we show that the CacheD demonstrates a significantly shorter stage-in time for large data sets over existing solutions that have been deployed.
 	
 	\item[Chapter \ref{chapter:campusstoragepolicylanguage}:]  
-	Simply caching and transferring data does not provide the flexibility that the CacheD requires to operate in a distributed environment.  In this chapter, We will discuss the policy framework and language that enable the CacheD to interact with the user and other daemons in order to make decisions.
+	Simply caching and transferring data does not provide the flexibility that the CacheD requires to operate in a distributed environment.  In this chapter, we will discuss the policy framework and language that enable the CacheD to interact with the user and other daemons in order to make decisions.
 \end{description}
 
 
