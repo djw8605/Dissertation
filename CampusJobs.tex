@@ -1,24 +1,24 @@
 \label{chapter:campusjobs} 
 \section{Introduction}
 
-Campus computing is usually defined as a cluster, or a set of clusters available to researchers.  These clusters are divided either by purpose, i.e. owned by a certain group, or by hardware generations.  Users submit to a single cluster, and their jobs are eligible to run on that cluster.  I propose a framework to distribute jobs to multiple campus clusters transparently to the user.  I named the framework Bosco.  
+Campus grids are usually defined as a cluster, or a set of clusters available to researchers.  These clusters are divided either by purpose, i.e. owned by a certain group, or by hardware generations.  Users submit to a single cluster, and their jobs are eligible to run on that cluster.  We propose a framework, Bosco, to distribute jobs to multiple campus clusters transparently to the user. 
 
-There are many challenges for researchers on campuses with multiple, distinct clusters.  For example, a researcher may not know which cluster may run their jobs the quickest.  Or which cluster may start the jobs first.  Each of these challenges can force the researcher to make decisions that may be suboptimal and slow down their research.
+There are many challenges for researchers on campuses with multiple, distinct clusters.  For example, a researcher may not know which cluster may run their jobs the quickest.  The researcher may not be able to determine which campus cluster will start their jobs first.  Each of these challenges can force the researcher to make decisions with insufficient information that may be suboptimal and delay their workflow's time-to-completion causing costly research delays.
 
-Traditional cluster computing requires the user to log into the cluster and submit their processing and data there. Researchers are most comfortable on their own laptop computer.  Therefore, a submission method to enable job processing to originate from the user's laptop to be run on a remote cluster would provide a more convenient user interface.
+Traditional cluster computing requires the user to log into the cluster and submit their processing and data there. However, researchers are most comfortable on their own laptop computer.  A submission method to enable job processing to originate from the user's laptop to be run on a remote cluster would provide a more convenient user interface.
 
-Another challenge for researchers attempting to use these clusters is the inability to install applications.  Campus clusters only give researchers limited capabilities on the resources in order to protect the clusters' integrity.
+Another challenge for researchers attempting to use these clusters is the inability to install applications.  In order to protect the clusters' integrity, campus clusters only give researchers limited capabilities on the resources.
 
-A number of different methods have been used to distribute jobs across multiple resources.  Inside a cluster, schedulers such as HTCondor  \cite{litzkow1988condor} and PBS \cite{henderson1995job} have been used.  Neither of these schedulers have been used to submit jobs from users' laptops, a key requirement in improving the user experience.  Remote submission is heavily used in computational grids, and they use technology such as Globus \cite{foster2001globus} and UNICORE \cite{romberg2002unicore}. This remote submission requires software installation on a server inside the cluster, which requires an administrator.
+A number of different methods have been used to distribute jobs across multiple resources.  Inside a cluster, schedulers such as HTCondor  \cite{litzkow1988condor} and PBS \cite{henderson1995job} have been used.  Neither of these schedulers are typically used to submit jobs from users' laptops, a key requirement in improving the user experience.  Compute Element based remote submission is heavily used in computational grids, and they use technology such as Globus \cite{foster2001globus} and UNICORE \cite{romberg2002unicore}. This remote submission requires compute element software installation on a server inside the cluster, which requires an administrator.
 
-Bosco \cite{weitzel2014accessing} is used to effortlessly create a remote submission endpoint on a cluster without requiring the administrator to install any software.  Bosco is a remote submission framework based upon HTCondor.  It uses the SSH \cite{ylonen2006secure} protocol to submit and monitor remotely submitted jobs.  Additionally, it performs file transfers using the same SSH connection.
+Bosco \cite{weitzel2014accessing} is used to effortlessly create a remote submission endpoint on a cluster without requiring the administrator to install any software.  Bosco is a remote submission framework based upon HTCondor.  It uses the SSH \cite{ylonen2006secure} protocol to submit and monitor remotely submitted jobs.  Additionally, it performs file transfers using the same SSH connection as the submission.
 
-Improving the user experience was a primary goal of Bosco.  I addressed the user experience by improving the interaction with the user during the installation/configuration.  Another problem area I found is when a user must debug issues with distributed software.  In order to address this, I created a traceroute \cite{mao2003towards} like utility.  The traceroute utility tests every step of the job submission process, from network access to a properly configured remote scheduler.  If an error is found at any step of the traceroute, a useful message is given to the user, including possible steps to fix the problem.
-
-
+Improving the user experience was a primary goal of Bosco.  We addressed the user experience by improving the interaction with the user during the installation/configuration.  Another problem area we found is when a user must debug issues with distributed software.  In order to address this, we created a traceroute \cite{mao2003towards} like utility.  The traceroute utility tests every step of the job submission process, from network access to a properly configured remote scheduler.  If an error is found at any step of the traceroute, a useful message is given to the user, including possible steps to fix the problem.
 
 
-In this chapter, I will discuss the methods developed to aid in distributed scientific computing on a research campus using Bosco.  
+
+
+In this chapter, we will discuss the methods developed to aid in distributed scientific computing on a research campus using Bosco.  
 
 \section{Bosco Architecture}
 \label{sec:boscoarch}
@@ -28,12 +28,12 @@ In this chapter, I will discuss the methods developed to aid in distributed scie
 % 
 %TODO: Show command line
 
-The Bosco user experience can be described in two sections: installation/configuration and running jobs.  Each of these areas was approached with the goal of improving the typical user experience for installing and running distributed computing software.
+The Bosco user experience can be described in two sections: installation/configuration and running jobs.  Each of these areas was approached with the goal of improving the typical user experience for installing and running distributed computing software.  The architecture of Bosco is shown in Figure \ref{fig:archgraph1}.
 
-The Bosco architecture is divided into the submit host and the cluster login node.  The submit host is where the user submits their jobs and where the user interacts with the Bosco system.  The login node is the submit host for a cluster.  The login node is assumed to not be maintained by the user submitting to Bosco.  The login node has access to the local scheduler with commands such as \texttt{qsub} and \texttt{qstat} (for PBS).  
+The Bosco architecture is divided into the submit host and the cluster login node.  The submit host is where the user submits their jobs and where the user interacts with the Bosco system.  The login node is the submit host for a cluster.  The login node is assumed to not be maintained by the user submitting to Bosco.  The login node has access to the local scheduler with commands such as \texttt{qsub} and \texttt{qstat} (for PBS). 
 
 \subsection{Installation \& Configuration}
-Though typically separate, Bosco combined the installation and configuration steps in order to improve the user experience.  Both are done by a single script, the \texttt{bosco\_quickstart} script that follows several steps:
+Though typically separate, Bosco combines the installation and configuration steps in order to improve the user experience.  Both are done by a single script, the \texttt{bosco\_quickstart} script that follows several steps:
 
 \begin{enumerate}
 \item Determine the platform and download the appropriate version of Bosco (supports Mac, EL5/6, Debian 6)
@@ -45,28 +45,36 @@ The script downloads the Bosco binaries from a central server to the submit host
 
 The installation on the user's laptop and on the remote cluster do not require administrator access.  All files and applications are installed in the user's directories.
 
-I have also created a native installer, a PKG, for the Mac version of Bosco.  It is distributed in an Apple Disk Image (DMG) for consistency with other Mac software.  Unlike the Linux installer, it does not automatically configure a cluster at first installation.
+We have also created a native installer, a PKG, for the Mac version of Bosco.  It is distributed in an Apple Disk Image (DMG) for consistency with other Mac software.  Unlike the Linux installer, it does not automatically configure a cluster at first installation.
 
 
 \subsection{Running Jobs}
 
+\begin{figure}[h!t]
+	\centering
+	\includegraphics[width=1.3\textwidth,angle=90]{images/ArchitectureGraph1}
+	\caption{Bosco Architecture}
+	\label{fig:archgraph1}
+\end{figure}
+
 The image shown in Figure \ref{fig:archgraph1} shows the architecture of job submissions of a Bosco submit node.  Job submissions are done from the Bosco submit host, which in turn submit to the connected cluster login node.  
 
-\begin{sidewaysfigure}[h!t]
-\includegraphics[width=\textwidth]{images/ArchitectureGraph1}
-\caption{Bosco Architecture}
-\label{fig:archgraph1}
-\end{sidewaysfigure}
-\afterpage{\clearpage}
 
-First, the Bosco submit node connects to the login node over an SSH connection and creates the forwarded SSH tunnel back to the submit node, which is used for file transfer.  SSH was chosen as the protocol, since it is used nearly universally for cluster access.  It creates the forwarded SSH tunnel in order to minimize the number of connections between the Bosco submit host and the login node.  By reusing the same SSH connection, I reduce the number of SSH logins to one.  Further, the number of connections is not dependent on the number of jobs, as Bosco will reuse the same connection for all jobs submitted to a cluster.  Minimizing the number of connections to a login node is important since many login nodes include firewall rules to slow down brute force SSH logins that block frequent successive SSH connections.  The Bosco submit host does not require any open ports in a firewall, only outgoing connections to a remote login node's SSH port.
+\begin{figure}[h!t]
+	\centering
+	\includegraphics[width=0.5\textwidth]{images/BoscoSSHNetwork.pdf}
+	\caption{Bosco SSH Network Connections to the Cluster Login Nodes}
+	\label{fig:boscosshnetwork}
+\end{figure}
+
+First, the Bosco submit node connects to the login node over an SSH connection and creates the forwarded SSH tunnel back to the submit node, which is used for file transfer.  Figure \ref{fig:boscosshnetwork} shows the network usage for Bosco.  SSH was chosen as the protocol, since it is used nearly universally for cluster access.  It creates the forwarded SSH tunnel in order to minimize the number of connections between the Bosco submit host and the login node.  By reusing the same SSH connection, the number of SSH logins is reduced to one.  Further, the number of connections is not dependent on the number of jobs, as Bosco will reuse the same connection for all jobs submitted to a cluster.  Minimizing the number of connections to a login node is important since many login nodes include firewall rules to slow down brute force SSH logins that block frequent successive SSH connections.  The Bosco submit host does not require any open ports in a firewall, only outgoing connections to a remote login node's SSH port.
 
 %    Jobs are submitted to Bosco, which then submits over ssh to the remote cluster.  Input files are transferred over the SSH connection as well.  Bosco then monitors and reports the status of the job on the remote cluster as idle, running, or completed.  Once the job is completed, Bosco will transfer output files back to the submit host.
 
 
-Next, Bosco checks for the necessary installed software on the login node, and starts the BLAHP \cite{blahp} daemon that will communicate with the scheduler on the login node.  The BLAHP daemon on the login node starts the file transfer daemon to connect back to the submit host through a forwarded SSH tunnel that Bosco created.  The transfer daemon creates and transfers the job sandbox to the login node.  The transfer to the login node is performed by HTCondor's fault tolerant file transfer mechanisms and are entirely encrypted over the SSH connection.  Authentication between the login node and the Bosco submit host is performed by a shared secret that was previously sent over the SSH connection to the BLAHP daemon.
+Next, Bosco checks for the necessary installed software on the login node, and starts the BLAHP \cite{blahp} daemon that will communicate with the scheduler on the login node.  The BLAHP daemon on the login node starts the file transfer daemon to connect back to the submit host through a forwarded SSH tunnel that Bosco created.  The transfer daemon creates and transfers the job sandbox to the login node.  The transfer to the login node is performed by HTCondor's fault tolerant file transfer mechanisms and are entirely encrypted over the SSH connection.  Authentication between the login node and the Bosco submit host is performed by a shared symmetric key that was previously sent out-of-band over the SSH connection to the BLAHP daemon.  Integrity of the files is ensured by using HTCondor's built in integrity checking of all communication between daemons.
 
-After the files have been transferred, Bosco sends the job's submission ClassAd \cite{raman1998matchmaking} to the BLAHP daemon to translate to the local site's scheduler language.  The BLAHP supports PBS \cite{computing2013torque}, LSF \cite{computinglsf}, SGE \cite{gentzsch2001sun}, Slurm \cite{yoo2003slurm}, and HTCondor schedulers.  The BLAHP creates the submission file, and submits it to the cluster's scheduler.  Bosco periodically polls the BLAHP over the SSH connection for the status of the job.  Once the job is detected to have been completed, the BLAHP starts HTCondor's transfer daemon to transfer the output sandbox back to the submitter machine.
+After the files have been transferred, Bosco sends the job's submission ClassAd \cite{raman1998matchmaking} to the BLAHP daemon to translate to the local site's scheduler language.  The BLAHP supports PBS \cite{computing2013torque}, LSF \cite{computinglsf}, SGE \cite{gentzsch2001sun}, Slurm \cite{yoo2003slurm}, and HTCondor schedulers.  Since the BLAHP will translate the HTCondor job into any of the above schedulers, there is no need to write submission scripts in anything other than the HTCondor language.  The BLAHP creates the submission file, and submits it to the cluster's scheduler.  Bosco periodically polls the BLAHP over the SSH connection for the status of the job.  Once the job is detected to have been completed, the BLAHP starts HTCondor's transfer daemon to transfer the output sandbox back to the submitter machine.
 
 \begin{figure}[h!t]
 	\centering
@@ -75,17 +83,28 @@ After the files have been transferred, Bosco sends the job's submission ClassAd 
 	\label{fig:boscojobsubmitflow}
 \end{figure}
 
-Figure \ref{fig:boscojobsubmitflow} shows the job flow from the user to the Slurm scheduler on the remote cluster.  As you can see it goes through six daemons before reaching the cluster scheduler.  The HTCondor job manager agent (SchedD) accepts the user's jobs, acting as an agent which will attempt to execute the job.  HTCondor's grid interface daemon (GridManager) is spawned by the SchedD in order to service the Bosco job.  The RemoteGahp (Grid Ascii Helper Protocol) starts the SSH tunnel between the user submit host and the cluster.  The BLAHP (C portion) interprets the job requirements, and executes the BLAHP (shell portion) which translates the requirements into the local scheduler language.  Finally, the BLAHP submits the jobs to the Slurm Scheduler.
-
-\pagebreak
+Figure \ref{fig:boscojobsubmitflow} shows the job flow from the user to the Slurm scheduler on the remote cluster.  As you can see, it goes through six daemons before reaching the cluster scheduler.  The HTCondor job manager agent (SchedD) accepts the user's jobs, acting as an agent which will attempt to execute the job.  HTCondor's grid interface daemon (GridManager) is spawned by the SchedD in order to service the Bosco job.  The RemoteGahp (Grid Ascii Helper Protocol) starts the SSH tunnel between the user submit host and the cluster.  The BLAHP (C portion) interprets the job requirements, and executes the BLAHP (shell portion) which translates the requirements into the local scheduler language.  Finally, the BLAHP submits the jobs to the Slurm Scheduler.
 
 Bosco has two modes of job submission:
 \begin{enumerate}
 	\item \textbf{Direct} -- A single job on the Bosco submit host corresponds to a single job on the remote cluster.  Each job is submitted individually to the remote cluster's scheduling system.  This method is the simplest to run and imposes no special requirements on the submit machine.
-	\item \textbf{Glidein} -- Bosco submits many pilot jobs to the remote cluster using the direct method.  But each of the pilots can service multiple user-submitted jobs from the Bosco submit host.  This method minimizes the overhead on the remote cluster since Bosco is not submitting many jobs through the cluster scheduler.  The glidein method requires that the Bosco submit host can be contacted from the remote cluster worker nodes. \label{sec:glidein}  The glidein submission method is based off of previously written software such as the Campus Factory \cite{weitzel2011campus}.
+	
+	\item \textbf{Glidein} -- Bosco submits many pilot jobs to the remote cluster using the direct method.  But each of the pilots can service multiple user-submitted jobs from the Bosco submit host.  This method minimizes the overhead on the remote cluster since Bosco is not submitting many jobs through the cluster scheduler.  The glidein method requires that the Bosco submit host can be contacted from the remote cluster worker nodes. \label{sec:glidein}  The glidein submission method is based off of previously written software, the Campus Factory \cite{weitzel2011campus}.
 \end{enumerate}
 
-The two modes of job submission allow users to optimize for their environment.  If they are running many short identical jobs (which is frequent in high throughput computing), then the glidein method is ideal for them.  If they are running fewer, longer, and possibly unique requirement jobs; then the direct submission method would work best.  Most users start with the direct method then graduate to glidein once they become accustomed to submitting batch jobs.
+The two modes of job submission allow users to optimize for their environment.  If they are running many short identical jobs (which is frequent in high throughput computing), then the glidein method is ideal for them.  The glidein pilots are much faster at starting jobs than the direct method (as will be seen in Section \ref{sec:boscorresults}).
+
+If the users are running fewer, longer, and possibly unique  jobs; then the direct submission method would work best.  When submitting using the direct method, different requirements may be specified for each job.  In contrast, all glideins request the same resources, and are therefore not ideal for heterogeneous jobs.  We expect most users start will with the direct method then graduate to glidein once they become accustomed to submitting batch jobs.
+
+\begin{figure}[h!t]
+	\centering
+	\includegraphics[width=0.8\textwidth]{images/BoscoGlideinLaunch.pdf}
+	\caption{Bosco Glidein Launch}
+	\label{fig:boscoglideinlaunch}
+\end{figure}
+
+\label{sec:boscoglidein}
+Bosco glidein pilot submission is depicted in Figure \ref{fig:boscoglideinlaunch}.  (1) Bosco first submits a glidein pilot to the remote PBS cluster.  (2) Once the pilot starts on a worker node, it will connect to the user's Bosco instances to request work.  (3) Jobs will then be run on the PBS cluster's worker node under the Bosco pilot.
 
 Bosco's fault tolerance is in its handling of the remote cluster.  For example, if the user's computer loses connection with the remote cluster due to network issues, or even if the user suspends their laptop, Bosco will place the jobs on hold.  Although no new jobs will be submitted to the remote cluster, jobs that were already submitted will continue to run.  Further, when Bosco re-establishes a connection to the remote cluster, Bosco will check the status of already submitted jobs.  It will then bring back any output data from any jobs that have completed and continue to submit jobs to the remote scheduler.
 
@@ -98,38 +117,63 @@ In order to improve the user experience at each step of the job process, extra e
 
 Also, an additional traceroute was created to test each step of the job submission process, including:
 
-\begin{description}
-\item[SSH connection to the remote login host:]  Tests network connection, login host availability, and passwordless SSH setup.
-\item[Job submission to the Bosco submit host:]  Tests Bosco daemon availability and Bosco submit host file system availability.
-\item[Job submission to the remote login host:]  Tests the remote scheduler availability, remote cluster software setup, input file transfer, and cluster file system availability.
-\item[Job completion and status update from login host:]  Tests Bosco status check process and output file transfer.
-\end{description}
+\begin{itemize}
+\item \textbf{SSH connection to the remote login host:}  Tests network connection, login host availability, and passwordless SSH setup.
+\item \textbf{Job submission to the Bosco submit host:}  Tests Bosco daemon availability and Bosco submit host file system availability.
+\item \textbf{Job submission to the remote login host:}  Tests the remote scheduler availability, remote cluster software setup, input file transfer, and cluster file system availability.
+\item \textbf{Job completion and status update from login host:}  Tests Bosco status check process and output file transfer.
+\end{itemize}
 
-The traceroute is very useful for debugging issues with a Bosco installation.  It is designed to test each step in the job execution life cycle and give meaningful error messages and possible solutions.
+The traceroute is useful for debugging issues with a Bosco installation.  It is designed to test each step in the job execution life cycle and give meaningful error messages and possible solutions.
+
+\begin{figure}[h!t]
+\begin{lstlisting}[basicstyle=\scriptsize\ttfamily]
+$ bosco_cluster -t glidein.unl.edu
+Testing ssh to glidein.unl.edu...Passed!
+Testing bosco submission...Passed!
+Submission and log files for this job are in /home/swanson/dweitzel/bosco/local.bosco/bosco-test/boscotest.ibhJN
+Waiting for jobmanager to accept job...Passed
+Checking for submission to remote condor cluster (could take ~30 seconds)...Passed!
+Waiting for job to exit... this could take a while (waiting 60 seconds)...Failed
+The job did not end in 60 seconds.  This is not always a bad thing...
+Maybe condor is waiting longer to poll for job completion?
+Here is the current status of the job:"
+
+
+-- Submitter: red-foreman.unl.edu : <129.93.239.170:11000?noUDP&sock=15147_7985_2> : red-foreman.unl.edu
+ID      OWNER            SUBMITTED     RUN_TIME ST PRI SIZE CMD               
+38529.0   dweitzel        7/1  00:17   0+00:00:00 I  0   0.0  echo Hello   
+\end{lstlisting}
+\caption{Session Log From Bosco Traceroute}
+\label{lst:boscotraceroute}
+\end{figure}
+
+Figure \ref{lst:boscotraceroute} shows the session log from a successful Bosco traceroute.  It first tests the SSH connection to the remote host, \texttt{glidein.unl.edu}.  Then, it creates a test job, which it submits to the local Bosco instance.  It checks that the local Bosco instance accepts the job, and that Bosco submits the job to the remote cluster.  Then, the traceroute waits 60 seconds for the job to exit.  In this case, the job did not exit in 60 seconds because there was no available resources to run this test job.  Traceroute then tells you the current status of the job before it exits.
+
 
 \section{Load Balanced Access to Computational Resources}
 
-Bosco is used in conjunction with the Campus Factory \cite{website:campusfactory}, which is described in full in my Master's thesis \cite{weitzel2011campus}.  The Campus Factory submits pilot jobs to remote clusters to create an overlay that provides a consistent interface to the resources.  The campus factory submits to multiple Bosco endpoints simultaneously, load balancing between them by keeping idle jobs (constant pressure) on all clusters.
+Bosco is used in conjunction with the Campus Factory \cite{website:campusfactory}, which is described in full in my Master's thesis \cite{weitzel2011campus}.  The Campus Factory submits pilot jobs to remote clusters to create an overlay that provides a consistent interface to the resources.  The campus factory submits to multiple Bosco endpoints simultaneously, load balancing between them by keeping idle jobs (constant pressure) on all clusters.  PBS then provisions resources for the Bosco pilots.  The pilots call back to the Bosco submit host in order to request jobs.
 
-Submission via the Bosco framework is done using the HTCondor submit syntax.  When an idle user job is detected by the Campus Factory, it begins to submit glideins to all Bosco endpoints simultaneously.  The Campus Factory maintains idle glideins on each of the endpoints until the user's jobs have completed.  The jobs run on any resources that become available.
+Submission via the Bosco framework is done using the HTCondor submit file language.  When an idle user job is detected by the Campus Factory, it begins to submit glideins to all Bosco endpoints simultaneously.  The Campus Factory maintains idle glideins on each of the endpoints until the user's jobs have completed.  The jobs run on any resources that become available.
 
 
 \section{BoscoR: Extending R from the desktop to the Grid}
 
-As a case study of improving the user experience when using Bosco and distributed computing, I created BoscoR, an interface to Bosco from the R statistical programming language.  The following was published as:
+As a case study of improving the user experience when using Bosco and distributed computing, we created BoscoR, an interface to Bosco from the R statistical programming language.  %The following was published as:
 
-\bibentry{weitzelboscor}
+%\bibentry{weitzelboscor}
 
 \subsection{Introduction}
-Usage of the R language \cite{team2012r} by data miners has grown much faster than any other programming language \cite{rexer2013, KDnuggets2013}.  Data mining requires computational resources, sometimes more computational resources than can be provided by their desktop computer.  In a recent study of data scientists \cite{rexer2013}, ``Available computing power'' was the second most common problem for big data analysis.  In addition, the respondents stated that distributed or parallel processing was the least common solution to their big data needs.  This could be attributed to the difficulty of processing data with the R language on distributed resources, a challenge I set out to solve with BoscoR.
+Usage of the R language \cite{team2012r} by data miners has grown much faster than any other programming language \cite{rexer2013, KDnuggets2013}.  Data mining requires computational resources, sometimes more computational resources than can be provided by their desktop computer.  In a recent study of data scientists \cite{rexer2013}, ``Available computing power'' was the second most common problem for big data analysis.  In addition, the respondents stated that distributed or parallel processing was the least common solution to their big data needs.  This could be attributed to the difficulty of processing data with the R language on distributed resources, a challenge we tackled with BoscoR.
 
-A reason that distributed computing is not seen as a popular solution to big data processing is that scientists are more familiar processing on their desktop than in a cluster environment.  R is typically used by people that have not used distributed computing before and do most of their analysis on their local systems with integrated development environments (IDE) such as RStudio \cite{racine2012rstudio}.  Users are unaccustomed to the traditional distributed computing model of batch processing in which there is no interactive access to the running processes.
+A reason that distributed computing is not seen as a popular solution to big data processing is that scientists are more familiar processing on their desktop than in a cluster environment.  R is typically used by researchers that have not used distributed computing before and do most of their analysis on their local systems with integrated development environments (IDE) such as RStudio \cite{racine2012rstudio}.  Users are unaccustomed to the traditional distributed computing model of batch processing in which there is no interactive access to the running processes.
 
-Though researchers may not have experience with distributed computing, most have computational resources available to them, either locally provided by their institution or university, or through national cyberinfrastructure such as the OSG \cite{pordes2007open} or XSEDE \cite{xsede}.
+Though researchers may not have experience with distributed computing, most have extensive computational resources available to them, either locally provided by their institution or university, or through national cyberinfrastructure such as the OSG \cite{pordes2007open} or XSEDE \cite{xsede}.
 
 
 
-In this section, I will describe GridR \cite{wegener2007gridr}, an R library used to interact with the Bosco framework.  In section \ref{sec:boscorimplementation}, I describe how I combined these two components to create a fault-tolerant framework that provides a positive user experience.  Next, in Section \ref{sec:boscorresults}, I discuss preferred submission methods based on the length of the R function, and show I results from numerous test runs against a production cluster.  Finally, I offer some conclusions and future work.
+In this section, we will describe GridR \cite{wegener2007gridr}, an R library used to interact with the Bosco framework.  In section \ref{sec:boscorimplementation}, we describe how we combined these two components to create a fault-tolerant framework that provides a positive user experience.  Next, in Section \ref{sec:boscorresults}, we discuss preferred submission methods based on the length of the R function, and show results from numerous test runs against a production cluster.  Finally, some conclusions and future work are offered.
 
 \subsection{Background}
 BoscoR is primarily made up of two components, Bosco and GridR.  Bosco provides a simple setup interface to the remote batch system, and it provides fault tolerance for job submission and file transfers.  GridR provides a user interface to create and initiate remote processing.
@@ -137,7 +181,7 @@ BoscoR is primarily made up of two components, Bosco and GridR.  Bosco provides 
 
 \subsection{GridR}
 % Overview of parallel libraries
-Many parallel libraries are available for R.  Most focus on managing the R processing on a single server such as the \texttt{parallel} package \cite{rparallelpackage}.  The \texttt{parallel} package comes bundled with R and provides for single machine parallelism.  Parallelism is done by using variations of the R function \texttt{lapply}.  A simplified definition of \texttt{lapply} is shown in Figure \ref{lst:lapply}.  \texttt{lapply} is the basis for nearly all parallel libraries in R.  
+Many parallel libraries are available for R.  Most focus on managing the R processing on a single server such as the \texttt{parallel} package \cite{rparallelpackage}.  The \texttt{parallel} package comes bundled with R and provides simple, single machine, multi-core parallelism.  Parallelism is done by using variations of the R function \texttt{lapply}.  A simplified definition of \texttt{lapply} is shown in Figure \ref{lst:lapply}.  \texttt{lapply} is the basis for nearly all parallel libraries in R.  
 
 \begin{figure}[h!t]
 \begin{framed}
@@ -156,7 +200,7 @@ Many parallel libraries are available for R.  Most focus on managing the R proce
 \label{lst:lapply}
 \end{figure}
 
-The \texttt{lapply} function is ideally suited for high throughput computing.  There is no communication between executions of the function on the input array.  The input vector can be easily partitioned in order to split the execution across multiple resources.  It is because of these reasons that most parallel applications use the \texttt{lapply} model to provide parallelism.  Examples are the parallel package which defines the functions \texttt{mcapply} (multi-core apply) and \texttt{parapply} (parallel apply). In the \texttt{parallel} package, calling \texttt{mcapply} causes R to fork a process that will execute the function \textbf{FUN} on each element in the input vector.  A similar process happens when calling \texttt{parapply}. 
+The \texttt{lapply} function is ideally suited for high throughput computing.  There is no communication between executions of the function \textbf{FUN} on the input array.  The input vector can be partitioned in order to split the execution across multiple resources.  Accordingly, most parallel applications use the \texttt{lapply} model to provide parallelism.  Examples are the parallel package which defines the functions \texttt{mcapply} (multi-core apply) and \texttt{parapply} (parallel apply). In the \texttt{parallel} package, calling \texttt{mcapply} causes R to fork a process that will execute the function \textbf{FUN} on each element in the input vector.  A similar process happens when calling \texttt{parapply}. 
 
 Another built-in parallelization package is Simple Network of Workstations (snow) \cite{rlangsnow}.  Snow allows for multiple computers to organize and execute parallel processing of data.  The computers communicate over regular network sockets or using MPI \cite{gropp1999using}.  This allows for multiple computers inside the same cluster to process data.  Snow also has built-in \texttt{lapply} style functionality.
 
@@ -182,7 +226,7 @@ All of these assumptions cannot be met on modern grid resources.  Applications c
 % \item Downloads appropriate version of R from a central repository.  Caches the R installation if available (both at the file system level, and the R level).
 % \end{itemize}
 
-Bosco is designed to run on resources that are not controlled by the submitting user.  Further, it is designed to run on resources without any conditions as to what is installed.  In order to operate under these assumptions, Bosco must bootstrap itself by bringing in all the libraries and dependencies required to operate.  Therefore, BoscoR must run under these same assumptions.
+Bosco is designed to run on resources that are not controlled by the submitting user.  Further, it is designed to run on resources without any conditions as to what is installed.  In order to operate under these assumptions, Bosco must bootstrap itself by bringing in all the libraries and dependencies required to operate.  BoscoR must run under these same assumptions.
 
 GridR was modified to submit to Bosco.  The input generation of GridR is shown in Figure \ref{fig:gridrinput}.  When a user or script calls \texttt{grid.apply}, GridR compiles the input function and input data into a R data file, which can be read later by another R process.  GridR handles function dependencies by using R's dependency detection and compiles any functions that may be required into the input.  
 
@@ -204,48 +248,63 @@ Since Bosco cannot make assumptions as to what is installed on the remote cluste
 
 In the GridR generated submit file, the listed executable to run on the remote system is not R, but the bootstrap executable.  The bootstrap executable detects if R is installed on the remote system.  If it is installed, it simply executes the user defined function against the input data.  If R is not installed, the bootstrap downloads the appropriate version of R for the remote operating system.  The supported platforms are identical to Bosco's: CentOS 5/6 and Debian 6/7.  R is downloaded from a central server operated by the OSG's Grid Operations Center \cite{osgoperations}.  
 
-The bootstrap executable installs R in a shared directory.  By utilizing a shared directory, subsequent GridR jobs may use the same R installation.  Several bootstrap jobs could start at once on a remote cluster, so a simple transactional file locking mechanism was devised so only a single bootstrap executable on a cluster will download and install for the entire cluster if a shared filesystem is available.  If a shared filesystem is not available for installation, R is installed in a temporary directory that is removed upon job completion.
+The bootstrap executable installs R in a shared directory.  By utilizing a shared directory, subsequent GridR jobs may use the same R installation.  Several bootstrap jobs could start at once on a remote cluster, so a simple transactional file-locking mechanism was devised so only a single bootstrap executable on a cluster will download and install for the entire cluster if a shared filesystem is available.  If a shared filesystem is not available for installation, R is installed in a temporary directory that is removed upon job completion.
 
 \subsection{Running on the Open Science Grid}
 
 Submitting to the Open Science Grid (OSG) is done by direct submission.  The OSG hosts access nodes which can be used to submit to resources on the grid.
 
-Most OSG sites do not have shared directories for grid users.  Therefore, the bootstrap script must install R on every node in a temporary directory.  In order to optimize the R installation, the bootstrap script utilizes the HTTP forward proxy infrastructure \cite{garzoglio2012supporting} available on the OSG to minimize requests to the central hosting server.
+Most OSG sites do not have shared directories for grid users.  Therefore, the bootstrap script must install R on every node in a temporary directory unique to each job.  In order to optimize the R installation, the bootstrap script utilizes the HTTP forward proxy infrastructure \cite{garzoglio2012supporting} available on the OSG to minimize requests to the central hosting server.
 
 
 \subsection{Results}
 \label{sec:boscorresults}
 
-The results section is broken into two categories, results from user feedback and results from experimental runs on a production cluster as well as the OSG.
+The results section is broken into two categories: results from user feedback and results from experimental runs on a production cluster; as well as the OSG.
 
-A primary goal with BoscoR was to improve the user experience of using R on distributed resources. After acquiring a few users, I received feedback on how BoscoR could be improved.  The improvements to GridR and the integration with Bosco made working with campus or institutional resources much better.  In this section I will describe the improvements.
+A primary goal with BoscoR was to improve the user experience of using R on distributed resources. After acquiring a few users, we received feedback on how BoscoR could be improved.  The improvements to GridR and the integration with Bosco made working with campus or institutional resources much better.  In this section we will describe the improvements.
 
 \subsubsection{User-Provided Packages}
 
 Many users require additional packages to be installed before their function can execute.  It was assumed that most of these packages would be in the major R package repositories, such as the Comprehensive R Archive Network (CRAN) \cite{cran}.  If the package is in CRAN, the user-provided function can install the package.  After receiving user feedback, it was found that not all desired packages are available in CRAN.  A modification to both the submit file and the bootstrap executable was designed to install such packages.
 
-In order to install a user-provided package, it first needs to be transferred to the remote cluster.  This is done by including the package in the list of input files to be transferred by Bosco for each job.  Additionally, the packages should be installed before the user function is executed on the remote resources.  This required modification to the bootstrap executable in order to install the packages after installing R, but before executing the user's function on the input data.
+In order to install a user-provided package, it first needs to be transferred to the remote cluster.  This is done by including the package in the list of input files to be transferred by Bosco for each job.  Additionally, the packages should be installed before the user function is executed on the remote resources.  This required modification to the bootstrap executable in order to install the packages after installing R, but before executing the user's function on the input data.  The packages are specified on the \texttt{grid.init} function as the optional argument \texttt{remotePackages} argument.  An example function call would be:
+
+\begin{figure}[h!t]
+\begin{lstlisting}[language=R]
+#define a function that will be executed remotely
+a<-function(s){return(2*s)}
+# For the bosco.direct service, adding the remotePackages
+grid.init(service="bosco.direct", localTmpDir="GridRTmp/", remotePackages=c("GridR_0.9.8.tar.gz"))
+# Again, apply the function
+grid.apply("x", a, 10, wait=TRUE)
+\end{lstlisting}
+\caption{GridR Function with Remote Package Installation Before Execution}
+\label{fig:gridrremotepackages}
+\end{figure}
+
+Figure \ref{fig:gridrremotepackages} shows the function call \texttt{grid.init} with the remotePackages attribute added to it.  In this case, it is only installing the GridR package before executing the function \texttt{a}.
 
 \subsubsection{Quick Jobs}
 Since the GridR interface only provides for a single function to execute against the input data, it was assumed that the function would be a time-consuming data-processing function.  Therefore, the overhead Bosco introduces would not significantly affect the performance of the executions.  After receiving feedback from users, it was determined that the more common use case is to use smaller functions that could execute in seconds or minutes.  In order to accommodate shorter jobs, a modification to the GridR generated submit script was required.
 
-In this case, I modified the submit file so that Bosco would use the glidein method of job submission.  Using the glidein job submission method, the shorter jobs can be executed much more quickly, one after another, reusing the same resources.  Additionally, this saves the remote cluster scheduler from scheduling many small jobs which can cause issues in many HPC schedulers.
+In this case, we modified the submit file so that Bosco would use the glidein method of job submission, described in Section \ref{sec:boscoglidein}.  Using the glidein job submission method, the shorter jobs can be executed much more quickly, one after another, reusing the same resources.  Additionally, this saves the remote cluster scheduler from scheduling many small jobs which can cause issues in many HPC schedulers.
 
 
 \subsection{Performance Results}
 
-\subsubsection{Experimental setup}  
+\subsubsection{Experimental Setup}  
 
-In order to test BoscoR, I have to simulate a R workload.  I simulate a workload with varying lengths of the executed functions.  This simulates a variety of workloads that I have seen from users.  As noted before, I assumed that the functions would be long-running data processing.  But, I learned that users were instead submitting short functions to be executed quickly.  I varied the length of function from one second to 30 minutes.  To verify my solution to quick jobs, I tested different job lengths using both the direct and glidein submission method.
+To test BoscoR, we simulate a R workload with varying lengths of the executed functions.  The length distribution is based on a variety of user workloads.  As noted before, we assumed that the functions would be long-running data processing.  But, we learned that users were instead submitting short functions to be executed quickly.  we varied the length of function from one second to 30 minutes.  To verify our solution to quick jobs, we tested different job lengths using both the direct and glidein submission method.
 
-To execute the test jobs, I used the production cluster, Tusker, at the University of Nebraska -- Lincoln Holland Computing Center.  This cluster is composed of 106 nodes, each with 64 cores, for a total of 6,784 cores.  The cluster has numerous users that are submitting to the central Slurm \cite{yoo2003slurm} scheduler.  The cluster traditionally runs at $>$90\% utilization, with dozens of users jobs fair sharing the resources.  The Slurm scheduler is a HPC orientated scheduler that matches submitted jobs to resources.  Fair share scheduling is used on Tusker;  each group has equal priority with all others, therefore allowing the maximum number of users to run on the resources.
+To execute the test jobs, we used the production cluster, Tusker, at the University of Nebraska -- Lincoln Holland Computing Center.  This cluster is composed of 106 nodes, each with 64 cores, for a total of 6,784 cores.  The cluster has numerous users that are submitting to the central Slurm \cite{yoo2003slurm} scheduler.  The cluster traditionally runs at $>$90\% utilization, with dozens of users' jobs fair sharing the resources.  The Slurm scheduler is a HPC orientated scheduler that matches submitted jobs to resources.  Fair share scheduling is used on Tusker;  each group has equal priority with all others, therefore allowing the maximum number of users to run on the resources.
 
-Tusker is utilized enough that the jobs would be competing against other users' jobs for available resources, and therefore not all submitted GridR functions would be able to execute simultaneously.  I believe this best represents most clusters, which are typically highly utilized by many researchers.  It is plausible that a cluster could be so highly utilized that no user jobs could be executed. The other extreme could also be true: enough resources are available for all submitted jobs to be executed immediately.  I found that Tusker utilization is somewhere between these two extremes.  It is capable of running many, but not all, jobs submitted to it immediately.  The rest will execute as resources become available.
+Tusker is utilized enough that the jobs would be competing against other users' jobs for available resources, and therefore, not all submitted GridR functions would be able to execute simultaneously.  We believe this best represents most clusters, which are typically highly utilized by many researchers.  It is plausible that a cluster could be so highly utilized that no user jobs could be executed. The other extreme could also be true: enough resources are available for all submitted jobs to be executed immediately.  We found that Tusker utilization is somewhere between these two extremes.  It is capable of running many, but not all, jobs submitted to it immediately.  The rest will execute as resources become available.
 
-For testing, I submitted 1000 GridR jobs per test run. 1000 jobs was chosen as a reasonable representation of workflows I have seen when helping users of GridR.  They typically submit many jobs, sometimes reaching into the thousands.  The goal was to submit more jobs than could be run instantly by the remote cluster, but not so many that gathering repeated testing data would be impossibly time consuming.
+For testing, we submitted 1,000 GridR jobs per test run. This level of jobs was chosen as a reasonable representation of workflows we have seen when helping users of GridR.  They typically submit many jobs, sometimes reaching into the thousands.  The goal was to submit more jobs than could be run instantly by the remote cluster.
 
 \subsubsection{Direct submission}
-Direct submission is defined as submission using Bosco's direct submission method.  In GridR, the library is initialized with the argument \texttt{service="bosco.direct"}.  When this setting is used, GridR generates submission scripts that use Bosco's default routing mechanism to submit to a single cluster.  The GridR functions are submitted as jobs directly to Tusker's Slurm scheduler.
+First we look at Bosco's direct submission method.  In GridR, the library is initialized with the argument \texttt{service="bosco.direct"}.  When this setting is used, GridR generates submission scripts that use Bosco's default routing mechanism to submit to a single cluster.  The GridR functions are submitted as jobs directly to Tusker's Slurm scheduler.
 
 \begin{figure}[h!t]
 \centering
@@ -257,9 +316,9 @@ Direct submission is defined as submission using Bosco's direct submission metho
 
 A timeline of the GridR submissions to Bosco is shown in Figure \ref{fig:directsubmit}.  The submitted jobs are jobs which are submitted locally, but not yet submitted to the remote scheduler.  Remote represents the jobs which are submitted to the remote Slurm scheduler.  The submission to the remote scheduler is very rapid.  Bosco is able to submit 700 jobs within a minute.  Slurm is able to rapidly begin executing many, but not all, of the submitted jobs.  Bosco maintains constant pressure in the form of idle jobs in case resources become available on the cluster.  You will notice the straight line in the number of submitted jobs which dips after 30 minutes.  At 30 minutes the first jobs begin to complete and Bosco begins to submit more jobs to the cluster, attempting to always keep the maximum of 700 jobs either idle or running on the remote cluster.  In this workflow, all 1,000 30-minute jobs finish in just over 100 minutes.
 
-The Open Science Grid runs use the direct submission method as well.  But, since the OSG access nodes run HTCondor, the jobs are capable of starting much quicker after being submitted to the remote resource.  In this way, the OSG provides the best of both the direct and glidein approaches.  It is simple to setup like any direct submission method.  And as with the glidein submission method, the jobs start quickly on the remote resource.
+The Open Science Grid runs use the direct submission method as well.  But since the OSG access nodes run HTCondor, the jobs are capable of starting much quicker after being submitted to the remote resource.  In this way, the OSG provides the best of both the direct and glidein approaches.  It is simple to setup like any direct submission method.  And as with the glidein submission method, the jobs start quickly on the remote resource.
 
-The OSG direct submission presents different failure modes than a traditional HPC cluster.  For example, in one of the experimental runs with one-second jobs, a single job took over 30 minutes to complete.  The issue with this particular job was that the job was matched to a single node that was misconfigured.  In this case, the job eventually finished after being matched to a different node.  The OSG may not be an ideal solution for short executions of GridR functions.
+The OSG direct submission presents different failure modes than a traditional HPC cluster.  For example, in one of the experimental runs with one-second long jobs, a single job took over 30 minutes to complete.  The issue with this particular job was that the job was matched to a single node that was misconfigured.  In this case, the job eventually finished after being matched to a different node.  The OSG may not be an ideal solution for short executions of GridR functions.
 
 \subsubsection{Glidein}
 Glidein submissions use a pilot job that is submitted directly to the Slurm scheduler.  Once the pilot starts, it calls back to the submission node to request work.  This method allows multiple jobs to run within the same Slurm job, independent of the cluster's scheduler.  
@@ -271,7 +330,7 @@ Glidein submissions use a pilot job that is submitted directly to the Slurm sche
 \label{fig:comparesubmit}
 \end{figure}
 
-Comparing the direct submission to the glidein submission is shown in Figure \ref{fig:comparesubmit}.  As you can see for longer jobs, direct and glidein submission methods have approximately similar workflow runtimes.  But for short jobs, glidein has significantly shorter workflow runtimes.  This can be attributed to the advantages of using a high throughput scheduler over a high performance scheduler.
+A comparison of the direct submission to the glidein submission is shown in Figure \ref{fig:comparesubmit}.  For longer jobs, direct and glidein submission methods have approximately similar workflow runtimes.  But for short jobs, glidein has significantly shorter workflow runtimes.  This can be attributed to the advantages of using a high throughput scheduler over a high performance scheduler.
 
 Bosco is built on top of HTCondor.  HTCondor is a very efficient high throughput scheduler that can quickly start the execution of jobs on available resources.  Since many R workflows are designed to run a short function upon a large amount of data, HTCondor is a good fit.  By submitting HTCondor pilots to the remote scheduler, Bosco is able to utilize its strength of running many small jobs quickly, resulting in a shorter workflow completion time for shorter jobs.
 
@@ -285,7 +344,7 @@ Bosco is built on top of HTCondor.  HTCondor is a very efficient high throughput
 
 Figure \ref{fig:runningjobs} illustrates how the glidein submission method is superior to the direct submission method for short jobs, and why both methods are roughly equivalent for longer jobs.  For longer jobs, you can see that both glidein and direct submission methods start jobs at nearly equal rates.  The variation is relatively small and could be explained by variations in the available resources at the time of running the experiments. 
 
-For the shorter 100-second jobs, the start rate begins nearly the same, but then Bosco and Slurm are unable to sustain the job start rate.  Since the jobs only run for 100 seconds, the overhead from Bosco submission and Slurm starting the jobs becomes a bottleneck.  Bosco is only able to sustain roughly 50 jobs running on the cluster.  On the other hand, the glidein submission method continues to grow in the number of jobs running.  This is due to eliminating the Bosco submission overhead, as well as the Slurm scheduling overhead.  Instead, the glidein method is utilizing the much more efficient HTCondor scheduler, which is able to start jobs much faster than the Slurm scheduler.  I can conclude that the glidein submission method results in a shorter total workflow execution time for shorter R functions.
+For the shorter 100-second jobs, the start rate begins nearly the same, but then Bosco and Slurm are unable to sustain the job start rate.  Since the jobs only run for 100 seconds, the overhead from Bosco submission and Slurm starting the jobs becomes a bottleneck.  Bosco is only able to sustain roughly 50 jobs running on the cluster.  On the other hand, the glidein submission method continues to grow in the number of jobs running.  This is due to eliminating the Bosco submission overhead, as well as the Slurm scheduling overhead.  Instead, the glidein method is utilizing the much more efficient HTCondor scheduler, which is able to start jobs much faster than the Slurm scheduler.  We can conclude that the glidein submission method results in a shorter total workflow execution time for shorter R functions.
 
 
 \subsection{Conclusion}
@@ -299,14 +358,14 @@ As with any complicated system, many parameters can be varied in order to obtain
 \item The number of glideins submitted in a batch could be varied in order to optimize the start rate for a particular cluster.  Any lower and it would slow job starts, increasing the workflow run time for both short and long jobs.  Any higher, and it could overwhelm the remote scheduler.
 \end{itemize}
 
-I chose reasonable values for these parameters that an end user may use.  In the future I will tune these parameters automatically using the feedback provided by Bosco.  Although Bosco and the bootstrap process significantly improved the fault tolerance of GridR, further fault tolerance testing and development is needed to provide a positive user experience when running on national infrastructure such as the OSG.
+We chose reasonable values for these parameters that an end user may use.  In the future we will tune these parameters automatically using the feedback provided by Bosco.  Although Bosco and the bootstrap process significantly improved the fault tolerance of GridR, further fault tolerance testing and development is needed to provide a positive user experience when running on national infrastructure such as the OSG.
 
-During follow up interviews with users after using BoscoR, I received many positive reviews of the framework.  Improving the user experience of using R on distributed resources was a primary goal of BoscoR.  One example of a positive review was from a Micro-Biology researcher from the University of Wisconsin:
+During follow up interviews with users after using BoscoR, we received many positive reviews of the framework.  Improving the user experience of using R on distributed resources was a primary goal of BoscoR.  One example of a positive review was from a Micro-Biology researcher from the University of Wisconsin:
 \begin{quote}
-I have a huge set of data, which I have to split into pieces to be handled by each node.  This is something I can do with the "grid.apply" function. This reduces the submit time from several hours, to several seconds... it is a  phenomenal improvement. This will greatly increase my use of grid computing, as right now, I only use grid computing when I have no other choice.
+I have a huge set of data, which I have to split into pieces to be handled by each node.  This is something I can do with the ``grid.apply'' function. This reduces the submit time from several hours, to several seconds... it is a  phenomenal improvement. This will greatly increase my use of grid computing, as right now, I only use grid computing when I have no other choice.
 \end{quote}
 
-The experimental testing I ran showed that glidein submission method is significantly better at running short R functions than the direct submission method.  At longer job runtimes, the difference between direct and glidein submission to remote resources is negligible.
+The experimental testing we ran showed that glidein submission method is significantly better at running short R functions than the direct submission method.  At longer job runtimes, the difference between direct and glidein submission to remote resources is negligible.
 
 
 
@@ -315,17 +374,17 @@ The experimental testing I ran showed that glidein submission method is signific
 
 \section{Conclusion}
 
-Bosco and the Campus Factory combine to make an easy-to-use framework that can distribute jobs to many computational clusters on a campus.  Users are able to effectively distribute their processing to multiple clusters using this framework.  In this section, I showed that Bosco transparently and effectively distributes computational jobs across multiple clusters on a campus, while maintaining simple usage for users.
+Bosco and the Campus Factory combine to make an easy-to-use framework that can distribute jobs to many computational clusters on a campus.  Users are able to effectively distribute their processing to multiple clusters using this framework.  In this section, we showed that Bosco transparently and effectively distributes computational jobs across multiple clusters on a campus, while maintaining simple usage for users.
 
-Using Bosco as a foundation, I was able to create an interface from the R programming language called BoscoR.  This interface proved very simple for users to use.  
+Using Bosco as a foundation, we were able to create an interface from the R programming language called BoscoR.  This interface proved simple for users to use.  
 
-During the evaluation of BoscoR, I confirmed the suspicions that the direct submission method is slower for quick jobs than the glidein submission method.  But, for longer jobs, there is almost no difference between direct and glidein jobs.
+During the evaluation of BoscoR, it was demonstrated that the direct submission method is slower for quick jobs than the glidein submission method.  For longer jobs, there is almost no difference between direct and glidein jobs.
 
-Bosco's usage has increased since I originally published the Bosco paper.  For example, it is heavily used by the University of Chicago in order to submit OSG processing to opportunistic resources around the country.  They find Bosco useful since it does not require the installation of any software on the remote cluster.
+Bosco's usage has increased since we originally published the Bosco paper.  For example, it is heavily used by the University of Chicago in order to submit OSG processing to opportunistic resources around the country.  They find Bosco useful since it does not require the installation of any software on the remote cluster.
 
-Additionally, the CMS experiment has used Bosco to access opportunistic resources around the world, and they have published many papers on the subject \cite{hufnagelcmsopportunistic, piperovoperationalchep15, wagner2013using, kreuzer2014opportunistic}.
+Additionally, the CMS experiment has used Bosco to access opportunistic resources around the world, and they have published several papers on the subject \cite{hufnagelcmsopportunistic, piperovoperationalchep15, wagner2013using, kreuzer2014opportunistic}.
 
-If the user's workflow requires significant data, it may be inefficient to use Bosco's transfer mechanisms which are bottlenecked by the transfer speed of the Bosco submit host.  It is expected that large datasets will not be an efficient use of Bosco.  Therefore, I will introduce a framework to efficiently transfer data in Chapter \ref{chapter:campusdatadistribution} that will complement Bosco's overlay network.
+If the user's workflow requires significant data, it may be inefficient to use Bosco's transfer mechanisms which are bottlenecked by the transfer speed of the Bosco submit host.  It is expected that large datasets will not be an efficient use of Bosco.  Therefore, the framework to efficiently transfer data, discussed in Chapter \ref{chapter:campusdatadistribution}, that will complement Bosco's overlay network is needed.
 
 
 
