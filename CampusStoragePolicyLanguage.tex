@@ -2,9 +2,9 @@
 
 \section{Introduction}
 
-In the previous chapter, we discussed the HTCondor CacheD.  In this section, we will discuss the policy framework that allows the CacheD to represent heterogeneous resources on campus or cyberinfrastructure resources.  The CacheD's policy framework inserts itself whenever it interacts with another CacheD.  This policy framework allows the CacheD to act as an independent agent within the distributed system.
+In the previous chapter, the HTCondor CacheD was introduced and benchmarked.  In this section, we will discuss the policy framework that allows the CacheD to represent heterogeneous resources on campus or cyberinfrastructure resources.  The CacheD's policy framework is used whenever it interacts with another CacheD.  This policy framework allows the CacheD to act as an independent agent within the distributed system.
 
-In a distributed computing system, independent agents are designed to act on behalf of entities such as users, hosts, or entire clusters.  The agents attempt to fulfill the goals of the entities that they represent, even in the chaotic environment of a distributed computing system.  In order to fulfill these goals, the agents must know and understand them.  Therefore, a policy language exists to express the goals of the entity.
+In a distributed computing system, independent agents are designed to act on behalf of entities such as users, hosts, or entire clusters.  The agents attempt to fulfill the goals of the entities that they represent, even in the chaotic environment characteristic of a distributed computing system.  In order to fulfill these goals, the agents must know and understand them.  Therefore, a policy language exists to express the goals of the entity.
 
 The policy language must be flexible enough in order to express and follow the goals and instructions of the users.  The goals of the policy language are:
 
@@ -22,7 +22,7 @@ We implement this policy language in the CacheD using HTCondor ClassAds \cite{ra
 \begin{enumerate}
 	\item The Key-Value structure of ClassAds allow for attributes of the entities to be expressed in strings, values, lists of string, or expressions.
 	\item Expressions can reference attributes in the current and the matching ClassAds.
-	\item Expressions are written as boolean expressions with semantics familiar to most programmers.
+	\item Expressions are written as expressions with semantics familiar to most programmers.
 \end{enumerate}
 
 The CacheD has a few interaction points when it must interact with other agents, such as other CacheDs or users.  Those interaction points are:
@@ -66,7 +66,7 @@ MyCurrentTime = 1433790880
 \label{lst:cachedclassad}
 \end{figure}
 
-Figure \ref{lst:cachedclassad} shows an example of a CacheD's ClassAd.  The attributes describe the CacheD daemon and the host it runs on.  For example, the \texttt{DaemonStartTime} is a representation of when the daemon started.  \texttt{TotalDisk} describes how much disk is available on the host that the CacheD is running.
+Figure \ref{lst:cachedclassad} shows an example of a CacheD's ClassAd.  The attributes describe the CacheD daemon and the host it runs on.  For example, the \texttt{DaemonStartTime} is a representation of when the daemon started.  \texttt{TotalDisk} describes how much disk is available on the host where the CacheD is running.
 
 % How matching works
 Matching of ClassAds is done by comparing attributes between two sets of ClassAds.  The attribute \texttt{Requirements} takes a special meaning when matching two ClassAds.  The 
@@ -92,7 +92,7 @@ CACHED_CRON_TEST_PERIOD = 15s
 \label{lst:cachedcronconfiguration}
 \end{figure}
 
-Figure \ref{lst:cachedcronconfiguration} shows the configuration in order for the CacheD to periodically run a program named ``test.''  The executable is \texttt{test.sh}, which will run tests and output a ClassAd that will be merged into the CacheD's ClassAd.  It will be run  at periods of every 15 seconds.
+Figure \ref{lst:cachedcronconfiguration} shows the configuration in order for the CacheD to periodically run a program named ``test.''  The executable, \texttt{test.sh}, will run tests and output a ClassAd that will be merged into the CacheD's ClassAd.  It will be run  at periods of every 15 seconds.
 
 
 \begin{figure}
@@ -101,7 +101,7 @@ TestResult = 100
 TestRan = TRUE
 TestHost = "hostname.unl.edu"
 \end{lstlisting}
-\caption{Example Output from CacheD Cron}
+\caption{Example Output from CacheD Cron: \texttt{test.sh}}
 \label{lst:cachedcronoutput}
 \end{figure}
 
@@ -123,7 +123,7 @@ Each cache has a single ``origin CacheD.''  This CacheD is the CacheD where the 
 % What is it matching against
 The origin CacheD will periodically query the HTCondor Collector to receive a list of CacheD ClassAds.  Then, the origin will iterate through each of these ClassAds, attempting to match the cache with a CacheD.
 
-For each ClassAd from the cache and a remote CacheD, the origin will attempt a mutual match.  Therefore, the cache's preferences must accept the CacheD, and the CacheD must accept the cache.  The \texttt{Requirements} expression is evaluated for both of the ClassAds.  The default basic \texttt{Requirements} expression is to require that the CacheD has enough disk space for the cache.
+For each ClassAd from the cache and a remote CacheD, the origin will attempt a mutual match.  Therefore, the cache must accept the CacheD, and the CacheD must accept the cache.  The \texttt{Requirements} expression is evaluated for both of the ClassAds.  The default basic \texttt{Requirements} expression is to require that the CacheD has enough disk space for the cache.
 
 For the CacheD, the default \texttt{Requirements} are:
 \begin{lstlisting}
@@ -162,9 +162,12 @@ Further special attributes are planned, such as an attribute whose value is the 
 \texttt{CacheReplicas} & Cache property available on the cache origin.  A numerical value representing the number of complete replicas stored by CacheDs. \\
 \texttt{DiskUsage} & Size, in kilobytes, of the cache. \\
 \texttt{TotalDisk} & Available disk, in kilobytes, to store caches. \\
+\texttt{BandwidthUsed} & Bandwidth used on the CacheD host, in Gbps. \\
+\texttt{CacheDIops} & CacheD property of current measured IOPS on the host. \\
+\texttt{ActiveTransfers} & Number of active transfers on the CacheD.
 \end{tabular}	
 	\egroup
-	\caption{Attributes Available or Planned}
+	\caption{Sample CacheD Attributes}
 	\label{tbl:cachedattributes}
 \end{table}
 
@@ -182,7 +185,7 @@ In each of these requests, the receiving CacheD has the choice to accept the rep
 
 If the CacheD's mutual matching with the cache's ClassAd is successful, then the CacheD will accept the cache and begin negotiating transfer methods.  If the CacheD and the cache's ClassAd do not match, then the CacheD will reject the cache.
 
-The approval or rejection of the cache is done asynchronously from the request for replication.  Therefore, the CacheD keeps a data structure of rejected caches (accepted caches are kept in the normal cache database).  When the client next asks for the replication status of the cache, the CacheD will respond with the accept or reject status.  The cached rejection request expires after 15 minutes.
+The approval or rejection of the cache is done asynchronously from the request for replication.  Therefore, the CacheD keeps a data structure of rejected caches (accepted caches are kept in the local cache database).  When the client next asks for the replication status of the cache, the CacheD will respond with the accept or reject status.  The cached rejection request expires after 15 minutes.
 
 
 \subsection{Transfer Method}
@@ -199,7 +202,7 @@ ReplicationMethods = "BITTORRENT, DIRECT"
 \label{lst:cachetransferlist}
 \end{figure}
 
-In the example shown in Figure \ref{lst:cachetransferlist}, the cache has a preference for transferring the files over BitTorrent, but will accept the Direct transfer method if needed.  Transfer methods are described in full in Section \ref{sec:cachedtransfermethods}.
+In the example shown in Figure \ref{lst:cachetransferlist}, the cache has a preference for transferring the files over BitTorrent, but will accept the Direct transfer method if needed.  Transfer methods are described in full in Section \ref{sec:cachedtransfermethods}.  These are the only possible methods now, but may expand to other methods in the future.
 
 % Negotiating preferences
 After accepting a cache to be downloaded, the CacheD will negotiate the transfer method with the cache's ClassAd that was downloaded during the acceptance testing stage. The cache's ClassAd includes the \texttt{ReplicationMethods} attribute, which is a priority list of acceptable transfer methods.  The CacheD has its own \texttt{ReplicationMethods} that is set in its configuration.  The CacheD iterates through its own methods until it finds a matching transfer method in the cache's methods.
@@ -263,7 +266,7 @@ Frequently the job executables are the same for a large number of jobs.  Since t
 
 Experimental data could also be shared between multiple jobs in a job set.  This can include common input data such as databases.  For example, BLAST \cite{altschul1990basic} jobs require a database of sequences of proteins which are then matched with specific queries.  The database is typically the same for a large number of queries.  
 
-Data which is different for each job we define as unique data.  The unique data may be small things such as parameter files.  Or they may be large, such as sections of a database to search.  Unique data is defined as data which would not benefit from shared transfer, i.e., no other job needs the same data.
+We define unique data as data which is different for each job.  The unique data may be small, such as parameter files.  Or they may be large, such as sections of a database to search.  By definition, unique data is defined as data which would not benefit from shared transfer; no other job needs the same data.
 
 For our consideration, data which is not the same for every job in a job set, but is shared between jobs in a subset of the jobs, will be considered shared data.
 
@@ -292,9 +295,7 @@ ReplicationMethods = "DIRECT"
 
 In this method, the cache would only be replicated to nodes where it is requested.  This will minimize the number of nodes that have this private data stored.  Second, it will use the \texttt{DIRECT} method of distribution, which uses an authenticated and optionally encrypted method of transfer.  
 
-Unique data cannot benefit from caching.  But it can benefit from faster transfers.  As we have seen in Chapter \ref{chapter:campusdatadistribution}, even when caching is not turned on, the unique transfer methods that the CacheD uses can benefit the stage-in time for this unique data.  
-
-Though unique data, by definition, cannot benefit from caching, it is possible to package many jobs worth of unique data into a cache and transfer the cache for each job.  Then, on subsequent execution that require unique data from the package, it will be immediately available from the CacheD's cache.
+Unique data cannot benefit from caching.  But it can benefit from faster transfers.  As we have seen in Chapter \ref{chapter:campusdatadistribution}, even when caching is not turned on, the unique transfer methods that the CacheD uses can benefit the stage-in time for this unique data.  It is possible to package many jobs worth of unique data into a cache and transfer the cache for each job.  Then, on subsequent execution that require unique data from the package, it will be immediately available from the CacheD's cache.
 
 Packaged unique private data can be transferred with the same policies as shared private data.  Unique public data can be transferred with shared public policies.
 

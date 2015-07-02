@@ -82,7 +82,7 @@ Most distributed batch schedulers are able to transfer the input data for each j
 
 In this dissertation, we optimized two attributes of distributed data management: efficient transfer methods and reduction of duplicate transfers.
 
-We introduce the CacheD, a caching and data transfer daemon for input data in distributed computing.  The CacheD uses novel data management methods based on technology developed for large peer-to-peer data transfers on the Internet, BitTorrent.  It also caches input data on the execution resources to enable quick transfers on subsequent requests for the same input data.
+We introduce the CacheD \cite{weitzel2015pdpta}, a caching and data transfer daemon for input data in distributed computing.  The CacheD uses novel data management methods based on technology developed for large peer-to-peer data transfers on the Internet, BitTorrent.  It also caches input data on the execution resources to enable quick transfers on subsequent requests for the same input data.
 
 Similar to the work with Bosco, the CacheD does not require privileged access in order to provision storage resources.  It can use the storage on worker nodes spread across multiple clusters as a data input caching system.
 
