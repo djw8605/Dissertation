@@ -253,7 +253,7 @@ This is just one of many possible network topologies.  Some clusters have all of
 
 
 \subsection{Pro-active Replication}
-%TODO: proactive replication
+%%TODO: proactive replication
 The CacheD is capable of performing pro-active replication.  In the same way that Kangaroo performed proactive replication for output files back to the final destination, the CacheD can perform pro-active replication of caches to available CacheDs.  The replication is completed in the background, while jobs are being executed on the resource.  By interleaving the computing and replication on the same node, we more fully utilize the node's resources.  Further, if a subsequent job requires the cache, it will already be available locally.
 
 Pro-active also serves the purpose of creating more peers for the BitTorrent transfers.  More peers in a BitTorrent transfer can increase the speed of transfers.
