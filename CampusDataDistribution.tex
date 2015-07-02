@@ -20,7 +20,7 @@
 
 \section{Introduction}
 
-Large input datasets are becoming common in scientific computing.  Unfortunately for campus researchers, the staging time of the datasets to computational resources has not kept pace with the increase in dataset sizes.  The typical large dataset workflow may consist of thousands of individual jobs, each sharing input files.
+Large input datasets are becoming common in scientific computing.  Unfortunately for campus researchers, the staging time of the datasets to computational resources has increased along with dataset sizes.  The typical large dataset workflow may consist of thousands of individual jobs, each sharing input files.
 
 In the Background, Section \ref{sec:currentapproach}, we described a common application, BLAST.  Figure \ref{fig:blastworkflowdata} shows the input and output of the BLAST application.
 
@@ -46,7 +46,7 @@ Our goal is to minimize the number of times the input data is transferred from s
 
 
 
-Additionally, the campus resources made available to researchers are shared; therefore, the researchers have the limitation of not having access to install programs on the clusters.  In Chapter \ref{chapter:campusjobs}, Bosco \cite{weitzel2014accessing}, built an overlay on top of campus resources to create a virtual, on-demand pool of resources for task execution.  We expanded the capabilities of this virtual pool to include data caching and novel transfer methods to enable big data processing.
+Additionally, the campus resources made available to researchers are shared; therefore, the researchers have the limitation of not having access to install programs on the clusters.  In Chapter \ref{chapter:campusjobs}, Bosco \cite{weitzel2014accessing}, built an overlay on top of campus resources to create a virtual, on-demand pool of resources for task execution.  We expand the capabilities of this virtual pool to include data caching and novel transfer methods to enable big data processing.
 
 %Each node in the virtual pool will run multiple jobs, by default, all batch systems will transfer the large input file for each job.  Our goal is to minimize the number of times the input data is transferred from the submit host to the execution target.  Therefore a framework of local caching and distributed file transfer is proposed to address these situations.
 
@@ -70,7 +70,7 @@ Some distributed filesystems use local caches on the worker nodes.  GPFS \cite{s
 % HTTP caching
 HTTP caching is used throughout the web to decrease latency for page loads and to distribute requests among servers.  In high throughput computing, a forward proxy is commonly used to cache frequent requests to external servers.  The forward proxy caches files requested through it, and it will respond to subsequent requests for the same file by reading it from memory or its own disk cache.
 
-The HTTP forward proxy caching does have limitations.  The HTTP protocol was designed and is used primarily for websites.  Websites have very different requirements than high throughput computing.  The data sizes are much smaller.  Software designed as forward proxies, such as Squid \cite{squidcacheurl}, are optimized for web HTTP traffic, and therefore, do not handle large data file sizes optimally.  Further, the Open Science Grid (OSG) \cite{pordes2007open} sites typically only have one or possibly a few squid caches available to user jobs.  They are not designed to scale to large transfers for hundreds of jobs, the target use case.  Figure \ref{fig:httpcachearchitecture} shows the caching architecture of a typical OSG site.
+The HTTP forward proxy caching does have limitations.  The HTTP protocol was designed and is used primarily for websites.  Websites have very different requirements than high throughput computing.  The data sizes are much smaller \cite{websitesize}.  Software designed as forward proxies, such as Squid \cite{squidcacheurl}, are optimized for web HTTP traffic, and therefore, do not handle large data file sizes optimally.  Further, the Open Science Grid (OSG) \cite{pordes2007open} sites typically only have one or possibly a few squid caches available to user jobs.  They are not designed to scale to large transfers for hundreds of jobs, the target use case.  Figure \ref{fig:httpcachearchitecture} shows the caching architecture of a typical OSG site.
 
 \begin{figure}[ht]
 	\centering
@@ -99,14 +99,14 @@ XrootD \cite{dorigo2005xrootd} is designed for large data access, and it has eve
 	\centering
 	\bgroup
 	\def\arraystretch{1.5}
-	\begin{tabular}{l | l | l | l }
-\textbf{Caching} & \textbf{Local} & \textbf{Site}  & \textbf{Dataset } \\
-\textbf{Software} & \textbf{Caching} & \textbf{Caching} & \textbf{Pinning} \\ \hline
-GPFS & Yes & No & No \\
-HTTP Caching & No & Yes & No \\
-Parrot & Yes & Yes & No \\
-CernVM-FS & Yes & Yes & No \\
-XrootD & No & Yes & No 
+	\begin{tabular}{l | l | l | l | l }
+\textbf{Caching} & \textbf{Local} & \textbf{Site}  & \textbf{Dataset } & \textbf{Administrator} \\
+\textbf{Software} & \textbf{Caching} & \textbf{Caching} & \textbf{Pinning} & \textbf{Required} \\ \hline
+GPFS & Yes & No & No & Yes \\
+HTTP Caching & No & Yes & No & Yes \\
+Parrot & Yes & Yes & No & No \\
+CernVM-FS & Yes & Yes & No & Yes \\
+XrootD & No & Yes & No & Yes
 	\end{tabular}
 	\egroup
 	\caption{Table of Capabilities for Grid Data Caching Software}
@@ -116,7 +116,7 @@ XrootD & No & Yes & No
 % HTTP
 
 % Caching in the 
-We define local caching as saving the input files on the local machine and making them available to local jobs.  Local caching is different from site caching, which is done in the OSG by Squid caches.  We define site caching as when data files are stored and available to jobs from a closer source than the original.  In most cases on the OSG, the site cache is a node inside the cluster that has both low latency and high bandwidth connections to all of the execution hosts.
+We define local caching as saving the input files on the worker node and making them available to local jobs.  Local caching is different from site caching, which is done in the OSG by Squid caches.  We define site caching as when data files are stored and available to jobs from a closer source than the original.  In most cases on the OSG, the site cache is a node inside the cluster that has both low latency and high bandwidth connections to all of the execution hosts.
 
 %BitTorrent
 We use distributed transfer to mean transfers that are not from a single source.  In my case, we will be using BitTorrent \cite{cohen2008BitTorrent}, in which a client may download parts of files from multiple sources.  Additionally, the client may make available to other clients parts of the files that have already been downloaded.
@@ -131,7 +131,7 @@ In \cite{briquet2007scheduling}, the authors use scheduling, caching, and BitTor
 
 The HTCondor CacheD is a daemon that runs on both the execution host and the submitter.  For my purposes, a cache is defined as an immutable set of files that has metadata associated with it.  The metadata can include a cache expiration time, as well as ownership and acceptable transfer methods.
 
-The CacheD is designed to interface with other daemons as well as the user.  The CacheD communicates only over BSD sockets. The transport application protocol is over HTCondor's secure communication library, CEDAR, and heavily uses ClassAds \cite{raman1998matchmaking}.  
+The CacheD is designed to interface with other daemons as well as the user.  The CacheD communicates only over BSD sockets. The transport application protocol is over HTCondor's secure communication library, CEDAR \cite{miller2010flexible}, and heavily uses ClassAds \cite{raman1998matchmaking}.  
 
 \subsection{Architecture}
 
@@ -236,7 +236,7 @@ If the transfer plugin successfully authenticates with a local CacheD, transfer 
 
 A symlink does not actually copy the data.  Instead, it creates a pointer to the data which is in another directory.  This symlink creates the possibility that the cache may be altered by the job, but this issue is largely ignored for now.  BitTorrent will not allow a modified cache to be replicated; therefore, there is no chance that the altered cache will propagate to other nodes in the system.  BitTorrent provides this guarantee by checksumming all files in the cache before and after transfers.  If the checksum does not match, the file is re-downloaded.
 
-The symlink transfer method allows near instant transfer of the cache from the CacheD to the file transfer plugin.  A symlink is created by the CacheD in the job's working directory pointing to the cache directory.  This symlink method eliminates transferring the cache to each job.
+A symlink is created by the CacheD in the job's working directory pointing to the cache directory.  This symlink method eliminates transferring the cache to each job.
 
 \begin{figure}[ht]
 \centering
@@ -250,11 +250,11 @@ In Figure \ref{fig:cachebottleneck}, you can see a traditional configuration of 
 This is just one of many possible network topologies.  Some clusters have all of their worker nodes on the public internet.  Some clusters do not allow any internet traffic to reach the worker nodes.  On the OSG, the network topology shown in Figure \ref{fig:cachebottleneck} is the most common.  It it also the configuration of Nebraska's clusters.
 
 
-\subsection{Pro-active Replication}
+\subsection{Proactive Replication}
 %%TODO: proactive replication
-The CacheD is capable of performing pro-active replication.  In the same way that Kangaroo performed proactive replication for output files back to the final destination, the CacheD can perform pro-active replication of caches to available CacheDs.  The replication is completed in the background, while jobs are being executed on the resource.  By interleaving the computing and replication on the same node, we more fully utilize the node's resources.  Further, if a subsequent job requires the cache, it will already be available locally.
+The CacheD is capable of performing proactive replication.  In the same way that Kangaroo performed proactive replication for output files back to the final destination, the CacheD can perform proactive replication of caches to available CacheDs.  The replication is completed in the background, while jobs are being executed on the resource.  By interleaving the computing and replication on the same node, we more fully utilize the node's resources.  Further, if a subsequent job requires the cache, it will already be available locally.
 
-Pro-active replication also serves the purpose of creating more peers for the BitTorrent transfers.  More peers in a BitTorrent transfer can increase the speed of transfers.
+Proactive replication also serves the purpose of creating more peers for the BitTorrent transfers.  More peers in a BitTorrent transfer can increase the speed of transfers.
 
 
 % Discuss the possiblity of jobs modifying the cache?
@@ -268,7 +268,7 @@ The design of the data structure is to make lookups of cache locations very fast
 
 
 \subsection{Parenting of CacheDs} \label{sec:cachedparenting}
-The use of BitTorrent increases the IO activity on the host server significantly.  If multiple CacheD instances are writing to disk concurrently, it degrades the IO performance for all jobs on the server.  This increased IO activity leads to competition between BitTorrent-enabled CacheDs on the same host.  In order to address the increased IO queue, each CacheD will designate a single daemon on the host that downloads the files through BitTorrent.  All other CacheDs will then download the cache from the parent using Direct file transfer mechanisms.  Figure \ref{fig:cacheparentingnode} shows the parenting inside a node. 
+The use of BitTorrent increases the IO activity on the host server significantly.  If multiple CacheD instances are writing to disk concurrently, it degrades the IO performance for all jobs on the server.  This increased IO activity leads to competition between BitTorrent-enabled CacheDs on the same host.  In order to address the increased IO activity, each CacheD will designate a single daemon on the host that downloads the files through BitTorrent.  All other CacheDs will then download the cache from the parent using Direct file transfer mechanisms.  Figure \ref{fig:cacheparentingnode} shows the parenting inside a node. 
 
 \begin{figure}[ht]
 	\centering
@@ -288,7 +288,7 @@ In addition to preserving local IO performance, parenting can also be used to cr
 \label{fig:cacheparenting}
 \end{figure}
 
-A CacheD's parent is discovered through the configuration.  When a CacheD starts, it checks the configuration for a special configuration attribute, the \texttt{CACHED\_PARENT}.  It then attempts to connect to the parent to verify that the parent is functional.  If the parent is found to be functional and responding to queries, the child then forwards all requests it receives to the parent, just as the node local CacheD will forward all requests to the origin in Figure \ref{fig:replicationflow}.
+A CacheD's parent can also be discovered through the configuration.  When a CacheD starts, it checks the configuration for a special configuration attribute, the \texttt{CACHED\_PARENT}.  It then attempts to connect to the parent to verify that the parent is functional.  If the parent is found to be functional and responding to queries, the child then forwards all requests it receives to the parent, just as the node local CacheD will forward all requests to the origin in Figure \ref{fig:replicationflow}.
 
 
 \subsection{Interface and API}
@@ -296,50 +296,50 @@ To simplify communication with the CacheD, clients may use an API that will comm
 
 \begin{figure}[ht!]
 	
-	\begin{lstlisting}[language=Python]
-	#!/bin/env python
+\begin{lstlisting}[language=Python]
+#!/bin/env python
+
+import htcondor
+import glob
+import time
+import sys
+
+cached = htcondor.Cached()
+cacheName = sys.argv[1]
+
+try:
+    cached.createCacheDir(cacheName, int(time.time())+1000)
+except RuntimeError:
+    print "Create cache failed"
+    sys.exit(1)
 	
-	import htcondor
-	import glob
-	import time
-	import sys
-	
-	cached = htcondor.Cached()
-	cacheName = sys.argv[1]
-	
-	try:
-	cached.createCacheDir(cacheName, int(time.time())+1000)
-	except RuntimeError:
-	print "Create cache failed"
-	sys.exit(1)
-	
-	input_glob = glob.glob(sys.argv[2])
-	print input_glob
-	try:
-	cached.uploadFiles(cacheName, input_glob)
-	except:
-	print "Upload files Fail"
-	sys.exit(1)
-	\end{lstlisting}
-	\caption{Example Code to Create a Cache}
-	\label{fig:createcacheexamplecode}
+input_glob = glob.glob(sys.argv[2])
+print input_glob
+try:
+    cached.uploadFiles(cacheName, input_glob)
+except:
+    print "Upload files Fail"
+    sys.exit(1)
+\end{lstlisting}
+\caption{Example Code to Create a Cache}
+\label{fig:createcacheexamplecode}
 \end{figure}
 
 Creating a simple API to interact with the CacheD improves the user experience of using the CacheD.  The CacheD also uses this same API in order to communicate with other CacheDs.  For example, the call to replicate a cache is shown in Figure \ref{fig:requestlocalcall}.  All CacheDs and clients use this same function.
 
 \begin{figure}[h!]
 	\begin{lstlisting}[language=C,backgroundcolor=\color{grey},frame=none]
-	int requestLocalCache(const std::string &cached_server, const std::string &cached_name, compat_classad::ClassAd& response, CondorError& err)
+int requestLocalCache(const std::string &cached_server, const std::string &cached_name, compat_classad::ClassAd& response, CondorError& err)
 	\end{lstlisting}
 	\caption{Function to Request a Replica of the Cache}
 	\label{fig:requestlocalcall}
 \end{figure}
 
-The function \texttt{requestLocalCache} asks the CacheD you are communicating with to replicate the cache to itself.  It may respond with several options:
+The most important function, \texttt{requestLocalCache}, asks the CacheD you are communicating with to replicate the cache to itself.  It may respond with several options:
 
 \begin{description}
 	\item[\texttt{OK}:] The cache will be replicated.  The current status of the replication is in the \texttt{CacheState} attribute of the returned ClassAd \texttt{Reponse}.
-	\item[\texttt{WAIT}:] If the CacheD has not decided whether or not to accept the cache, it can send a \texttt{WAIT} signal to the requester to ask again after some delay.
+	\item[\texttt{WAIT}:] If the CacheD has not decided whether or not to accept the cache, it can send a \texttt{WAIT} signal to the requester to ask again after some delay.  The client may determine the appropriate delay.
 	\item[\texttt{REJECTED}:] If the CacheD has decided, through the policy language described in Chapter \ref{chapter:campusstoragepolicylanguage}, to not replicate the cache, the CacheD will respond with \texttt{REJECTED}
 \end{description}
 
@@ -360,7 +360,7 @@ The BLAST database distributed with the benchmark is 3 GB a subset of the Nucleo
 
 For researchers, the time to results is likely the most important metric.  The stage-in time of data can be a large component of the entire workflow time.  We will measure the time for stage-ins as well as the average stage-in time.
 
-We designed two experiments that represent our experience on campus infrastructure.  In the first experiment, we will allow 100 simultaneous jobs to start at the same time and measure the average download time versus the number of distinct nodes.  This experiment also includes the download time for child caches.  We chose 100 jobs somewhat arbitrarily in order to completely fill all of the nodes we were allocated on the cluster.  
+We designed two experiments that represent our experience on campus infrastructure.  In the first experiment, we will allow 100 simultaneous jobs to start at the same time and measure the average download time versus the number of distinct nodes.  This experiment also includes the download time for child caches.  We chose 100 jobs to completely fill all of the nodes we were allocated on the cluster.  
 
 In the second experiment, we compared the total stage-in time for a variable number of jobs while the number of distinct nodes remains constant at 50.  This will show that the cache is working to eliminate transfer times when the files are already on the node.  Further, it will compare HTCondor's File Transfer method versus the CacheD's two transfer methods: BitTorrent and Direct.
 
@@ -374,7 +374,7 @@ When the number of jobs is fewer than 50, each job must download the cache since
 \end{figure}
 
 
-In the experiments, each job uses the CacheD to stage-in data to the worker nodes.  The jobs are submitted with glideins created by Bosco \cite{weitzel2014accessing}  and the Campus Factory \cite{weitzel2011campus}.  Bosco allows for remote submission to campus resources while the Campus Factory allows for on-demand glidein overlay of remote resources.  The Campus Factory was used in order to create and run glideins which, in turn, run the CacheD daemon.  Bosco was used in order to submit to multiple campus resources simultaneously.  Figure \ref{fig:cachedexperimentalsetup} shows the experimental setup.  The submit node is external to the cluster Crane.
+In the experiments, each job uses the CacheD to stage-in data to the worker nodes.  The jobs are submitted with glideins created by Bosco \cite{weitzel2014accessing}  and the Campus Factory \cite{weitzel2011campus}, as covered in Chapter \ref{chapter:campusjobs}.  Bosco allows for remote submission to campus resources while the Campus Factory allows for on-demand glidein overlay of remote resources.  The Campus Factory was used in order to create and run glideins which, in turn, run the CacheD daemon.  Bosco was used in order to submit to multiple campus resources simultaneously.  Figure \ref{fig:cachedexperimentalsetup} shows the experimental setup.  The submit node is external to the cluster Crane.
 
 These two experiments were conducted on a production cluster at the Holland Computing Center at the University of Nebraska--Lincoln (UNL).
 
