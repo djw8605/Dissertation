@@ -307,7 +307,7 @@ One example policy is to ban BitTorrent at certain OSG sites.  This policy is us
 
 \begin{lstlisting}
 Requirements = (MY.DiskUsage < TARGET.TotalDisk) && (TARGET.CacheRequested =?= true)
-ReplicationMethods = ifThenElse(regexp(".*.bnl.edu$", TARGET.Name), "DIRECT", "BITTORRENT,DIRECT")
+ReplicationMethods = ifThenElse(regexp(".*.bnl.gov$", TARGET.Name), "DIRECT", "BITTORRENT,DIRECT")
 \end{lstlisting}
 
 The \texttt{Requirements} are similar to previous policies.  The \texttt{ReplicationMethods} uses the \texttt{ifThenElse} ClassAd function in order determine which replication method to use.  It uses a regular expression to determine if the target CacheD is from BNL.  It tests if the \texttt{Name} ends with the domain name of the \texttt{bnl.edu}, the domain for BNL.  If it does match, then the Direct method is chosen.  If the \texttt{Name} does not match \texttt{bnl.edu}, then both BitTorrent and Direct methods are allowed.
