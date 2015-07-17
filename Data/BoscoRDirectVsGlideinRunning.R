@@ -102,7 +102,7 @@ p2 <- ggplot(shortdata, aes(x=time, y=running, colour=method, group=method)) +
   ylab("Running")
   
 
-multiplot(p1, p2)
+multiplot(p2, p1)
 #library(grid)
 #library(gridExtra)
 #grid.arrange(p1, p2, ncol=1)

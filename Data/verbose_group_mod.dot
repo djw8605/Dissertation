@@ -1,15 +1,15 @@
 digraph {
 "Node A" -> "Node D"[label="5.3GiB",weight="5717196",penwidth=3];
-"Node B" -> "Node D"[label="2.2GiB",weight="2407972",penwidth=3];
-"Node C" -> "Node D"[label="2.0GiB",weight="2124267",penwidth=3];
-"Node D" -> "Node C"[label="544.0KiB",weight="557",penwidth=1];
-"Node A" -> "Node C"[label="8.2GiB",weight="8809152",penwidth=3];
-"Node B" -> "Node C"[label="6.0MiB",weight="6307",penwidth=2];
-"Cache Origin" -> "Node C"[label="6.0GiB",weight="6486130",penwidth=3];
-"Node D" -> "Node B"[label="232.5MiB",weight="243761",penwidth=2];
-"Node C" -> "Node B"[label="13.6GiB",weight="14576467",penwidth=3];
+"Node C" -> "Node D"[label="2.2GiB",weight="2407972",penwidth=3];
+"Node B" -> "Node D"[label="2.0GiB",weight="2124267",penwidth=3];
+"Node D" -> "Node B"[label="544.0KiB",weight="557",penwidth=1];
+"Node A" -> "Node B"[label="8.2GiB",weight="8809152",penwidth=3];
+"Node C" -> "Node B"[label="6.0MiB",weight="6307",penwidth=2];
+"Cache Origin" -> "Node B"[label="6.0GiB",weight="6486130",penwidth=3];
+"Node D" -> "Node C"[label="232.5MiB",weight="243761",penwidth=2];
+"Node B" -> "Node C"[label="13.6GiB",weight="14576467",penwidth=3];
 "Node D" -> "Node A"[label="144.0KiB",weight="147",penwidth=1];
-"Node C" -> "Node A"[label="6.0GiB",weight="6419152",penwidth=3];
+"Node B" -> "Node A"[label="6.0GiB",weight="6419152",penwidth=3];
 "Cache Origin" -> "Node A"[label="8.4GiB",weight="9000894",penwidth=3];
 "Node D" -> "Node E"[label="5.3GiB",weight="5728600",penwidth=3];
 }
