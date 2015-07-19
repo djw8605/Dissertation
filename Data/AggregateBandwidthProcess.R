@@ -1,5 +1,6 @@
 
 library(XLConnect)
+library(ggplot2)
 
 setwd("~/Dropbox/Dissertation/Document/Data")
 
@@ -40,7 +41,7 @@ p <- ggplot(campusmerged, aes(x=Time, y=Bandwidth, group=type, colour=type)) +
   geom_abline(intercept = 1, slope = 0)
 
 p
-ggsave("~/Dropbox/Dissertation/Document/data/CampusAggregate.pdf", width=5, height=6)
+ggsave("~/Dropbox/Dissertation/Document/data/CampusAggregate.pdf")
 
 osgp <- ggplot(osgmerged, aes(x=Time, y=Bandwidth, group=type, colour=type)) +
   geom_line(size=1.5) +
@@ -57,7 +58,7 @@ osgp <- ggplot(osgmerged, aes(x=Time, y=Bandwidth, group=type, colour=type)) +
   geom_abline(intercept = 1, slope = 0)
 
 osgp
-ggsave("~/Dropbox/Dissertation/Document/data/OSGAggregate.pdf", width=5, height=6)
+ggsave("~/Dropbox/Dissertation/Document/data/OSGAggregate.pdf")
 
   #scale_x_continuous(labels = minute_format(), breaks=xbreaks) +
   #scale_y_continuous(labels = minute_format(), breaks=ybreaks) + 
