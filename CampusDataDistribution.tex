@@ -157,7 +157,7 @@ The CacheD supports multiple different forms of transferring data.  Using HTCond
 An important concept of the caching framework is a cache originator.  The original daemon that the user uploaded their input files to is the cache originator.  The cache originator is in charge of distributing replication requests to potential nodes, as well as providing the cached files when requested.
 
 % Talk about the transfer plugin
-In addition to the CacheD, a transfer plugin is used to perform the cache transfers in the job's sandbox.  The plugin uses an API to communicate with the local CacheD to request local replication requests to the local host.  After the cache is transferred locally, the plugin then downloads the cache to the job's working directory.
+In addition to the CacheD, a transfer plugin is used to perform the cache transfers in the job's sandbox.  The plugin uses an API to communicate with the local CacheD to send local replication requests to the local host.  After the cache is transferred locally, the plugin then downloads the cache to the job's working directory.
 
 Expiration time is used for simple cache eviction.  A user creates a cache with a specific expiration time.  After a cache has expired, a caching server may delete it to free space for other caches.  The expiration may be requested to be extended by the user.
 
