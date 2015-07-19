@@ -4,7 +4,7 @@
 *.bbl
 *.blg
 *.out
-*.pdf
+DerekWeitzel*.pdf
 *.dvi
 !images/*.pdf
 !BoscoRImages/*.pdf

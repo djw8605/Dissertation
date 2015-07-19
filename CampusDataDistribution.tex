@@ -539,12 +539,14 @@ While running the CacheD experiments, the average aggregate bandwidth for transf
 	\centering
 	\includegraphics[width=0.8\textwidth]{data/CampusAggregate.pdf}
 	\caption{Campus Aggregate Bandwidth Showing the Source Node's 1 Gbps Connection}
+	\label{fig:campusaggregate}
 \end{figure}
 
 \begin{figure}
 	\centering
 	\includegraphics[width=0.8\textwidth]{data/OSGAggregate.pdf}
 	\caption{OSG Aggregate Bandwidth Showing the Source Node's 1 Gbps Connection}
+	\label{fig:osgaggregate}
 \end{figure}
 
 %\begin{figure*}[h!t]
@@ -564,11 +566,11 @@ While running the CacheD experiments, the average aggregate bandwidth for transf
 %	
 %\end{figure*}
 
-The aggregate bandwidth shown in Figure \ref{fig:aggregatebandwidthcached} is calculated from the historical logs of the experimental runs.  For each transfer, the average bandwidth is assumed to start at the transfer start time and end at the transfer end time.  Then, each of these transfers is overlaid on top of each other.  Each of the graphs in the Figure are a single experimental run, but are typical for the transfers.  The origin server's available bandwidth is also shown on the graphs as a horizontal line at 1 Gbps.
+The aggregate bandwidth shown in Figures \ref{fig:campusaggregate} and \ref{fig:osgaggregate} is calculated from the historical logs of the experimental runs.  For each transfer, the average bandwidth is assumed to start at the transfer start time and end at the transfer end time.  Then, each of these transfers is overlaid on top of each other.  Each of the graphs in the Figure are a single experimental run, but are typical for the transfers.  The origin server's available bandwidth is also shown on the graphs as a horizontal line at 1 Gbps.
 
-From Figure \ref{fig:aggregatebandwidthcached}, one can see the difference between the different transfer methods.  The Campus Direct method in Figure \ref{fig:aggregatecampusdirect} has the lowest aggregate bandwidth of all of the transfer methods, while BitTorrent on the campus in Figure \ref{fig:aggregatecampusbittorrent} has the highest.  The campus BitTorrent method provides 12 times the available bandwidth of the origin server.  This can be attributed to servers in the cluster distributing data between with the BitTorrent protocol without transferring it from the origin server.  Using the Direct method, the CacheD must transfer the data from either the origin or a parent on the local node.
+From Figure \ref{fig:campusaggregate}, one can see the difference between the different transfer methods.  The Campus Direct method in has the lowest aggregate bandwidth of all of the transfer methods, while BitTorrent on the campus has the highest.  The campus BitTorrent method provides 12 times the available bandwidth of the origin server.  This can be attributed to servers in the cluster distributing data between with the BitTorrent protocol without transferring it from the origin server.  Using the Direct method, the CacheD must transfer the data from either the origin or a parent on the local node.
 
-For the two OSG transfer methods, Figures \ref{fig:aggregateosghttp} and \ref{fig:aggregateosgbittorrent}, one can see that the HTTP method almost reaches the same aggregate bandwidth as the BitTorrent method, nearly 10Gbps.  Both transfer methods have long tails after a large peak in transfer speed.  But the BitTorrent method maintains the peak of transfer speed until roughly 1200 seconds into the transfer.  The HTTP method's peak drops significantly before 800 seconds into the transfer.  The HTTP also has significant transfers yet to be completed, hence the not only long tail, but high transfer speed of the tail.  Upon further investigation, the HTTP performance differed significantly between sites.  Table \ref{tbl:transferspeedsites} shows the transfer speeds of sites in the same run.
+For the two OSG transfer methods, Figure \ref{fig:osgaggregate}, one can see that the HTTP method almost reaches the same aggregate bandwidth as the BitTorrent method, nearly 10Gbps.  Both transfer methods have long tails after a large peak in transfer speed.  But the BitTorrent method maintains the peak of transfer speed until roughly 1200 seconds into the transfer.  The HTTP method's peak drops significantly before 800 seconds into the transfer.  The HTTP also has significant transfers yet to be completed, hence the not only long tail, but high transfer speed of the tail.  Upon further investigation, the HTTP performance differed significantly between sites.  Table \ref{tbl:transferspeedsites} shows the transfer speeds of sites in the same run.
 
 \begin{table}[h!t]
 	\centering
