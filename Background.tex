@@ -4,7 +4,7 @@
 \section{Batch Systems and Grids}
 
 
-Several batch systems and grid schedulers are able to schedule tasks on execution resources.  Examples of cluster schedulers that are frequently used are PBS \cite{pbstorque}, \mbox{HTCondor} \cite{litzkow1988condor}, and Slurm \cite{yoo2003slurm}.  Each scheduler is capable of resource management within a single administrative domain.  Each of these resource managers has a very limited ability to send processing to remote resources, which are typically under a separate administrative domain.  PBS and Slurm can send jobs between clusters that run the same schedulers.  HTCondor also has the ability to send processing to other clusters running HTCondor, and it can also transform jobs to the language of other schedulers such as PBS and Slurm.
+Several batch systems and grid schedulers are able to schedule tasks on execution resources.  Examples of cluster schedulers that are frequently used are PBS \cite{pbstorque}, \mbox{HTCondor} \cite{litzkow1988condor}, LSF \cite{computinglsf},  and Slurm \cite{yoo2003slurm}.  Each scheduler is capable of resource management within a single administrative domain.  Each of these resource managers has a very limited ability to send processing to remote resources, which are typically under a separate administrative domain.  PBS and Slurm can send jobs between clusters that run the same schedulers.  HTCondor also has the ability to send processing to other clusters running HTCondor, and it can also transform jobs to the language of other schedulers such as PBS and Slurm.
 
 % Talk about grids
 \subsection{HTCondor}
@@ -19,9 +19,9 @@ Another component of HTCondor is the grid computing agent HTCondor-G \cite{frey2
 
 HTCondor categorizes jobs by \texttt{universe}.  A \texttt{universe} in HTCondor specifies how the job should be handled.  The simplest example is the \texttt{vanilla} \texttt{universe}.  In this \texttt{universe}, the job is handled as a single executable, with input and output, that will exit when the job has completed.  When the \texttt{universe} is \texttt{grid}, this means that the job will be translated to another submission method.  The other submission methods could be a Globus submission, or as used in this dissertation, a PBS or Slurm job submission.
 
-Commonly used HTCondor daemons and their functions are described in Table \ref{table:condordaemons}.
+Commonly used HTCondor daemons and their functions are listed in Table \ref{table:condordaemons}.
 
-\begin{table}
+\begin{table}[h!t]
 	\centering
 	\begin{tabular}{| l | l |}
 		\hline
@@ -37,7 +37,7 @@ Commonly used HTCondor daemons and their functions are described in Table \ref{t
 \end{table}
 
 \subsection{Open Science Grid}
-One example of a grid is the Open Science Grid (OSG) \cite{pordes2007open}. The OSG is a national cyber infrastructure consortium that provides dedicated and opportunistic use of computation and storage resources consisting of nationally distributed universities and national laboratories. The OSG provides infrastructure, services, software, and engagement to the users.  
+One example of a grid is the Open Science Grid (OSG) \cite{pordes2007open}. The OSG is a national cyber infrastructure consortium that provides dedicated and opportunistic use of computational and storage resources located at nationally distributed universities and national laboratories. The OSG provides infrastructure, services, software, and engagement to the users.  
 
 The OSG Production Grid provides a common interface to computing and storage resources. Globus or HTCondor provide an interface to the computing resources, while the Storage Resource Manager (SRM)/GridFTP provide an interface to the storage.  Access to resources is provided by an OSG client.  Globus, HTCondor, and SRM/GridFTP were developed by consortium members and are included in the OSG packaging.
 
@@ -74,7 +74,7 @@ GlideinWMS does have a few drawbacks.  GlideinWMS uses an external factory that 
 
 
 An example of an existing campus grid is the Grid Laboratory of Wisconsin's campus grid.  The Grid Laboratory of Wisconsin (GLOW) \cite{gridworkshopweb, glowwebsite} is a grid at the University of Wisconsin at Madison.  GLOW uses Condor to distribute 
-jobs on their campus grid.  A diagram of the campus grid is shown in Figure \ref{fig:GLOWCampus}.  When the user submits a job, it first attempts to run at the local HTCondor cluster.  If the local cluster is unable to meet the demands of the user's jobs, then it attempts to run at HTCondor clusters at the University of Wisconsin.  If they do not meet the demands of the user, the jobs may then run at Purdue's DiaGrid, a site wide grid of HTCondor clusters.
+jobs on their campus grid.  A diagram of the campus grid is shown in Figure \ref{fig:GLOWCampus}.  When the user submits a job, it first attempts to run at the local HTCondor cluster.  If the local cluster is unable to meet the demands of the user's jobs, then it attempts to run at HTCondor clusters at the University of Wisconsin.  If they do not meet the demands of the user, the jobs may then run at Purdue's DiaGrid, a regional grid of HTCondor clusters.
 
 Security at the GLOW campus Grid is based on IP whitelisting.  While there is a central 
 team available to assist with management, each resource is free to define its own policies and priorities for local 
@@ -116,9 +116,9 @@ The GLOW campus grid is not able to expand to outside resources due to their rel
 
 %There have been previous policy frameworks for distributed storage.  These frameworks have largely been designed to move data between a few large filesystems.  Therefore, the interactions are rare but could make significant changes to the system.  In contrast, the CacheDs have frequent interactions with other agents, but each one has a minimal impact on the entire system.
 
-The previous discussion primarily concerned access to computational resources.  Data management is a further challenge for distributed computing.  For this dissertation, data management can be broken down into three categories: storage systems, transfer protocols, and high level services.  Storage systems provide access to the underlying data storage.  Transfer protocols provide a method to transfer data between storage systems.  And high level services provide data management services on top of the file systems, such as data life cycle management, data placement, meta-data storage, and search capabilities.
+The previous discussion primarily concerned access to computational resources.  Data management is a further challenge for distributed computing.  For this dissertation, data management can be broken down into three categories: storage systems, transfer protocols, and high level services.  Storage systems provide access to the underlying data storage.  Transfer protocols provide a method to exchange data between storage systems.  High level services provide data management services on top of the file systems, such as data life cycle management, data placement, meta-data storage, and search capabilities.
 
-An example of a data management service is the integrated Rule-Oriented Data System iRODS \cite{rajasekar2010irods}.  It provides meta-data storage, querying, and rule-based placements.  It can perform transfers to storage resources.  When given input, iRODS also has the capability to create rules and take actions on data.  It creates a small policy framework that upon certain actions, can execute micro-services.  Our framework is designed for frequent interaction between many agents acting independently.  The rules for iRODS can be large and cumbersome for simple data replication.  Further, to do anything substantial with the rules, custom code must be written.
+An example of a data management service is the integrated Rule-Oriented Data System iRODS \cite{rajasekar2010irods}.  It provides meta-data storage, querying, and rule-based placements.  It can perform transfers to storage resources.  When given input, iRODS also has the capability to create rules and take action on data.  It creates a small policy framework that, upon certain actions, can execute micro-services.  Our framework is designed for frequent interaction between many agents acting independently.  The rules for iRODS can be large and cumbersome for simple data replication.  Further, to do anything substantial with the rules, custom code must be written.
 
 iRODS is inflexible in the presence of unreliable underlying storage.  iRODS assumes that any data stored in it is available at any time, and does not periodically check the status of the data it is storing.  This does not make iRODS a good fit for opportunistic storage, which can be unreliable.  
 
@@ -162,7 +162,7 @@ Figure \ref{fig:backgroundstorage} shows an overview of the different protocols 
 In order to illustrate the available technologies on the grid, we will begin with a common user application.  We will then describe the technologies that could enable this computing on the grid.
 
 \subsection{Use Case}
-We will focus on the use of BLAST \cite{altschul1990basic}.  BLAST workflows typically include the following files:
+We will focus on the use of a commonly used biology application, BLAST \cite{altschul1990basic}.  BLAST workflows typically include the following files:
 
 \begin{itemize}
 	\item \textbf{Executable:} The BLAST application is distributed with many executables, such as \texttt{blastp} and \texttt{blastx}.  They are run on the remote execution resources and produce output.  In this dissertation, we will be primarily using \texttt{blastp}, which searches protein sequences.
@@ -177,9 +177,7 @@ We will focus on the use of BLAST \cite{altschul1990basic}.  BLAST workflows typ
 	\label{fig:blastworkflow}
 \end{figure}
 
-Each of these files have different properties.  The executable is relatively small, often 10s of megabytes.  But identical copies are used by all executions of BLAST.  The query files are unique to each job but are typically very small, not exceeding 1 MB.  A diagram of the workflow is shown in Figure \ref{fig:blastworkflow}.
-
-The database is a large collection of proteins that is searched for each protein in the query file.  Many databases are publicly available for use in BLAST.  The most common is the non-redundant (NR) database, which is currently 50 GB and updated weekly.
+Each of these files have different properties.  The executable is relatively small, often 10s of megabytes, but identical copies are used by all executions of BLAST.  The query files are unique to each job but are typically very small, not exceeding 1 MB.  The database is a large collection of proteins that is searched for each protein in the query file.  Many databases are publicly available for use in BLAST.  The most common is the non-redundant (NR) database, which is currently 50 GB and updated weekly.  A diagram of the workflow is shown in Figure \ref{fig:blastworkflow}.
 
 \subsection{Current Approach}
 
