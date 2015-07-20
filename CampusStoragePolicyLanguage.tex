@@ -75,6 +75,23 @@ Matching of ClassAds is done by comparing attributes between two sets of ClassAd
 
 The \texttt{Requirements} attribute in Figure \ref{lst:cachedclassad} references other attributes in both the current ClassAd and the matching ClassAd.  Attributes can reference other attributes in order to form strings, lists, or boolean expressions.  In this example, the \texttt{Requirements} attribute references other attributes in order to create a boolean expression.
 
+\begin{figure}[h!t]
+	\centering
+	\includegraphics[width=0.8\textwidth]{images/ClassAdExample.png}
+	\caption{ClassAd Example Showing Usage of Requirements}
+	\label{fig:classadexample}
+\end{figure}
+
+An example of using the \texttt{Requirements} attribute is shown in Figure \ref{fig:classadexample}.  In this example, we have two ads.  A pet which describes the attributes of a dog and a buyer ad which describes the attributes of a potential buyer.  The pet ad has the requirements that the buyer is a \texttt{DogLover}.  The buyer has the requirements:
+
+\begin{itemize}
+	\item The pet must be a dog.
+	\item The pet must cost less than the money the buyer has.
+	\item The pet must be ``Large'' or ``Very Large''.
+\end{itemize}
+
+In the example, the pet ad would match the buyer ad.
+
 \subsection{Extending CacheD Attributes}
 
 % Extending policy language
