@@ -190,9 +190,9 @@ The data is managed on the cluster's shared filesystem.  The filesystem is avail
 
 Once the data is on the cluster, the user will submit the jobs to the scheduler to process the data.  The BLAST database will be copied for each and every execution to the execution resources from the cluster's shared filesystem.
 
-The user must wait for the BLAST jobs to complete before checking the results.  If the user has more BLAST jobs to process, they may submit yet more jobs to the cluster.
+The user must wait for the BLAST jobs to complete before checking the results.  If the user has more BLAST jobs to process, they may submit yet more jobs to the cluster, or to another cluster on the campus.  If the user submits to another cluster, they must re-transfer the database to that cluster, and submit the BLAST jobs.
 
-Once the computation has completed, the user will copy the output data back to their laptop for further analysis.
+Once the computation has completed, the user will copy the output data back to their laptop for further analysis.  If the user submitted to multiple cluster, they will need to copy results from each of the clusters.
 
 \subsection{Issues with Current Approach}
 
