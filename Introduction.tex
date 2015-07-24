@@ -31,7 +31,7 @@ We have enhanced my Masters thesis' solution to include:
 
 We created a framework for job submission to remote resources that the user does not control.  Typical grid submission uses custom interfaces such as the Globus Resource Allocation Manager (GRAM) \cite{foster1999globus}, which is previously installed by an administrator.  We assume resources do not have such dedicated grid software installed.  This framework does not require administrator intervention for remote submission to opportunistic resources, since it uses interfaces that are installed on nearly all clusters that are typically used for interactive access.  It automates the submission and error handling of jobs submitted to remote resources, while providing the user a consistent interface over multiple, load-balanced clusters.
 
-The new framework is named Bosco \cite{weitzel2014accessing}.  It uses secure protocols to connect to remote clusters in order to transfer files and submit/monitor jobs.  Installation of Bosco on remote clusters and the submit host has been automated with simple tools.  Clusters with restrictive firewalls are supported by multiplexing operations through a single secure connection.  Furthermore, many cluster schedulers are supported by the underlying technology.  A diagram of the architecture of Bosco is shown in Figure \ref{fig:introboscoarch}.
+The new framework is named Bosco \cite{weitzel2014accessing}.  It uses secure protocols to connect to remote clusters in order to transfer files and submit, and monitor, jobs.  Installation of Bosco on remote clusters and the submit host has been automated with simple tools.  Clusters with restrictive firewalls are supported by multiplexing operations through a single secure connection.  Furthermore, many cluster schedulers are supported by the underlying technology.  A diagram of the architecture of Bosco is shown in Figure \ref{fig:introboscoarch}.
 
 \begin{figure}[h!t]
 	\centering
@@ -40,7 +40,7 @@ The new framework is named Bosco \cite{weitzel2014accessing}.  It uses secure pr
 	\label{fig:introboscoarch}
 \end{figure}
 
-Bosco, in coordination with technologies in HTCondor, enable a job distribution method which is provisioned based on demand.  A default Bosco installation is able to submit to one local cluster.  If that cluster does not meet the user's computational needs, then Bosco can be configured to submit to multiple clusters with load balancing between them.  If the user's computational needs are still not met with multiple clusters, they can configure Bosco to submit resource requests to national cyberinfrastructure such as the Open Science Grid (OSG) \cite{pordes2007open}.  The provisioning capabilities of Bosco create an ever expanding network of available resources. The goal is to provide an expanding network of resources as shown in Figure \ref{fig:boscogrowing}.
+Bosco, in coordination with technologies in HTCondor, enables a job distribution method which is provisioned based on demand.  A default Bosco installation is able to submit to one local cluster.  If that cluster does not meet the user's computational needs, then Bosco can be configured to submit to multiple clusters with load balancing between them.  If the user's computational needs are still not met with multiple clusters, they can configure Bosco to submit resource requests to national cyberinfrastructure such as the Open Science Grid (OSG) \cite{pordes2007open}.  The provisioning capabilities of Bosco create an ever expanding network of available resources. The goal is to provide an expanding network of resources as shown in Figure \ref{fig:boscogrowing}.
 
 \begin{figure}[h!t]
 	\centering
@@ -51,7 +51,7 @@ Bosco, in coordination with technologies in HTCondor, enable a job distribution 
 
 In order to ease access to Bosco for data processing, an interface has been developed in the most widely used data processing language, R.  This BoscoR framework enables users to never leave their R environment in order to start remote data processing.
 
-But Bosco is not designed to be enough for researchers that have large data requirements.  Input and output data are explicitly listed by the user.  The data is transferred over the secure, but slow, connection between the submitter and resource for every job.  Therefore, we must consider data and storage management on the campus grid.
+Nonetheless, Bosco is not designed to be enough for researchers that have large data requirements.  Input and output data are explicitly listed by the user.  The data is transferred over the secure, but slow, connection between the submitter and resource for every job.  Therefore, we must consider data and storage management on the campus grid.
 
 
 %Most major research campuses, whether a university campus, or a national lab campus, have a research computing resource.  The computing resources are broken into two categories:
@@ -69,7 +69,7 @@ But Bosco is not designed to be enough for researchers that have large data requ
 
 \section{Data Management on Campus}
 
-There are many challenges in data management and distribution in scientific computing \cite{deelman2008data}.  For batch computing, one challenge is transferring the data from the user's computer to the execution resources.  Large data workflows can strain the network near the data's source, which can result in unreasonable amounts of batch time used solely for data transfer.
+There are many challenges in data management and distribution in scientific computing \cite{deelman2008data}.  For batch computing, one challenge is transferring the data from the user's computer to the execution resources.  Large data workflows can strain the network near the data's source, which can result in unreasonable amounts of time used solely for data transfer.
 
 Data management is the framework and policies controlling data through the research cycle.  In this dissertation, we are concerned with optimizing data management when using campus computational resources.
 
@@ -80,9 +80,7 @@ These assumptions do not hold for a campus grid.  A grid is made up of multiple 
 
 Most distributed batch schedulers are able to transfer the input data for each job execution.  Each job starts with an empty execution area and the scheduler will transfer the files into it.  When the user is not using the scheduler to transfer data, the input data must still reach the execution host.  Data will be transferred from the source (usually the user's computer) to the execution resources for processing.  The network connection between the source and the execution resources may be a bottleneck for the computation.  Frequent re-transfers of the same input data will further congest the network between the source and the execution resources.
 
-In this dissertation, we optimized two attributes of distributed data management: efficient transfer methods and reduction of duplicate transfers.
-
-We introduce the CacheD \cite{weitzel2015pdpta}, a caching and data transfer daemon for input data in distributed computing.  The CacheD uses novel data management methods based on technology developed for large peer-to-peer data transfers on the Internet, BitTorrent.  It also caches input data on the execution resources to enable quick transfers on subsequent requests for the same input data.
+In this dissertation, we optimized two attributes of distributed data management: efficient transfer methods and reduction of duplicate transfers.  We introduce the CacheD \cite{weitzel2015pdpta}, a caching and data transfer daemon for input data in distributed computing.  The CacheD uses novel data management methods based on technology developed for large peer-to-peer data transfers on the Internet, BitTorrent.  It also caches input data on the execution resources to enable quick transfers on subsequent requests for the same input data.
 
 Similar to the work with Bosco, the CacheD does not require privileged access in order to provision storage resources.  It can use the storage on worker nodes spread across multiple clusters as a data input caching system.
 
@@ -92,7 +90,7 @@ Users of grid submission software currently have to describe how their files wil
 
 This policy language must help the CacheD make decisions when interacting with other agents, such as other CacheDs or the local node.  We discuss extending this policy language to include custom attributes that users can include to improve choices on data distribution.  The policy language utilizes the \mbox{ClassAds} \cite{raman1998matchmaking} language.  These \mbox{ClassAds} were originally developed in the context of matchmaking between computational resources and potential jobs.  ClassAds are a schema-free language for describing heterogeneous resources.  We demonstrate usage with new attributes that pertain to storage and expressions that can be evaluated to make decisions.
 
-The user must specify preferences for the cache to consider.  Examples include: where this cache should be distributed, how the cache should be distributed, and how long the cache should be stored.  Each of these preferences must be negotiated with the preferences of the CacheD that may store or is storing the cache.  The user's preferences will affect how fast the cache is transferred (different transfer methods are more efficient than others) and also, on which and how many nodes that cache should be replicated.
+The user must specify preferences for the cache to consider.  Examples include: where this cache should be distributed, how the cache should be distributed, and how long the cache should be stored.  Each of these preferences must be negotiated with the preferences of the CacheD that may store or is storing the cache.  The user's preferences will affect how fast the cache is transferred (different transfer methods are more efficient than others), and also on which, and on how many, nodes that cache should be replicated.
 
 Further, each CacheD must coordinate with one another in order to distribute the caches in an efficient method.  Replication of caches between CacheDs must be negotiated.  Each CacheD may decide, through evaluating its own policies, whether or not to accept a cache to be stored.  These policies are again expressed in the ClassAd policy language.
 
@@ -103,7 +101,7 @@ Further, each CacheD must coordinate with one another in order to distribute the
 This dissertation describes how data intensive applications can be run in a distributed campus environment.
 
 \begin{description}
-	\item[Chapter \ref{chapter:relatedwork}:]  There are many distributed computing platforms available publicly.  In this chapter, we will discuss these schedulers and differentiate them with Bosco.  Also, we will discuss other available data management, distributed storage, and caching systems.
+	\item[Chapter \ref{chapter:relatedwork}:]  There are many distributed computing platforms available publicly.  In this chapter, we will discuss these schedulers and differentiate them from Bosco.  Also, we will discuss other available data management, distributed storage, and caching systems.
 	
 	\item[Chapter \ref{chapter:campusjobs}:] We will discuss how computing can be managed on the campus using the Bosco framework.  We will also discuss a case study of integrating Bosco with the programming language, R, in order to provide an easy-to-use interface to campus distributed computing.
 	

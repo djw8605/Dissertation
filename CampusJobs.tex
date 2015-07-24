@@ -1,7 +1,7 @@
 \label{chapter:campusjobs} 
 \section{Introduction}
 
-Campus grids are usually defined as a cluster, or a set of clusters available to researchers.  These clusters are divided either by purpose, i.e. owned by a certain group, or by hardware generations.  Users submit to a single cluster, and their jobs are eligible to run on that cluster.  We propose a framework, Bosco, to distribute jobs to multiple campus clusters transparently to the user. 
+Campus grids are usually defined as a set of clusters available to researchers.  These clusters are divided either by purpose, i.e. owned by a certain group, or by hardware generations.  Users submit to a single cluster, and their jobs are eligible to run on that cluster.  We propose a framework, Bosco, to distribute jobs to multiple campus clusters transparently to the user. 
 
 There are many challenges for researchers on campuses with multiple, distinct clusters.  For example, a researcher may not know which cluster may run their jobs the quickest.  The researcher may not be able to determine which campus cluster will start their jobs first.  Each of these challenges can force the researcher to make decisions with insufficient information that may be suboptimal and delay their workflow's time-to-completion causing costly research delays.
 
@@ -13,7 +13,7 @@ A number of different methods have been used to distribute jobs across multiple 
 
 Bosco \cite{weitzel2014accessing} is used to effortlessly create a remote submission endpoint on a cluster without requiring the administrator to install any software.  Bosco is a remote submission framework based upon HTCondor.  It uses the SSH \cite{ylonen2006secure} protocol to submit and monitor remotely submitted jobs.  Additionally, it performs file transfers using the same SSH connection as the submission.
 
-Improving the user experience was a primary goal of Bosco.  We addressed the user experience by improving the interaction with the user during the installation/configuration.  Another problem area we found is when a user must debug issues with distributed software.  In order to address this, we created a traceroute \cite{mao2003towards} like utility.  The traceroute utility tests every step of the job submission process, from network access to a properly configured remote scheduler.  If an error is found at any step of the traceroute, a useful message is given to the user, including possible steps to fix the problem.
+Improving the user experience was a primary goal of Bosco.  We addressed the user experience by improving the interaction with the user during installation and configuration.  Another problem area we found is when a user must debug issues with distributed software.  In order to address this, we created a traceroute \cite{mao2003towards} like utility.  The traceroute utility tests every step of the job submission process, from network access to a properly configured remote scheduler.  If an error is found at any step of the traceroute, a useful message is given to the user, including possible steps to fix the problem.
 
 
 
@@ -347,7 +347,7 @@ Figure \ref{fig:runningjobs} illustrates how the glidein submission method is su
 For the shorter 100-second jobs, the start rate begins nearly the same, but then Bosco and Slurm are unable to sustain the job start rate.  Since the jobs only run for 100 seconds, the overhead from Bosco submission and Slurm starting the jobs becomes a bottleneck.  Bosco is only able to sustain roughly 50 jobs running on the cluster.  On the other hand, the glidein submission method continues to grow in the number of jobs running.  This is due to eliminating the Bosco submission overhead, as well as the Slurm scheduling overhead.  Instead, the glidein method is utilizing the much more efficient HTCondor scheduler, which is able to start jobs much faster than the Slurm scheduler.  We can conclude that the glidein submission method results in a shorter total workflow execution time for shorter R functions.
 
 
-\subsection{Conclusion}
+\subsection{BoscoR Conclusion}
 
 BoscoR is a framework to execute R functions on distributed resources.  It is a simple method for users to distribute processing to remote resources.  BoscoR incorporated user feedback in order to improve the framework.
 
@@ -365,7 +365,7 @@ During follow up interviews with users after using BoscoR, we received many posi
 I have a huge set of data, which I have to split into pieces to be handled by each node.  This is something I can do with the ``grid.apply'' function. This reduces the submit time from several hours, to several seconds... it is a  phenomenal improvement. This will greatly increase my use of grid computing, as right now, I only use grid computing when I have no other choice.
 \end{quote}
 
-The experimental testing we ran showed that glidein submission method is significantly better at running short R functions than the direct submission method.  At longer job runtimes, the difference between direct and glidein submission to remote resources is negligible.
+The experimental testing we ran showed that the glidein submission method is significantly better at running short R functions than the direct submission method.  At longer job runtimes, the difference between direct and glidein submission to remote resources is negligible.
 
 
 
@@ -374,17 +374,13 @@ The experimental testing we ran showed that glidein submission method is signifi
 
 \section{Conclusion}
 
-Bosco and the Campus Factory combine to make an easy-to-use framework that can distribute jobs to many computational clusters on a campus.  Users are able to effectively distribute their processing to multiple clusters using this framework.  In this section, we showed that Bosco transparently and effectively distributes computational jobs across multiple clusters on a campus, while maintaining simple usage for users.
-
-Using Bosco as a foundation, we were able to create an interface from the R programming language called BoscoR.  This interface proved simple for users to use.  
+In this section, we showed that Bosco transparently and effectively distributes computational jobs across multiple clusters on a campus, while maintaining simple usage for users.  Using Bosco as a foundation, we were able to create an interface from the R programming language called BoscoR.  This interface proved straight forward for users to use.  
 
 During the evaluation of BoscoR, it was demonstrated that the direct submission method is slower for quick jobs than the glidein submission method.  For longer jobs, there is almost no difference between direct and glidein jobs.
 
-Bosco's usage has increased since we originally published the Bosco paper.  For example, it is heavily used by the University of Chicago in order to submit OSG processing to opportunistic resources around the country.  They find Bosco useful since it does not require the installation of any software on the remote cluster.
+Bosco's usage has increased since we originally published the Bosco paper.  For example, it is heavily used by the University of Chicago in order to submit OSG processing to opportunistic resources around the country.  They find Bosco useful since it does not require the installation of any software on the remote cluster.  Additionally, the CMS experiment has used Bosco to access opportunistic resources around the world, and they have published several papers on the subject \cite{hufnagelcmsopportunistic, piperovoperationalchep15, wagner2013using, kreuzer2014opportunistic}.
 
-Additionally, the CMS experiment has used Bosco to access opportunistic resources around the world, and they have published several papers on the subject \cite{hufnagelcmsopportunistic, piperovoperationalchep15, wagner2013using, kreuzer2014opportunistic}.
-
-If the user's workflow requires significant data, it may be inefficient to use Bosco's transfer mechanisms which are bottlenecked by the transfer speed of the Bosco submit host.  It is expected that large datasets will not be an efficient use of Bosco.  Therefore, the framework to efficiently transfer data, discussed in Chapter \ref{chapter:campusdatadistribution}, that will complement Bosco's overlay network is needed.
+If the user's workflow requires significant data, it may be inefficient to use Bosco's transfer mechanisms which are bottlenecked by the transfer speed of the Bosco submit host.  It is expected that large datasets will not be an efficient use of Bosco.  Therefore, the framework to efficiently transfer data, discussed in Chapter \ref{chapter:campusdatadistribution}, is needed to complement Bosco's overlay network.
 
 
 

@@ -6,16 +6,16 @@ In this dissertation we optimized distributed computing workflows on a campus gr
 % Conclusion of BOSCO
 Bosco is used to effortlessly create a remote submission endpoint on a cluster without requiring the administrator to install any software.  Bosco is a remote submission framework based upon HTCondor.  It uses the SSH protocol to submit and monitor remotely submitted jobs.  Additionally, it performs file transfers using the same SSH connection.
 
-Improving the user experience was a primary goal of Bosco.  We addressed the user experience by improving the interaction with the user during the installation/configuration.  Another problem area we found is when a user must debug issues with distributed software.  In order to address this, we created a traceroute-like utility.  The traceroute utility tests every step of the job submission process, from network access to a properly configured remote scheduler.  If an error is found at any step of the traceroute, a useful message is given to the user, including possible steps to fix the problem.
+Improving the user experience was a primary goal of Bosco.  We addressed the user experience by improving the interaction with the user during the installation and configuration.  Another problem area we found is when a user must debug issues with distributed software.  In order to address this, we created a traceroute-like utility.  The traceroute utility tests every step of the job submission process, from network access to a properly configured remote scheduler.  If an error is found at any step of the traceroute, a useful message is given to the user, including possible steps to fix the problem.
 
-Bosco and the Campus Factory combine to make an easy-to-use framework that can distribute jobs to many computational clusters on a campus.  Users are able to effectively distribute their processing to multiple clusters using this framework.  We showed that Bosco transparently and effectively distributes computational jobs across multiple clusters on a campus, while maintaining a simple user experience.
+Bosco and the Campus Factory combine to make an easy-to-use framework that can distribute jobs to many computational clusters on a campus.  Users are able to effectively distribute their processing to multiple clusters using this framework.  We showed that Bosco transparently and effectively distributes computational jobs across multiple clusters on a campus while maintaining a simple user experience.
 
 Bosco's usage has increased since we originally published the Bosco paper.  For example, it is heavily used by the University of Chicago in order to submit OSG processing to opportunistic resources around the country.  They find Bosco useful since it does not require the installation of any software on the remote cluster.  Additionally, it has been used in several publications by the CMS experiment when they have used opportunistic resources for data processing.
 
 % Conclusion of the CacheD
 For data distribution on the campus, we have presented the HTCondor CacheD, a framework to decrease the stage-in time for large shared input datasets.  The experiments proved that the CacheD decreases stage-in time for these datasets.  Additionally, the transfer method that the CacheD used can significantly affect the stage-in time of the jobs.
 
-The BitTorrent transfer method proved to be a efficient method to transfer caches from the originator to the execution hosts.  In fact, the transfer time for jobs did not increase as the number of distinct nodes requesting the data increased.  Any bottlenecks that surround the cluster are therefore irrelevant using the BitTorrent transfer method.  In addition, we found that the CacheD using BitTorrent transfer method out-performed the popular HTTP transfer method on the Open Science Grid.
+The BitTorrent transfer method proved to be an efficient method to transfer caches from the originator to the execution hosts.  In fact, the transfer time for jobs did not increase as the number of distinct nodes requesting the data increased.  Any bottlenecks that surround the cluster are therefore irrelevant using the BitTorrent transfer method.  In addition, we found that the CacheD using BitTorrent transfer method out-performed the popular HTTP transfer method on the Open Science Grid.
 
 % Conclusion of the Policy Language
 In a distributed computing system, independent agents are designed to act on behalf of entities such as users, hosts, or entire clusters.  A policy language must exist so that the entities can express their goals to the agents.  
@@ -39,9 +39,7 @@ Debugging in Bosco has always been difficult.  To alleviate some of the debuggin
 	\label{fig:boscojobsubmitflowconclusion}
 \end{figure}
 
-In Figure \ref{fig:boscojobsubmitflowconclusion}, the Bosco job submission starts at the user, and it goes through six daemons before the submission reaches the Slurm Scheduler on the remote cluster.  An error can occur at each step in this process.  The error must propagate back to the user if there is one.  But, propagating the error is very difficult, since each daemon has different methods of internal error propagation.  For example, the GridManager can propagate an error back to the SchedD through HTCondor ClassAds.  But the BLAHP's shell portion cannot propagate an error back except through the Linux standard error.
-
-Further work needs to be done, and parts of the Bosco submission chain need to be modified or refined in order to enable improved error propagation.
+In Figure \ref{fig:boscojobsubmitflowconclusion}, the Bosco job submission starts at the user, and it goes through six daemons before the submission reaches the Slurm Scheduler on the remote cluster.  An error can occur at each step in this process.  The error must propagate back to the user if there is one.  But, propagating the error is very difficult, since each daemon has different methods of internal error propagation.  For example, the GridManager can propagate an error back to the SchedD through HTCondor ClassAds.  But the BLAHP's shell portion cannot propagate an error back except through the Linux standard error.  Further work needs to be done, and parts of the Bosco submission chain need to be modified or refined in order to enable improved error propagation.
 
 \subsection{Flexible Transfer Types}
 % Addition of transfer types, and flexible system for defining transfer methods
@@ -56,11 +54,9 @@ A possible solution is to build off of the file transfer plugins method.  An exe
 \subsection{Co-Scheduling of Data and Computation}
 
 % Scheduling jobs with CacheD
-Scheduling of jobs with the caching data could optimize job placement.  Currently, there is no knowledge of the cache placement when scheduling a job.  If the scheduler knew where replicas of the cache were located, it could schedule the jobs to be run where the replicas are located.  Running the job near the cache will eliminate stage-in time.
+Scheduling of jobs with the caching data could optimize job placement.  Currently, there is no knowledge of the cache placement when scheduling a job.  If the scheduler knew where replicas of the cache were located, it could schedule the jobs to be run in those locations.  Running the job near the cache will eliminate stage-in time.
 
-Currently, the CacheD reports each cache stored locally to the cache's origin. The origin CacheD keeps a data structure of the locations of the cache replicas.
-
-The job needs to specify which caches are required for the job to run.  The scheduler would then call out to the origin CacheD to see if the cache is located at the target node.  This could be done using the HTCondor ClassAd library plugins.
+Currently, the CacheD reports each cache stored locally to the cache's origin. The origin CacheD keeps a data structure of the locations of the cache replicas.  However, the job needs to specify which caches are required for the job to run.  The scheduler would then call out to the origin CacheD to see if the cache is located at the target node.  This could be done using the HTCondor ClassAd library plugins.
 
 % Not only where the cache is, but with the policy language, we can guess where the job will be.
 
@@ -68,7 +64,7 @@ The job needs to specify which caches are required for the job to run.  The sche
 
 Bosco and the HTCondor CacheD were designed to make distributed computing on the campus easy to use.  Additionally, they should increase the productivity of researchers performing distributed computing.
 
-It is difficult to measure the increase in productivity of researchers.  A survey could be performed to aggregate the opinions of researchers in regards to Bosco and CacheD.  Additionally, we could measure how long it takes researchers to begin with a local application, and convert it to run on the campus's distributed resources.  Measuring this would provide a method to quantify that Bosco and CacheD increase the productivity of their users.
+It is difficult to measure the increase in productivity of researchers.  A survey could be performed to aggregate the opinions of researchers in regards to Bosco and CacheD.  Additionally, we could measure how long it takes researchers to begin with a local application and convert it to run on the campus's distributed resources.  Measuring this would provide a method to quantify that Bosco and CacheD increase the productivity of their users.
 
 
 

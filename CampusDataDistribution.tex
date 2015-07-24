@@ -22,7 +22,7 @@
 
 Large input datasets are becoming common in scientific computing.  Unfortunately for campus researchers, the staging time of the datasets to computational resources has increased along with dataset sizes.  The typical large dataset workflow may consist of thousands of individual jobs, each sharing input files.
 
-In the Background, Section \ref{sec:currentapproach}, we described a common application, BLAST.  Figure \ref{fig:blastworkflowdata} shows the input and output of the BLAST application.
+
 
 \begin{figure}
 	\centering
@@ -31,9 +31,9 @@ In the Background, Section \ref{sec:currentapproach}, we described a common appl
 	\label{fig:blastworkflowdata}
 \end{figure}
 
-Each BLAST query requires an entire reference database, which can range in size from a few kilobytes to many gigabytes.  The workflow to run a BLAST query requires a large stage-in time in order to make the reference database available.  Additionally, the databases are frequently updated with new entries.
+In the Background, Section \ref{sec:currentapproach}, we described a common application, BLAST.  Figure \ref{fig:blastworkflowdata} shows the input and output of the BLAST application.  Each BLAST query requires an entire reference database, which can range in size from a few kilobytes to many gigabytes.  The workflow to run a BLAST query requires a large stage-in time in order to make the reference database available.  Additionally, the databases are frequently updated with new entries.
 
-Users in the past have copied the database using various methods.  The na\"{i}ve method includes copying the database for each job.  Storing the database on a shared filesystem has the same effect as copying the database for each job, since the database must be transferred to the execution node for each job.  This may reduce the effective parallelism of the users' jobs, because only as many can run at one time as have managed to squeeze their input data through the network bottleneck.  We find that the BLAST workflow described above is common among large data researchers.
+Users in the past have copied the database using various methods.  The na\"{i}ve method includes copying the database for each job.  Storing the database on a shared filesystem has the same effect as copying the database for each job, since the database must be transferred to the execution node for each job.  This may reduce the effective parallelism of the users' jobs, because only as many as have managed to squeeze their input data through the network bottleneck can run at one time.  We find that the BLAST workflow described above is common among large data researchers.
 
 Our goal is to minimize the number of times the input data is transferred from source to the execution resource by introducing the concept of shared data and prestaging this data to nodes.  The primary concern for our use case is the cost of delivering input data over the network.  Although reducing network usage alone is not guaranteed to increase computational throughput, it is part of the solution.
 
@@ -46,7 +46,7 @@ Our goal is to minimize the number of times the input data is transferred from s
 
 
 
-Additionally, the campus resources made available to researchers are shared; therefore, the researchers have the limitation of not having access to install programs on the clusters.  In Chapter \ref{chapter:campusjobs}, Bosco \cite{weitzel2014accessing}, built an overlay on top of campus resources to create a virtual, on-demand pool of resources for task execution.  We expand the capabilities of this virtual pool to include data caching and novel transfer methods to enable big data processing.
+Additionally, the campus resources made available to researchers are shared; therefore, the researchers may have the limitation of not having access to install programs on the clusters.  In Chapter \ref{chapter:campusjobs}, Bosco \cite{weitzel2014accessing} built an overlay on top of campus resources to create a virtual, on-demand pool of resources for task execution.  We expand the capabilities of this virtual pool to include data caching and novel transfer methods to enable big data processing.
 
 %Each node in the virtual pool will run multiple jobs, by default, all batch systems will transfer the large input file for each job.  Our goal is to minimize the number of times the input data is transferred from the submit host to the execution target.  Therefore a framework of local caching and distributed file transfer is proposed to address these situations.
 
@@ -399,7 +399,7 @@ The average download times for BitTorrent stage-ins are also shown in Figure \re
 \begin{figure}[h!t]
 \centering
 \includegraphics[width=0.8\textwidth]{images/modes_vs_downloadtimes-grayscale.png}
-\caption{Histogram of Transfers Mode vs. Download Times for a BitTorrent Workflow}
+\caption{Histogram of Transfer Modes vs. Download Times for a BitTorrent Workflow}
 \label{fig:histmethod}
 % probe-output.03.13.2015.2
 \end{figure}
@@ -463,7 +463,7 @@ To test on the Open Science Grid, Bosco was connected to the Holland Computing C
 \begin{figure}[ht]
 	\centering
 	\includegraphics[width=\textwidth]{images/OSGDaemonLayout.pdf}
-	\caption{OSG Daemon Locations, Described Below}
+	\caption{OSG Daemon Locations}
 	\label{fig:osgdaemonlayoutcached}
 \end{figure}
 
@@ -523,7 +523,7 @@ We can also compare all of the transfer methods across both the campus and OSG e
 
 \begin{figure}[h!t]
 \includegraphics[width=\textwidth]{images/ViolinPlot.pdf}
-\caption{Violin Plot of the Transfer Speed Comparing Transfer Speeds}
+\caption{Violin Plot of the Transfer Speed Comparing Transfer Protocols}
 \label{fig:violinplots}
 \end{figure}
 
@@ -645,13 +645,13 @@ We have presented the HTCondor CacheD, a technique to decrease the stage-in time
 
 The BitTorrent transfer method proved to be an efficient method to transfer caches from the originator to the execution hosts.  In fact, the transfer time for jobs did not increase as the number of distinct nodes requesting the data increased.  Any bottlenecks that surround the cluster are therefore irrelevant using the BitTorrent transfer method.
 
-We investigated OSG transfers for both HTTP and BitTorrent.  We found that not all sites have equivalent HTTP caching setups.  For example, UCSD was three times faster than the second fastest site when using HTTP caching transfers.
+We investigated OSG transfers for both HTTP and BitTorrent.  We found that not all sites have equivalent HTTP caching setups.  For example, UCSD was three times faster than the second fastest site when using HTTP caching for transfers.
 
-In addition, we found that the CacheD using the BitTorrent transfer method out-performed the popular HTTP-based transfer method on the OSG.  Further investigation of slow transfers must be completed in order to further optimize the BitTorrent transfers on the OSG.  A possible solution could be to give up on the transfer after some timeout or if the transfer speed is too slow although this timeout and transfer speed thresholds would be difficult to set accurately.
+In addition, we found that the CacheD using the BitTorrent transfer method out-performed the popular HTTP-based transfer method on the OSG.  Further investigation of slow transfers must be completed in order to further optimize the BitTorrent transfers on the OSG.  A possible solution could be to give up on the transfer after some timeout or if the transfer speed is too slow, although timeout and transfer speed thresholds would be difficult to set accurately.
 
 %For caching methods that attempt to optimize per cluster access, such as HTTP proxy methods, the results would like be very similar to those shown above.  Per cluster caching still bottlenecks the transfers to a single or set of nodes near the cluster.  They are better for optimizing latency of small accesses rather than aggregate bandwidth, which is required for large input datasets.
 
-In the future, we plan to investigate incorporating job matchmaking with cache placement.  The HTCondor Negotiator could attempt to match jobs first against resources that have the input files before matching against any available computing resources.
+%In the future, we plan to investigate incorporating job matchmaking with cache placement.  The HTCondor Negotiator could attempt to match jobs first against resources that have the input files before matching against any available computing resources.
 
 
 
