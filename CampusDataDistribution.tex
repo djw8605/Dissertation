@@ -85,11 +85,11 @@ A typical Squid server at an OSG site has between 32 and 64 GB of RAM, 100 GB of
 
 
 % chirp / parrot
-Parrot \cite{thain2005parrot} is another application that will cache remote files when using certain protocols.  Parrot uses interposition \cite{thain2001multiple} to capture and interpret IO operations by an unmodified binary application.  The interposition allows Parrot to provide a transparent interface to remote data sources.  Parrot caches some of those sources such as HTTP with GROW-FS, a filesystem using HTTP.  Parrot caches an entire file to the local storage.  Parrot must download directly from the source the first time it is requested, exhausting WAN bandwidth quickly for large files.  For example, in the case of the BLAST working set, 50 GB would need to be transferred the first time the working set is requested on a node.  If 20 nodes are requesting the working set simultaneously, that equates to 1 TB, which will take who hours to transfer on a 1 Gbps connection.
+Parrot \cite{thain2005parrot} is another application that will cache remote files when using certain protocols.  Parrot uses interposition \cite{thain2001multiple} to capture and interpret IO operations by an unmodified binary application.  The interposition allows Parrot to provide a transparent interface to remote data sources.  Parrot caches some of those sources such as HTTP with GROW-FS, a filesystem using HTTP.  Parrot caches an entire file to the local storage.  Parrot must download directly from the source the first time it is requested, exhausting WAN bandwidth quickly for large files.  For example, in the case of the BLAST working set, 50 GB would need to be transferred the first time the working set is requested on a node.  If 20 nodes are requesting the working set simultaneously, that equates to 1 TB, which will take two hours to transfer on a 1 Gbps connection.
 
 
 % CernVM-FS
-CernVM-FS \cite{blomer2011cernvm} provides a filesystem over the HTTP protocol.  It integrates into the worker node system using the FUSE \cite{szeredi2010fuse} interface.  The CernVM-FS local node client caches files on the node, as well as using Squid to cache files at the site.  CernVM-FS has optimized large file caching by chunking the files into smaller files.  Neither the Squid caches nor the web servers optimally transfer large files, but they can transfer small files efficiently.  Since CernVM-FS relies on Squid, it suffers from the same cache thrashing issues when working with large working sets.  Further, CernVM-FS requires administrator access in order to install and configure, a privilege that campus users do not have.
+CernVM-FS \cite{blomer2011cernvm} provides a filesystem over the HTTP protocol.  It integrates into the worker node system using the FUSE \cite{szeredi2010fuse} interface.  The CernVM-FS local node client caches files on the node, as well as using Squid to cache files at the site.  CernVM-FS has optimized large file caching by chunking the files into smaller files.  Neither the Squid caches nor the web servers optimally transfer large files, but they can transfer small files efficiently.  Since CernVM-FS relies on Squid, it suffers from the same cache thrashing issues when working with large working sets.  Further, CernVM-FS requires administrator access to install and configure, a privilege that campus users do not have.
 
 
 % xrootd caching
@@ -110,16 +110,17 @@ XrootD & No & Yes & No & Yes
 	\end{tabular}
 	\egroup
 	\caption{Table of Capabilities for Grid Data Caching Software}
+	\label{tbl:cachingcapabilities}
 \end{table}
 
 % transfer protocols
 % HTTP
 
 % Caching in the 
-We define local caching as saving the input files on the worker node and making them available to local jobs.  Local caching is different from site caching, which is done in the OSG by Squid caches.  We define site caching as when data files are stored and available to jobs from a closer source than the original.  In most cases on the OSG, the site cache is a node inside the cluster that has both low latency and high bandwidth connections to all of the execution hosts.
+Table \ref{tbl:cachingcapabilities} compares the caching technologies discussed here.  We define local caching as saving the input files on the worker node and making them available to local jobs.  Local caching is different from site caching, which is done in the OSG by Squid caches.  We define site caching as when data files are stored and available to jobs from a closer source than the original.  In most cases on the OSG, the site cache is a node inside the cluster that has both low latency and high bandwidth connections to all of the execution hosts.  We define dataset pinning as saving the dataset for a configurable amount of time, despite any other cache eviction policies.
 
 %BitTorrent
-We use distributed transfer to mean transfers that are not from a single source.  In my case, we will be using BitTorrent \cite{cohen2008BitTorrent}, in which a client may download parts of files from multiple sources.  Additionally, the client may make available to other clients parts of the files that have already been downloaded.
+We use distributed transfer to mean transfers that are not from a single source.  In this dissertation, we will be using BitTorrent \cite{cohen2008BitTorrent}, in which a client may download parts of files from multiple sources.  Additionally, the client may make available to other clients parts of the files that have already been downloaded.
 
 BitTorrent is a transfer protocol that is designed for peer-to-peer transfers of data over a network.  It is optimized to share large datasets between peers. The authors of \cite{wei2005scheduling} and \cite{wei2007towards} discuss scheduling tasks efficiently in peer-to-peer grids and desktop grids.  Their discussion does not take into account the network bottlenecks that are prevalent in campus cluster computing, such as Network Address Translation (NAT) configurations which tunnel all outgoing traffic through a few nodes.
 
@@ -143,9 +144,7 @@ The CacheD is designed to interface with other daemons as well as the user.  The
 \end{figure}
 
 
-The CacheD follows the HTCondor design paradigm of a system of independent agents cooperating.  Each CacheD makes decisions independently of each other.  Coordination is done by CacheDs communicating and negotiating with each other.  Figure \ref{fig:daemonlayout} shows the location of daemons both on the submission host and the worker nodes.  The CacheD on the user's submit machine acts as the cache originator, discussed below.  The CacheDs on the worker nodes download the cache when requested.
-
-Each caching daemon registers with the HTCondor Collector.  The collector serves as a catalog of available cache daemons that can be used for replication.
+The CacheD follows the HTCondor design paradigm of a system of independent agents cooperating.  Each CacheD makes decisions independently of each other.  Coordination is done by CacheDs communicating and negotiating with each other.  Figure \ref{fig:daemonlayout} shows the location of daemons both on the submission host and the worker nodes.  The CacheD on the user's submit machine acts as the cache originator, discussed below.  The CacheDs on the worker nodes download the cache when requested.  Each caching daemon registers with the HTCondor Collector.  The collector serves as a catalog of available cache daemons that can be used for replication.
 
 The policy expression language uses the matchmaking language in the HTCondor system \cite{raman1998matchmaking}.  The caching daemon is matching the cache contents to a set of resources; therefore, it is natural to use HTCondor's same matchmaking language that is used to match jobs to resources.  Once a resource is determined to match the cache's policy expression, the caching daemon will contact the resource's caching daemon in order to initiate a cache replication.  The caching daemon on the remote resource is an independent agent that has the ability to deny a caching replication even after matchmaking is successful.  A full discussion of the policy language, as well as possible configurations, is discussed in Chapter \ref{chapter:campusstoragepolicylanguage}.
 
@@ -178,7 +177,7 @@ The ability of the receiving CacheD to deny a replication request follows HTCond
 % Do the command line usage
 
 \subsection{Creation and Uploading Caches}
-The user begins using the caching system by uploading a cache to their own CacheD, which then becomes the cache originator.  This is very similar to a user submitting a job to their own HTCondor SchedD.  Using the cache's metadata, the CacheD decides whether to accept or reject the cache.  If the CacheD accepts the cache, it stores the metadata into resilient storage.  The user then proceeds to upload the cache files to the CacheD.
+The user begins using the caching system by uploading a cache to their own CacheD, which then becomes the cache originator.  This is very similar to a user submitting a job to their own HTCondor SchedD.  Using the cache's metadata, the CacheD decides whether to accept or reject the cache.  If the CacheD accepts the cache, it stores the metadata into resilient storage.  The user then proceeds to upload the cache files to the CacheD.  Every cache is immutable; no partial caches are allowed.
 
 The CacheD stores the cache files into its own storage area on the origin server.  Once uploaded, the CacheD takes action to prepare the cache to be downloaded by clients.  This includes creating a BitTorrent torrent file for the cached files.  
 
@@ -186,9 +185,9 @@ Numerous protections are used in order to ensure proper usage of the CacheD.  Th
 
 When uploading the cache, a two-phase commit is implemented.  First, the client asks the CacheD if it is allowed to send files that make up a cache.  The CacheD can deny or accept the files based on attributes such as the size of the requested cache.  If the CacheD accepts the cache, the cache is marked as \texttt{UPLOADING} state, then the client can send the files.  Upon completion of the transfer, the cache is marked as \texttt{COMMITTED} state, and cannot be further modified.
 
-A client may mark a cache as only allowing certain replication methods.  This can be useful if a user wishes to keep data private. BitTorrent doesn't offer an authorization framework to ensure privacy of caches. Users may mark the cache as only allowing Direct replications, which are encrypted and authenticated.
+A client may mark a cache as only allowing certain replication methods.  This can be useful if a user wishes to keep data private. BitTorrent doesn't offer an authorization framework to ensure privacy of caches. Users may mark the cache as only allowing Direct replications, which are encrypted and authenticated.  These properties are summarized in Table \ref{tab:directbittorrentcap}.
 
-\begin{table}
+\begin{table}[h!t]
 	\centering
 	\bgroup
 	\def\arraystretch{1.5}
@@ -356,7 +355,7 @@ Users may also use this API in order to modify the replication policies of the j
 To evaluate the solution, we will run a BLAST benchmark from UC Davis \cite{blastbenchmark}.  We chose a BLAST benchmark due to many factors.  BLAST is used frequently on campuses, but used infrequently on clusters due to the size of the database. BLAST has very large databases that are required by each job.  This makes it difficult to use on distributed resources since each job requires significant data.
 BLAST databases are frequently updated, making them poor candidates for static caching, but good candidates for short-term caching, for which the CacheD specializes.
 
-The BLAST database distributed with the benchmark is 3 GB a subset of the Nucleotide NR database.  In the tests, we will use a larger subset (15 GB) of the NR database in order to demonstrate the efficiency of the solution.
+The BLAST database distributed with the benchmark is a 3 GB subset of the Nucleotide NR database.  In the tests, we will use a larger subset (15 GB) of the NR database in order to demonstrate the efficiency of the solution.
 
 For researchers, the time to results is likely the most important metric.  The stage-in time of data can be a large component of the entire workflow time.  We will measure the time for stage-ins as well as the average stage-in time.
 
@@ -458,7 +457,7 @@ Once the cache is fully inside the cluster, the CacheDs transfer data only betwe
 \section{Results for Open Science Grid}
 
 \subsection{Experimental Design}
-To test on the Open Science Grid, Bosco was connected to the Holland Computing Center's (HCC) GlideinWMS frontend which will run the Bosco glideins on worker nodes on the OSG.  The GlideinWMS system for HCC submits to about 20 sites out of 60 on the OSG.
+To test on the Open Science Grid, Bosco was connected to the Holland Computing Center's (HCC) GlideinWMS frontend which will run the Bosco glideins on worker nodes on the OSG.  The GlideinWMS system for HCC submits to about 20 sites out of 100 on the OSG.
 
 \begin{figure}[ht]
 	\centering
@@ -515,9 +514,7 @@ HTTP & 52.17 & 4.65 \\ \hline
 
 As you can see in Table \ref{tbl:osgtransferstats}, the Bittorrent method is significantly faster than the HTTP method.  
 
-While processing the results from the experimental runs, we noticed that the vast majority of CacheDs where running in parent mode.  In the results, there are between 71 and 96 parents out of 100 jobs.
-
-Indeed, we experienced so many parents, that we were unable to complete any Direct transfer experiments.  The transfers took too long to complete and the jobs were evicted from the remote OSG clusters before the CacheD could complete the transfer of the BLAST databases.  Therefore, the Direct transfer method was not tested on the OSG.
+While processing the results from the experimental runs, we noticed that the vast majority of CacheDs where running in parent mode.  In the results, there are between 71 and 96 parents out of 100 jobs.  Indeed, we experienced so many parents, that we were unable to complete any Direct transfer experiments.  The transfers took too long to complete and the jobs were evicted from the remote OSG clusters before the CacheD could complete the transfer of the BLAST databases.  Therefore, the Direct transfer method was not tested on the OSG.
 
 We can also compare all of the transfer methods across both the campus and OSG experiments.  This comparison is shown in a Violin Plot \cite{hintze1998violin} in Figure \ref{fig:violinplots}.  The violin plot shows a probability distribution of transfer speeds for the different transfer methods.  We ran each experiment between 25 and 43 times (in the case of OSG BitTorrent runs).
 
@@ -527,7 +524,7 @@ We can also compare all of the transfer methods across both the campus and OSG e
 \label{fig:violinplots}
 \end{figure}
 
-Figure \ref{fig:violinplots} shows that the BitTorrent methods are faster at transferring the experimental data than the Direct or HTTP methods.  Even though the HTTP and Direct methods look similar in speed, they are comparing different aspects of the transfers.  The Direct method has sometimes as much as half as many downloaders (parents) as the HTTP method, in which all of the downloaders are parents.  Therefore, given the same number of downloaders, HTTP should be faster than Direct.
+Figure \ref{fig:violinplots} shows that the BitTorrent methods are faster at transferring the experimental data than the Direct or HTTP methods.  Even though the HTTP and Direct methods look similar in speed, they are comparing different aspects of the transfers.  The Direct method has sometimes as few as half as many downloaders (parents) as the HTTP method, in which all of the downloaders are parents.  Therefore, given the same number of downloaders, HTTP should be faster than Direct.
 
 The BitTorrent method for the campus had a much wider variance of transfer speeds than any other transfer method.  This can be explained by the large variance in the number of parents available to download, compared to the other transfer methods.  The BitTorrent method for the OSG was almost always faster than the HTTP method on the OSG.
 
@@ -568,9 +565,9 @@ While running the CacheD experiments, the average aggregate bandwidth for transf
 
 The aggregate bandwidth shown in Figures \ref{fig:campusaggregate} and \ref{fig:osgaggregate} is calculated from the historical logs of the experimental runs.  For each transfer, the average bandwidth is assumed to start at the transfer start time and end at the transfer end time.  Then, each of these transfers is overlaid on top of each other.  Each of the graphs in the Figure are a single experimental run, but are typical for the transfers.  The origin server's available bandwidth is also shown on the graphs as a horizontal line at 1 Gbps.
 
-From Figure \ref{fig:campusaggregate}, one can see the difference between the different transfer methods.  The Campus Direct method in has the lowest aggregate bandwidth of all of the transfer methods, while BitTorrent on the campus has the highest.  The campus BitTorrent method provides 12 times the available bandwidth of the origin server.  This can be attributed to servers in the cluster distributing data between with the BitTorrent protocol without transferring it from the origin server.  Using the Direct method, the CacheD must transfer the data from either the origin or a parent on the local node.
+From Figure \ref{fig:campusaggregate}, one can see the difference between the different transfer methods.  The Campus Direct method has the lowest aggregate bandwidth of all of the transfer methods, while BitTorrent on the campus has the highest.  The campus BitTorrent method provides 12 times the available bandwidth of the origin server.  This can be attributed to servers in the cluster distributing data between themselves with the BitTorrent protocol without transferring it from the origin server.  Using the Direct method, the CacheD must transfer the data from either the origin or a parent on the local node.
 
-For the two OSG transfer methods, Figure \ref{fig:osgaggregate}, one can see that the HTTP method almost reaches the same aggregate bandwidth as the BitTorrent method, nearly 10Gbps.  Both transfer methods have long tails after a large peak in transfer speed.  But the BitTorrent method maintains the peak of transfer speed until roughly 1200 seconds into the transfer.  The HTTP method's peak drops significantly before 800 seconds into the transfer.  The HTTP also has significant transfers yet to be completed, hence the not only long tail, but high transfer speed of the tail.  Upon further investigation, the HTTP performance differed significantly between sites.  Table \ref{tbl:transferspeedsites} shows the transfer speeds of sites in the same run.
+For the two OSG transfer methods, Figure \ref{fig:osgaggregate}, one can see that the HTTP method almost reaches the same aggregate bandwidth as the BitTorrent method, nearly 10Gbps.  Both transfer methods have long tails after a large peak in transfer speed.  But the BitTorrent method maintains the peak of transfer speed until roughly 1200 seconds into the transfer.  The HTTP method's peak drops significantly before 800 seconds into the transfer.  The HTTP also has significant transfers yet to be completed, hence not only the long tail, but high transfer speed of the tail.  Upon further investigation, the HTTP performance differed significantly between sites.  Table \ref{tbl:transferspeedsites} shows the transfer speeds of sites in the same run.
 
 \begin{table}[h!t]
 	\centering
@@ -620,11 +617,11 @@ Table \ref{tbl:transferspeedsites} illustrates the disparity in transfer speeds 
 
 
 
-Table \ref{tbl:bittorrenttransferspeedsites} shows the BitTorrent transfer speeds from the same experiment shown in Figure \ref{fig:aggregateosgbittorrent}.  There are more sites involved downloading the cache than the HTTP transfer method.  But you can see that the transfers are usually faster than the HTTP method.  In addition, there are more sites that are faster than the  HTTP method.
+Table \ref{tbl:bittorrenttransferspeedsites} shows the BitTorrent transfer speeds from the same experiment shown in Figure \ref{fig:campusaggregate}.  There are more sites involved downloading the cache than the HTTP transfer method.  But you can see that the transfers are usually faster than the HTTP method.  In addition, there are more sites that are faster than the  HTTP method.
 
 It is not unusual to run on very different sites in separate experiments on the OSG.  The BitTorrent and the HTTP experiments were run around 20 days apart.
 
-When comparing the campus and OSG transfer, ovserve the long tails as the transfer speeds slowly decline.  This can happen for many reasons.  For example, for the OSG HTTP method, it occured because a single cluster had a very slow transfer speed, which slowed the download for all jobs running at that cluster.
+When comparing the campus and OSG transfers, observe the long tails as the transfer speeds slowly decline.  This can happen for many reasons.  For example, for the OSG HTTP method, it occured because a single cluster had a very slow transfer speed, which slowed the download for all jobs running at that cluster.
 
 The long tail of the OSG BitTorrent method are very slow transfers.  After the initial very fast BitTorrent transfers,  then children CacheDs begin their download of the cache.  These downloads of the cache from the parent are slower than the BitTorrent downloads because they are coming from a single source, and multiple children may be downloading at the same time.  To further look at the OSG BitTorrent method, we graphed the download time by the mode (either Parent or Child) in Figure \ref{fig:dowloadmodebittorrent}.
 
@@ -636,7 +633,7 @@ The long tail of the OSG BitTorrent method are very slow transfers.  After the i
 % probe-output.05.05.2015.3
 \end{figure}
 
-Figure \ref{fig:dowloadmodebittorrent} shows the download method time by mode.  As you can see in the graph, the vast majority of downloads are from parents.  But some children are also interleaved with the parent downloads.  The final download is a singular child download.  This child download may have gone slow because of inadequate disk bandwidth on the local node.  This inadequate disk bandwidth could be exacerbated by the parent CacheD running BLAST while the child is still downloading the cache.
+Figure \ref{fig:dowloadmodebittorrent} shows the download method time by mode.  As you can see in the graph, the vast majority of downloads are from parents.  But some children are also interleaved with the parent downloads.  The final download is a singular child download.  This child download may have gone slowly because of inadequate disk bandwidth on the local node.  This inadequate disk bandwidth could be exacerbated by the parent CacheD running BLAST while the child is still downloading the cache.
 
 
 
